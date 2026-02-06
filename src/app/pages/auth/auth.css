@@ -1,0 +1,251 @@
+.login-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Left Panel */
+.left-panel {
+  position: relative;
+  background-image: url('/login/login-image.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  color: white;
+}
+
+.left-panel .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(15, 40, 80, 0.75), rgba(10, 30, 60, 0.85));
+  z-index: 1;
+}
+
+.left-panel .content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.logo img {
+  height: 100px;
+  width: auto;
+}
+
+.hero-text {
+  margin-top: auto;
+  margin-bottom: 40px;
+}
+
+.hero-text h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  max-width: 400px;
+}
+
+.hero-text p {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.9;
+  max-width: 380px;
+}
+
+.trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  border-radius: 50px;
+  width: fit-content;
+}
+
+.avatars {
+  display: flex;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a90d9, #357abd);
+  border: 2px solid white;
+  margin-left: -10px;
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.trust-badge span {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.right-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background: #f5f7fb;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 32px;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.auth-tabs {
+  --mdc-secondary-navigation-tab-container-color: transparent;
+  --mdc-secondary-navigation-tab-indicator-active-indicator-color: #2d68ff;
+}
+
+.tab-body {
+  padding: 32px 40px 40px;
+}
+
+.tab-body h2 {
+  font-size: 1.75rem;
+  margin-bottom: 8px;
+}
+
+.tab-body .subtitle {
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.social-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.social-row button {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  padding: 12px 20px;
+}
+
+.social-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #111827;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+}
+
+.divider mat-divider {
+  flex: 1;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+/* // TODO: look into this  */
+:host ::ng-deep .remember-checkbox {
+  --mdc-checkbox-selected-icon-color: #6366f1;
+  --mdc-checkbox-selected-hover-icon-color: #818cf8;
+  --mdc-checkbox-selected-pressed-icon-color: #4f46e5;
+  --mdc-checkbox-selected-focus-icon-color: #6366f1;
+  --mdc-checkbox-selected-checkmark-color: #ffffff;
+  --mdc-checkbox-unselected-icon-color: #cbd5e1;
+  --mdc-checkbox-unselected-hover-icon-color: #94a3b8;
+  --mdc-checkbox-unselected-pressed-icon-color: #64748b;
+}
+
+:host ::ng-deep .remember-checkbox .mdc-checkbox__background {
+  border-radius: 999px;
+}
+
+:host ::ng-deep .remember-checkbox .mdc-checkbox__ripple::before,
+:host ::ng-deep .remember-checkbox .mdc-checkbox__ripple::after {
+  border-radius: 999px;
+}
+
+.submit-btn {
+  padding: 12px 0;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+}
+
+.terms {
+  margin-top: 24px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.terms a {
+  color: #2d68ff;
+  text-decoration: none;
+}
+
+.terms a:hover {
+  text-decoration: underline;
+}
+
+.tab-body.placeholder {
+  text-align: center;
+  color: #94a3b8;
+  padding: 48px;
+}
