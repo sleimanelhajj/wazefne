@@ -5,15 +5,15 @@
       <h3>Category</h3>
     </header>
     <div class="card-body">
-      <label
-        class="option-row"
-        *ngFor="let category of categories"
-        (click)="toggleCategory(category)"
+      <select
+        class="category-dropdown"
+        [(ngModel)]="selectedCategory"
+        (change)="selectCategory(selectedCategory)"
       >
-        <input type="checkbox" [(ngModel)]="category.selected" />
-        <span class="label-text">{{ category.label }}</span>
-        <span class="badge">{{ category.count }}</span>
-      </label>
+        <option *ngFor="let category of categories" [value]="category.label">
+          {{ category.label }} ({{ category.count }})
+        </option>
+      </select>
     </div>
   </section>
 
