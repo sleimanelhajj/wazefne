@@ -1,0 +1,140 @@
+.cta-footer {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.cta-panel {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+  padding: 48px 32px;
+  text-align: center;
+  color: #f8fafc;
+}
+
+.cta-content {
+  max-width: 720px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.cta-content h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.cta-content p {
+  margin: 0;
+  color: rgba(248, 250, 252, 0.85);
+  font-size: 1rem;
+}
+
+.cta-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cta-primary,
+.cta-secondary {
+  border-radius: 999px;
+  border: none;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cta-primary {
+  background: #ffffff;
+  color: #1d4ed8;
+}
+
+.cta-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.footer-panel {
+  background: #ffffff;
+  padding: 32px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, minmax(140px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.footer-brand {
+  max-width: 320px;
+}
+
+.footer-brand p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.brand-row img {
+  width: 300px;
+  height: 110px;
+}
+
+.footer-panel h4 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.footer-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.footer-bottom {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 24px;
+  padding-top: 16px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .cta-panel {
+    padding: 36px 20px;
+  }
+
+  .footer-panel {
+    padding: 24px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
