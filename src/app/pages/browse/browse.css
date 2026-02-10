@@ -1,38 +1,73 @@
-:host {
+.browse-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 24px;
+  padding: 24px 32px 40px;
+}
+
+.sidebar-column,
+.results-column {
+  display: flex;
+}
+
+.results-column {
+  align-items: flex-start;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+  overflow-y: auto;
+  height: 85vh;
+  padding-right: 8px;
+  align-content: flex-start;
+}
+
+.results-grid app-user-card {
+  max-width: 380px;
+}
+
+/* Custom Scrollbar Styling */
+.results-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.results-grid::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.results-grid::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.results-grid::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.results-grid::-webkit-scrollbar-thumb:active {
+  background: #64748b;
+}
+
+/* Firefox Scrollbar */
+.results-grid {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+@media (max-width: 1200px) {
   .browse-layout {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr);
-    gap: 24px;
-    padding: 24px 32px 40px;
+    grid-template-columns: 1fr;
   }
 
   .sidebar-column,
   .results-column {
-    display: flex;
-  }
-
-  .results-column {
-    align-items: flex-start;
-  }
-
-  .results-placeholder {
     width: 100%;
-    border-radius: 20px;
-    border: 1px dashed #cbd5f5;
-    background: #ffffff;
-    min-height: 600px;
-  }
-
-  @media (max-width: 1200px) {
-    .browse-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .sidebar-column,
-    .results-column {
-      width: 100%;
-    }
   }
 }
 
