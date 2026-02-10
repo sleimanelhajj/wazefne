@@ -1,0 +1,142 @@
+.process-section {
+  background: #f8fafc;
+  border-radius: 28px;
+  padding: 40px;
+}
+
+.process-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.process-kicker {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.process-title {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+  color: #0f172a;
+}
+
+.process-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.98rem;
+}
+
+.process-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+}
+
+.process-card {
+  border-radius: 22px;
+  padding: 54px;
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+}
+
+.process-card--light {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.process-card--dark {
+  background: radial-gradient(circle at top, #0b2b52 0%, #08162c 65%);
+  color: #f8fafc;
+}
+
+.process-card--dark p {
+  color: #cbd5f5;
+}
+
+.process-card--dark h4 {
+  color: #ffffff;
+}
+
+.process-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.process-card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.process-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.process-card--dark .process-icon {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.process-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.process-steps li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.process-card--dark .step-number {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.process-steps h4 {
+  margin: 0 0 4px;
+  font-size: 0.98rem;
+  color: inherit;
+}
+
+.process-steps p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .process-section {
+    padding: 28px;
+  }
+}

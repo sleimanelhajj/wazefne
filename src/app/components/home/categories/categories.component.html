@@ -1,0 +1,40 @@
+<section class="category-showcase">
+  <div class="category-header">
+    <div>
+      <p class="category-kicker">Popular Categories</p>
+      <h2 class="category-title">Explore services tailored to you.</h2>
+      <p class="category-subtitle">
+        Fresh picks that keep cycling through the most in-demand roles.
+      </p>
+    </div>
+  </div>
+
+  <div class="category-marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-group">
+        <article
+          class="category-card"
+          *ngFor="let category of marqueeCategories; let i = index; trackBy: trackByIndex"
+        >
+          <div class="category-icon" aria-hidden="true">
+            {{ getInitials(category) }}
+          </div>
+          <h3 class="category-name">{{ category }}</h3>
+          <p class="category-note">Top matches available now.</p>
+        </article>
+      </div>
+      <div class="marquee-group" aria-hidden="true">
+        <article
+          class="category-card"
+          *ngFor="let category of marqueeCategories; let i = index; trackBy: trackByIndex"
+        >
+          <div class="category-icon" aria-hidden="true">
+            {{ getInitials(category) }}
+          </div>
+          <h3 class="category-name">{{ category }}</h3>
+          <p class="category-note">Top matches available now.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>

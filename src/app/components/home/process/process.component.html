@@ -1,0 +1,45 @@
+<section class="process-section">
+  <header class="process-header">
+    <p class="process-kicker">Simple Process</p>
+    <h2 class="process-title">How StaaJerne works</h2>
+    <p class="process-subtitle">
+      Whether you need help or want to offer your services, we make it simple and secure.
+    </p>
+  </header>
+
+  <div class="process-grid">
+    <article class="process-card process-card--light">
+      <div class="process-card-header">
+        <span class="process-icon">C</span>
+        <h3>For Clients</h3>
+      </div>
+
+      <ol class="process-steps">
+        <li *ngFor="let step of clientSteps; let index = index">
+          <span class="step-number">{{ index + 1 }}</span>
+          <div>
+            <h4>{{ step.title }}</h4>
+            <p>{{ step.description }}</p>
+          </div>
+        </li>
+      </ol>
+    </article>
+
+    <article class="process-card process-card--dark">
+      <div class="process-card-header">
+        <span class="process-icon">P</span>
+        <h3>For Providers</h3>
+      </div>
+
+      <ol class="process-steps">
+        <li *ngFor="let step of providerSteps; let index = index">
+          <span class="step-number">{{ index + 1 }}</span>
+          <div>
+            <h4>{{ step.title }}</h4>
+            <p>{{ step.description }}</p>
+          </div>
+        </li>
+      </ol>
+    </article>
+  </div>
+</section>
