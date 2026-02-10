@@ -1,0 +1,34 @@
+<div class="top-bar">
+  <div class="left-section">
+    <img class="logo" src="/icons/wazefne.svg" alt="Wazefne" />
+    <span class="logo-text">Wazefne</span>
+  </div>
+
+  <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-group">
+    <label class="search-input">
+      <img src="/icons/search.svg" alt="Search" />
+      <input type="text" placeholder="Search..." formControlName="search" />
+    </label>
+    <span class="divider"></span>
+    <button type="button" class="location-picker">
+      <img src="/icons/location.svg" alt="Location" />
+      <span class="location-label">{{ searchForm.get('location')?.value }}</span>
+      <span class="chevron"></span>
+    </button>
+  </form>
+
+  <nav class="nav-links">
+    <a href="#" class="nav-link active">Find Talents</a>
+    <a href="#" class="nav-link">Jobs</a>
+    <a href="#" class="nav-link">Messages</a>
+  </nav>
+
+  <div class="profile">
+    <img class="profile-icon" src="/icons/profile.svg" alt="Profile" />
+    <div class="profile-meta">
+      <span class="name">Sarah M.</span>
+      <span class="role">Hiring Manager</span>
+    </div>
+    <span class="chevron chevron-dark"></span>
+  </div>
+</div>
