@@ -1,0 +1,47 @@
+:host {
+  .browse-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px 32px 40px;
+  }
+
+  .sidebar-column,
+  .results-column {
+    display: flex;
+  }
+
+  .results-column {
+    align-items: flex-start;
+  }
+
+  .results-placeholder {
+    width: 100%;
+    border-radius: 20px;
+    border: 1px dashed #cbd5f5;
+    background: #ffffff;
+    min-height: 600px;
+  }
+
+  @media (max-width: 1200px) {
+    .browse-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar-column,
+    .results-column {
+      width: 100%;
+    }
+  }
+}
+
+.sidebar-column,
+.results-column,
+.right-column {
+  width: 100%;
+}
+
+.right-column {
+  display: none;
+}

@@ -1,0 +1,102 @@
+<aside class="filter-sidebar">
+  <section class="filter-card">
+    <header class="card-header">
+      <img src="/icons/category.svg" alt="Category" />
+      <h3>Category</h3>
+    </header>
+    <div class="card-body">
+      <label
+        class="option-row"
+        *ngFor="let category of categories"
+        (click)="toggleCategory(category)"
+      >
+        <input type="checkbox" [(ngModel)]="category.selected" />
+        <span class="label-text">{{ category.label }}</span>
+        <span class="badge">{{ category.count }}</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="filter-card">
+    <header class="card-header">
+      <img src="/icons/price-range.svg" alt="Price Range" />
+      <h3>Price Range / hr</h3>
+    </header>
+    <div class="card-body price-body">
+      <div class="range-track">
+        <div class="range-slider">
+          <div class="range-rail"></div>
+          <div class="range-fill" [ngStyle]="priceFillStyle"></div>
+          <input
+            type="range"
+            [min]="priceFloor"
+            [max]="priceCeiling"
+            [(ngModel)]="priceMin"
+            (input)="clampPrices()"
+          />
+          <input
+            type="range"
+            [min]="priceFloor"
+            [max]="priceCeiling"
+            [(ngModel)]="priceMax"
+            (input)="clampPrices()"
+          />
+        </div>
+        <div class="range-labels">
+          <span>${{ priceMin }}</span>
+          <span>${{ priceMax }}</span>
+        </div>
+      </div>
+      <div class="input-row">
+        <label>
+          <span>$</span>
+          <input type="number" [(ngModel)]="priceMin" (change)="clampPrices()" />
+        </label>
+        <span class="dash"></span>
+        <label>
+          <span>$</span>
+          <input type="number" [(ngModel)]="priceMax" (change)="clampPrices()" />
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="filter-card">
+    <header class="card-header">
+      <img src="/icons/rating.svg" alt="Rating" />
+      <h3>Rating</h3>
+    </header>
+    <div class="card-body rating-body">
+      <div class="rating-stars">
+        <button
+          type="button"
+          class="star-button"
+          *ngFor="let star of starArray"
+          [class.active]="star <= selectedRating"
+          (click)="setRating(star)"
+        >
+          <img src="/icons/star.svg" alt="star" />
+        </button>
+        <span class="rating-label">{{ selectedRating }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="filter-card">
+    <header class="card-header">
+      <img src="/icons/availability.svg" alt="Availability" />
+      <h3>Availability</h3>
+    </header>
+    <div class="card-body availability-row">
+      <span>Available Today</span>
+      <button
+        class="toggle"
+        type="button"
+        [class.active]="availabilityToday"
+        (click)="toggleAvailability()"
+      >
+        <span class="thumb"></span>
+      </button>
+    </div>
+  </section>
+</aside>
