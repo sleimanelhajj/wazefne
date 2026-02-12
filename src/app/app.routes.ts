@@ -6,6 +6,7 @@ import { ProcessComponent } from './components/home/process/process.component';
 import { HomeComponent } from './pages/home/home';
 import { CtaFooterComponent } from './components/home/cta-footer/cta-footer.component';
 import { HomeHeroComponent } from './components/home/hero/hero.component';
+import { ProfilePageComponent } from './pages/profile/profile';
 
 
 export const routes: Routes = [
@@ -14,4 +15,5 @@ export const routes: Routes = [
   { path: 'test', component: HomeHeroComponent },
   { path: 'browse', component: BrowseComponent },
   { path: 'home', component: HomeComponent },
+  { path: 'profile', component: ProfilePageComponent },
 ];

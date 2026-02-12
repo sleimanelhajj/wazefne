@@ -8,7 +8,7 @@
 /* Left Panel */
 .left-panel {
   position: relative;
-  background-image: url('/login/login-image.png');
+  background-image: url('/assets/login/login-image.png');
   background-size: cover;
   background-position: center;
   display: flex;
