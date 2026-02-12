@@ -1,0 +1,70 @@
+<div class="chat-messages" #scrollContainer>
+  <!-- Date separator -->
+  <div class="date-separator">
+    <span>TODAY</span>
+  </div>
+
+  <ng-container *ngFor="let msg of messages">
+    <!-- Text message -->
+    <div
+      *ngIf="msg.type === 'text'"
+      class="message-row"
+      [class.sent]="msg.senderId === 'me'"
+      [class.received]="msg.senderId === 'them'"
+    >
+      <div *ngIf="msg.senderId === 'them'" class="msg-avatar-col">
+        <div class="msg-avatar-placeholder"></div>
+      </div>
+      <div class="bubble">
+        <p class="bubble-text">{{ msg.content }}</p>
+        <span class="bubble-time">{{ msg.time }}</span>
+      </div>
+    </div>
+
+    <!-- Image message -->
+    <div
+      *ngIf="msg.type === 'image'"
+      class="message-row"
+      [class.sent]="msg.senderId === 'me'"
+      [class.received]="msg.senderId === 'them'"
+    >
+      <div *ngIf="msg.senderId === 'them'" class="msg-avatar-col">
+        <div class="msg-avatar-placeholder"></div>
+      </div>
+      <div class="bubble image-bubble">
+        <img [src]="msg.imageUrl" [alt]="msg.content" class="msg-image" />
+        <span class="bubble-time">{{ msg.time }}</span>
+      </div>
+    </div>
+
+    <!-- Offer message -->
+    <div
+      *ngIf="msg.type === 'offer'"
+      class="message-row offer-row"
+      [class.sent]="msg.senderId === 'me'"
+      [class.received]="msg.senderId === 'them'"
+    >
+      <div *ngIf="msg.senderId === 'them'" class="msg-avatar-col">
+        <div class="msg-avatar-placeholder"></div>
+      </div>
+      <div class="offer-card">
+        <div class="offer-header">
+          <span class="offer-badge">CUSTOM OFFER</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#3b82f6">
+            <path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z" />
+            <path
+              d="M20.41 4.94l-1.35-1.35a2 2 0 00-2.83 0L3 16.82V21h4.18L20.41 7.77a2 2 0 000-2.83z"
+              fill="none"
+              stroke="#3b82f6"
+              stroke-width="1.5"
+            />
+          </svg>
+        </div>
+        <h4 class="offer-service">{{ msg.offer?.service }}</h4>
+        <p class="offer-desc">{{ msg.offer?.description }}</p>
+        <p class="offer-duration">Duration: {{ msg.offer?.duration }}</p>
+        <p class="offer-price">{{ msg.offer?.price }}</p>
+      </div>
+    </div>
+  </ng-container>
+</div>

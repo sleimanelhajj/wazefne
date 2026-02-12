@@ -1,0 +1,11 @@
+<div class="tabs-bar">
+  <button
+    *ngFor="let tab of tabs"
+    class="tab-btn"
+    [class.active]="activeTab === tab.key"
+    (click)="selectTab(tab.key)"
+  >
+    {{ tab.label }}
+    <span class="tab-count" *ngIf="tab.count !== undefined">{{ tab.count }}</span>
+  </button>
+</div>

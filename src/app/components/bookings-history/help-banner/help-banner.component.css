@@ -1,0 +1,40 @@
+.help-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.help-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.help-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.help-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.help-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.help-link {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+}

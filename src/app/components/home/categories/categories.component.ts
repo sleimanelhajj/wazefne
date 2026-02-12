@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { categoryOptions } from '../../side-bar/category-data';
+import { categoryOptions } from '../../browse/side-bar/category-data';
 
 @Component({
   selector: 'app-home-categories',

@@ -1,0 +1,19 @@
+<app-top-bar></app-top-bar>
+
+<div class="messages-shell">
+  <app-conversation-list
+    [conversations]="conversations"
+    [activeConversationId]="activeConversationId"
+    (conversationSelected)="onConversationSelected($event)"
+  ></app-conversation-list>
+
+  <div class="chat-panel">
+    <app-chat-header [contact]="activeContact"></app-chat-header>
+    <app-chat-messages [messages]="activeMessages"></app-chat-messages>
+    <app-message-input
+      (messageSent)="onMessageSent($event)"
+      (createOffer)="onCreateOffer()"
+      (schedule)="onSchedule()"
+    ></app-message-input>
+  </div>
+</div>

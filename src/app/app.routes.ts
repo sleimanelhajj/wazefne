@@ -7,6 +7,8 @@ import { HomeComponent } from './pages/home/home';
 import { CtaFooterComponent } from './components/home/cta-footer/cta-footer.component';
 import { HomeHeroComponent } from './components/home/hero/hero.component';
 import { ProfilePageComponent } from './pages/profile/profile';
+import { BookingsHistoryComponent } from './pages/bookings-history/bookings-history';
+import { MessagesComponent } from './pages/messages/messages';
 
 
 export const routes: Routes = [
@@ -16,4 +18,6 @@ export const routes: Routes = [
   { path: 'browse', component: BrowseComponent },
   { path: 'home', component: HomeComponent },
   { path: 'profile', component: ProfilePageComponent },
+  { path: 'bookings', component: BookingsHistoryComponent },
+  { path: 'messages', component: MessagesComponent },
 ];
