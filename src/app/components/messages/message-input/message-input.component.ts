@@ -12,7 +12,6 @@ import { FormsModule } from '@angular/forms';
 export class MessageInputComponent {
   @Output() messageSent = new EventEmitter<string>();
   @Output() createOffer = new EventEmitter<void>();
-  @Output() schedule = new EventEmitter<void>();
 
   messageText = '';
 
@@ -32,9 +31,5 @@ export class MessageInputComponent {
 
   onCreateOffer() {
     this.createOffer.emit();
-  }
-
-  onSchedule() {
-    this.schedule.emit();
   }
 }
