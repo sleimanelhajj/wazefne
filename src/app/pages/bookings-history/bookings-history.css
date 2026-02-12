@@ -1,0 +1,135 @@
+.bookings-page {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.bookings-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.page-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.92rem;
+  color: #6b7280;
+}
+
+.direction-toggle {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.toggle-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #6b7280;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.toggle-btn.active {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn:hover:not(.active) {
+  color: #374151;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.bookings-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bookings-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bookings-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+
+.bookings-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+  font-size: 0.92rem;
+}
+
+.load-more-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.load-more-btn {
+  padding: 10px 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.load-more-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.page-footer {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #9ca3af;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+@media (max-width: 640px) {
+  .bookings-shell {
+    padding: 20px 12px 36px;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
+}

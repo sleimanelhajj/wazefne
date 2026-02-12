@@ -1,0 +1,8 @@
+<div class="chat-header" *ngIf="contact">
+  <div class="header-left">
+    <img [src]="contact.avatar" [alt]="contact.name" class="header-avatar" />
+    <div class="header-info">
+      <span class="header-name">{{ contact.name }}</span>
+    </div>
+  </div>
+</div>

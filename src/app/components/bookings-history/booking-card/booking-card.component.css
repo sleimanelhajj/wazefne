@@ -1,0 +1,255 @@
+.booking-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.15s ease;
+}
+
+.booking-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.card-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.avatar-rating {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e3a5f;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-in-progress {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.status-in-progress .status-dot {
+  background: #2563eb;
+}
+
+.status-confirmed {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.status-confirmed .status-dot {
+  background: #16a34a;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+.status-pending .status-dot {
+  background: #d97706;
+}
+
+.status-completed {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.status-completed .status-dot {
+  background: #16a34a;
+}
+
+.status-cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.status-cancelled .status-dot {
+  background: #dc2626;
+}
+
+.service {
+  font-size: 0.88rem;
+  color: #4b5563;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 2px;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.price-block {
+  text-align: right;
+}
+
+.price-label {
+  display: block;
+  font-size: 0.72rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.action-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid #2563eb;
+}
+.action-primary:hover {
+  background: #1d4ed8;
+}
+
+.action-outline {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+.action-outline:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.action-danger {
+  background: #ffffff;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+.action-danger:hover {
+  background: #fef2f2;
+}
+
+.progress-bar-wrapper {
+  margin-top: 16px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .card-body {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card-right {
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+}

@@ -1,0 +1,58 @@
+<div class="bookings-page">
+  <app-top-bar></app-top-bar>
+
+  <div class="bookings-shell">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">My Bookings</h1>
+        <p class="page-subtitle">Manage your upcoming appointments and past services.</p>
+      </div>
+    </div>
+
+    <app-booking-stats-cards [stats]="stats"></app-booking-stats-cards>
+
+    <div class="direction-toggle">
+      <button
+        class="toggle-btn"
+        [class.active]="directionToggle === 'i-booked'"
+        (click)="onDirectionChange('i-booked')"
+      >
+        I Booked
+      </button>
+      <button
+        class="toggle-btn"
+        [class.active]="directionToggle === 'booked-me'"
+        (click)="onDirectionChange('booked-me')"
+      >
+        Booked Me
+      </button>
+    </div>
+
+    <app-booking-tabs
+      [tabs]="statusTabs"
+      [activeTab]="activeStatusTab"
+      (tabChange)="onStatusTabChange($event)"
+    ></app-booking-tabs>
+
+    <div class="bookings-list">
+      <app-booking-card
+        *ngFor="let booking of filteredBookings"
+        [booking]="booking"
+      ></app-booking-card>
+
+      <div class="empty-state" *ngIf="filteredBookings.length === 0">
+        <p>No bookings found for this filter.</p>
+      </div>
+    </div>
+
+    <app-booking-help-banner></app-booking-help-banner>
+
+    <div class="load-more-wrapper">
+      <button class="load-more-btn">Load more bookings</button>
+    </div>
+
+    <footer class="page-footer">
+      &copy; 2023 Sta2jerne. All rights reserved.
+    </footer>
+  </div>
+</div>

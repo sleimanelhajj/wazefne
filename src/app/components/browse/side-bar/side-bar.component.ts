@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { categoryOptions } from './category-data';
-import { FilterService } from '../../services/filter.service';
-import { users } from '../../pages/browse/mock-users';
+import { FilterService } from '../../../services/filter.service';
+import { users } from '../../../pages/browse/mock-users';
 
 @Component({
   selector: 'app-side-bar',

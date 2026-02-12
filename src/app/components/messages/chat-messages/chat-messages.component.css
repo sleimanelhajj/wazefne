@@ -1,0 +1,211 @@
+:host {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f8fafc;
+}
+
+/* Protection banner */
+.protection-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ecfdf5;
+  color: #166534;
+  font-size: 13px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.shield-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* Date separator */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.date-separator span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 4px 14px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+/* Message rows */
+.message-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 70%;
+}
+
+.message-row.sent {
+  align-self: flex-end;
+}
+
+.message-row.received {
+  align-self: flex-start;
+}
+
+.msg-avatar-col {
+  flex-shrink: 0;
+}
+
+.msg-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+/* Bubbles */
+.bubble {
+  padding: 10px 16px;
+  border-radius: 18px;
+  max-width: 100%;
+  position: relative;
+}
+
+.message-row.sent .bubble {
+  background: #3b82f6;
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+
+.message-row.received .bubble {
+  background: #fff;
+  color: #1e293b;
+  border: 1px solid #e5e7eb;
+  border-bottom-left-radius: 6px;
+}
+
+.bubble-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.bubble-time {
+  display: block;
+  font-size: 11px;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.message-row.sent .bubble-time {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.message-row.received .bubble-time {
+  color: #94a3b8;
+}
+
+/* Image bubble */
+.image-bubble {
+  padding: 4px;
+  overflow: hidden;
+}
+
+.message-row.sent .image-bubble {
+  background: #3b82f6;
+}
+
+.msg-image {
+  width: 240px;
+  max-width: 100%;
+  border-radius: 14px;
+  display: block;
+}
+
+.image-bubble .bubble-time {
+  padding: 4px 8px 2px;
+}
+
+/* Offer card */
+.offer-row {
+  max-width: 55%;
+}
+
+.offer-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px 20px;
+  width: 100%;
+}
+
+.offer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.offer-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3b82f6;
+  letter-spacing: 0.5px;
+}
+
+.offer-service {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 6px;
+}
+
+.offer-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 2px;
+  line-height: 1.4;
+}
+
+.offer-duration {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 10px;
+}
+
+.offer-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Scrollbar */
+.chat-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}

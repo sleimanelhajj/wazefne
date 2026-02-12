@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TopBarComponent } from '../../components/top-bar/top-bar.component';
-import { SideBarComponent } from '../../components/side-bar/side-bar.component';
-import { UserCardComponent } from '../../components/user-card/user-card.component';
+import { SideBarComponent } from '../../components/browse/side-bar/side-bar.component';
+import { UserCardComponent } from '../../components/browse/user-card/user-card.component';
 import { User } from '../../models/user-card.model';
 import { users } from './mock-users';
 import { FilterService } from '../../services/filter.service';
