@@ -1,0 +1,70 @@
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px 24px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.chip {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.languages-block {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+}
+
+.section-subtitle {
+  margin: 0 0 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.language-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: #374151;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.language-row:last-child {
+  border-bottom: none;
+}
+
+.language-level {
+  font-weight: 500;
+  color: #111827;
+}
+

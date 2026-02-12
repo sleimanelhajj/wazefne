@@ -1,0 +1,42 @@
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="hero-pill">
+      <span class="pill-dot"></span>
+      Trusted by 10,000+ Lebanese households
+    </span>
+
+    <h1>Find the perfect help,<br />right when you need it.</h1>
+
+    <p class="hero-subtitle">
+      Sta2jerne connects you with trusted freelancers, butlers, and
+      professionals across Lebanon for any task, big or small.
+    </p>
+
+    <div class="hero-search-bar">
+      <div class="search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="What service do you need? (e.g. Cleaning, Coding)"
+        />
+      </div>
+
+      <div class="search-divider"></div>
+
+      <div class="location-field">
+        <mat-icon class="location-icon">location_on</mat-icon>
+        <mat-select [(ngModel)]="selectedLocation" class="location-select">
+          @for (loc of locations; track loc.value) {
+            <mat-option [value]="loc.value">{{ loc.label }}</mat-option>
+          }
+        </mat-select>
+      </div>
+
+      <button mat-flat-button color="primary" class="search-btn" (click)="onSearch()">
+        Search
+      </button>
+    </div>
+  </div>
+</section>
