@@ -9,6 +9,7 @@
 html,
 body {
   height: 100%;
+  margin: 0;
   font-family:
     'Inter',
     -apple-system,
@@ -20,6 +21,7 @@ body {
   color: #0d1b2a;
 }
 
-body {
-  margin: 0;
+app-root {
+  display: block;
+  height: 100%;
 }
