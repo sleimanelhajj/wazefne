@@ -1,8 +1,9 @@
 .login-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
+  overflow: hidden;
 }
 
 /* Left Panel */
@@ -109,6 +110,7 @@
   align-items: center;
   padding: 40px 20px;
   background: #f5f7fb;
+  overflow-y: auto;
 }
 
 .auth-card {
@@ -248,4 +250,119 @@
   text-align: center;
   color: #94a3b8;
   padding: 48px;
+}
+
+/* Responsive - laptop / smaller screens */
+@media (max-height: 800px) {
+  .left-panel {
+    padding: 24px;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+
+  .hero-text {
+    margin-bottom: 20px;
+  }
+
+  .logo img {
+    height: 70px;
+  }
+
+  .tab-body {
+    padding: 24px 32px 32px;
+  }
+
+  .tab-body h2 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+
+  .tab-body .subtitle {
+    margin-bottom: 16px;
+  }
+
+  .social-row {
+    margin-bottom: 16px;
+  }
+
+  .social-row button {
+    padding: 8px 16px;
+  }
+
+  .social-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .divider {
+    margin-bottom: 16px;
+  }
+
+  .auth-form {
+    gap: 12px;
+  }
+
+  .submit-btn {
+    padding: 8px 0;
+  }
+
+  .terms {
+    margin-top: 16px;
+  }
+
+  .right-panel {
+    padding: 20px 16px;
+  }
+
+  .auth-card {
+    border-radius: 24px;
+  }
+}
+
+@media (max-height: 650px) {
+  .tab-body {
+    padding: 16px 24px 24px;
+  }
+
+  .auth-form {
+    gap: 8px;
+  }
+
+  .tab-body h2 {
+    font-size: 1.25rem;
+  }
+
+  .hero-text h1 {
+    font-size: 1.6rem;
+  }
+
+  .logo img {
+    height: 50px;
+  }
+}
+
+/* Responsive - narrow widths */
+@media (max-width: 1024px) {
+  .login-container {
+    grid-template-columns: 2fr 3fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .left-panel {
+    display: none;
+  }
+
+  .right-panel {
+    min-height: 100vh;
+  }
 }
