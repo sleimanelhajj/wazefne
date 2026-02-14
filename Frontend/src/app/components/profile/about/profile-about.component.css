@@ -24,3 +24,8 @@
   margin-bottom: 0;
 }
 
+.card-body.empty {
+  color: #9ca3af;
+  font-style: italic;
+}
+

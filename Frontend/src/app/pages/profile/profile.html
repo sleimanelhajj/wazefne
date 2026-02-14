@@ -1,23 +1,27 @@
 <div class="profile-page">
   <app-top-bar></app-top-bar>
 
-  <div class="profile-shell">
+  <div class="profile-shell" *ngIf="!loading && user">
     <div class="profile-banner-wrapper">
-      <app-profile-banner></app-profile-banner>
+      <app-profile-banner [user]="user" [isOwner]="isOwner"></app-profile-banner>
     </div>
 
     <div class="profile-content-grid">
       <div class="profile-main-column">
-        <app-profile-about></app-profile-about>
-        <app-profile-skills-languages></app-profile-skills-languages>
-        <app-profile-portfolio></app-profile-portfolio>
-        <app-profile-reviews></app-profile-reviews>
+        <app-profile-about [aboutMe]="user.about_me"></app-profile-about>
+        <app-profile-skills-languages [skills]="user.skills" [languages]="user.languages"></app-profile-skills-languages>
+        <app-profile-portfolio [portfolio]="user.portfolio" [isOwner]="isOwner"></app-profile-portfolio>
+        <app-profile-reviews [reviewCount]="user.review_count" [isOwner]="isOwner"></app-profile-reviews>
       </div>
 
       <div class="profile-sidebar-column">
-        <app-profile-sidebar></app-profile-sidebar>
+        <app-profile-sidebar [hourlyRate]="user.hourly_rate" [isOwner]="isOwner"></app-profile-sidebar>
       </div>
     </div>
+  </div>
+
+  <div class="profile-shell loading-state" *ngIf="loading">
+    <p>Loading profile...</p>
   </div>
 </div>
 

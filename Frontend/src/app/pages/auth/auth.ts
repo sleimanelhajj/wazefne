@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -36,6 +37,7 @@ import { AuthService } from '../../services/auth.service';
 export class AuthComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   // create reactive forms for login and signup
   readonly loginForm = this.fb.group({
@@ -79,15 +81,11 @@ export class AuthComponent {
       .subscribe({
         next: (response) => {
           console.log('Login successful', response);
-          // TODO: Handle successful login (e.g., navigate to dashboard, save token)
-          if (response.token) {
-            this.authService.saveToken(response.token);
-          }
           this.loginLoading = false;
+          this.router.navigate(['/browse']);
         },
         error: (error) => {
           console.error('Login failed', error);
-          // TODO: Show error message to user
           this.loginLoading = false;
         },
       });
@@ -112,15 +110,12 @@ export class AuthComponent {
       .subscribe({
         next: (response) => {
           console.log('Signup successful', response);
-          // TODO: Handle successful signup (e.g., navigate to dashboard, save token)
-          if (response.token) {
-            this.authService.saveToken(response.token);
-          }
           this.signupLoading = false;
+          // Navigate to profile setup so user can fill out their info
+          this.router.navigate(['/setup-profile']);
         },
         error: (error) => {
           console.error('Signup failed', error);
-          // TODO: Show error message to user
           this.signupLoading = false;
         },
       });
