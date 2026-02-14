@@ -1,14 +1,6 @@
 <section class="card">
   <h2 class="card-title">About Me</h2>
-  <p class="card-body">
-    Dedicated service professional with over 10 years of experience in high-end hospitality in Beirut. I specialize in
-    private event management, table service, and household management. My goal is to bring the luxury hotel experience
-    directly to your home.
-  </p>
-  <p class="card-body">
-    Whether you are hosting an intimate dinner for two or a large garden party, I ensure every detail is handled with
-    discretion and elegance. I am fluent in English, Arabic, and French, ensuring seamless communication with your
-    guests.
-  </p>
+  <p class="card-body" *ngIf="aboutMe">{{ aboutMe }}</p>
+  <p class="card-body empty" *ngIf="!aboutMe">No bio added yet.</p>
 </section>
 

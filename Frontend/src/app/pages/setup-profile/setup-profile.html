@@ -119,35 +119,31 @@
       <div class="portfolio-section">
         <div class="portfolio-header">
           <label class="chip-label">Portfolio (optional)</label>
-          <button mat-stroked-button type="button" (click)="addPortfolioItem()">
+          <label class="upload-trigger">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              (change)="onFileSelect($event)"
+            />
             <mat-icon>add_photo_alternate</mat-icon>
-            Add Image
-          </button>
+            Upload Images
+          </label>
         </div>
 
-        <div *ngFor="let item of portfolio; let i = index" class="portfolio-item">
-          <mat-form-field appearance="outline" class="portfolio-url">
-            <mat-label>Image URL</mat-label>
-            <input
-              matInput
-              [(ngModel)]="item.image_url"
-              [ngModelOptions]="{ standalone: true }"
-              placeholder="https://example.com/image.jpg"
-            />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="portfolio-caption">
-            <mat-label>Caption</mat-label>
-            <input
-              matInput
-              [(ngModel)]="item.caption"
-              [ngModelOptions]="{ standalone: true }"
-              placeholder="Project name"
-            />
-          </mat-form-field>
-          <button mat-icon-button type="button" color="warn" (click)="removePortfolioItem(i)">
-            <mat-icon>delete</mat-icon>
-          </button>
+        <div class="portfolio-previews" *ngIf="portfolioFiles.length > 0">
+          <div class="preview-item" *ngFor="let pf of portfolioFiles; let i = index">
+            <img [src]="pf.preview" alt="Preview" class="preview-img" />
+            <button type="button" class="remove-preview" (click)="removePortfolioFile(i)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
         </div>
+
+        <p class="empty-hint" *ngIf="portfolioFiles.length === 0">
+          Upload images to showcase your work.
+        </p>
       </div>
 
       <!-- Actions -->

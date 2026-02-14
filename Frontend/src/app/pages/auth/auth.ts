@@ -82,7 +82,7 @@ export class AuthComponent {
         next: (response) => {
           console.log('Login successful', response);
           this.loginLoading = false;
-          this.router.navigate(['/home']);
+          this.router.navigate(['/browse']);
         },
         error: (error) => {
           console.error('Login failed', error);

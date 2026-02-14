@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-profile-sidebar',
@@ -8,5 +8,8 @@ import { Component } from '@angular/core';
   templateUrl: './profile-sidebar.component.html',
   styleUrls: ['./profile-sidebar.component.css'],
 })
-export class ProfileSidebarComponent {}
+export class ProfileSidebarComponent {
+  @Input() hourlyRate: number = 0;
+  @Input() isOwner = false;
+}
 

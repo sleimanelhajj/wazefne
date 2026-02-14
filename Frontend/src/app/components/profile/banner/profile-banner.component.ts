@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { UserProfile } from '../../../models/profile.model';
 
 @Component({
   selector: 'app-profile-banner',
@@ -8,5 +9,8 @@ import { Component } from '@angular/core';
   templateUrl: './profile-banner.component.html',
   styleUrls: ['./profile-banner.component.css'],
 })
-export class ProfileBannerComponent {}
+export class ProfileBannerComponent {
+  @Input() user: UserProfile | null = null;
+  @Input() isOwner = false;
+}
 

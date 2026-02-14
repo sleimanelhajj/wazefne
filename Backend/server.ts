@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import path from "path";
 import swaggerUi from "swagger-ui-express";
 import pool from "./src/config/db";
 import routes from "./src/routes";
@@ -15,6 +16,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ── Static files (uploaded images) ─────────────────────
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ── Swagger ────────────────────────────────────────────
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

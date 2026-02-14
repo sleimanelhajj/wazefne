@@ -146,6 +146,9 @@
 	border: 1px solid #e2e8f0;
 	background: #ffffff;
 	box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+	cursor: pointer;
+	position: relative;
+	user-select: none;
 }
 
 .profile-icon {
@@ -167,6 +170,63 @@
 .profile-meta .role {
 	font-size: 0.8rem;
 	color: #94a3b8;
+}
+
+.profile-dropdown {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+	min-width: 180px;
+	z-index: 100;
+	overflow: hidden;
+}
+
+.dropdown-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	padding: 12px 18px;
+	border: none;
+	background: transparent;
+	font-size: 0.92rem;
+	font-weight: 500;
+	color: #334155;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.dropdown-item:hover {
+	background: #f1f5f9;
+}
+
+.dropdown-item.logout {
+	color: #ef4444;
+	border-top: 1px solid #f1f5f9;
+}
+
+.dropdown-item.logout:hover {
+	background: #fef2f2;
+}
+
+.login-btn {
+	padding: 8px 24px;
+	border-radius: 999px;
+	border: 1px solid #2563eb;
+	background: #2563eb;
+	color: #ffffff;
+	font-size: 0.92rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.login-btn:hover {
+	background: #1d4ed8;
 }
 
 @media (max-width: 1200px) {

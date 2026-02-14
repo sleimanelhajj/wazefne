@@ -23,4 +23,14 @@ export class ProfileService {
   updateProfile(data: UpdateProfileRequest): Observable<ProfileResponse> {
     return this.http.put<ProfileResponse>(`${this.apiUrl}/profile/update-profile`, data);
   }
+
+  /**
+   * Upload portfolio images (multipart form data)
+   */
+  uploadPortfolio(formData: FormData): Observable<{ success: boolean; images?: any[] }> {
+    return this.http.post<{ success: boolean; images?: any[] }>(
+      `${this.apiUrl}/profile/upload-portfolio`,
+      formData
+    );
+  }
 }

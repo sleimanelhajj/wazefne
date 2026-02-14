@@ -98,19 +98,72 @@
   margin-bottom: 12px;
 }
 
-.portfolio-item {
-  display: flex;
-  gap: 12px;
+.upload-trigger {
+  display: inline-flex;
   align-items: center;
-  margin-bottom: 8px;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.portfolio-url {
-  flex: 2;
+.upload-trigger:hover {
+  background: #eff6ff;
 }
 
-.portfolio-caption {
-  flex: 1;
+.portfolio-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.preview-item {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.remove-preview {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.remove-preview mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.empty-hint {
+  color: #9ca3af;
+  font-size: 0.88rem;
+  font-style: italic;
+  margin: 0;
 }
 
 /* ── Actions ──────────────────────────────────────────── */

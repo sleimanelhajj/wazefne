@@ -68,3 +68,10 @@
   color: #111827;
 }
 
+.empty-text {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  font-style: italic;
+  margin: 0;
+}
+

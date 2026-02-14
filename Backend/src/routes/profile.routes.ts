@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticate from "../middleware/auth";
-import { updateProfile, getMyProfile } from "../controllers/profile.controller";
+import { updateProfile, getMyProfile, uploadPortfolio, upload } from "../controllers/profile.controller";
 
 const router = Router();
 
@@ -120,6 +120,54 @@ router.get("/me", authenticate, getMyProfile);
  *         description: User not found
  */
 router.put("/update-profile", authenticate, updateProfile);
+
+/**
+ * @swagger
+ * /api/profile/upload-portfolio:
+ *   post:
+ *     summary: Upload portfolio images
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Images uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       image_url:
+ *                         type: string
+ *                       caption:
+ *                         type: string
+ *                       sort_order:
+ *                         type: integer
+ *       400:
+ *         description: No files uploaded
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/upload-portfolio", authenticate, upload.array("images", 10), uploadPortfolio);
 
 /**
  * @swagger

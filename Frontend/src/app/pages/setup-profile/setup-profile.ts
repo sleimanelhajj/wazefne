@@ -38,7 +38,7 @@ export class SetupProfileComponent {
 
   skills: string[] = [];
   languages: string[] = [];
-  portfolio: { image_url: string; caption: string }[] = [];
+  portfolioFiles: { file: File; preview: string; caption: string }[] = [];
   saving = false;
 
   readonly profileForm = this.fb.group({
@@ -81,13 +81,30 @@ export class SetupProfileComponent {
     this.languages = this.languages.filter((l) => l !== lang);
   }
 
-  // ── Portfolio ─────────────────────────────────────────
-  addPortfolioItem(): void {
-    this.portfolio.push({ image_url: '', caption: '' });
+  // ── Portfolio file upload ─────────────────────────────
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    for (let i = 0; i < input.files.length; i++) {
+      const file = input.files[i];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.portfolioFiles.push({
+          file,
+          preview: e.target?.result as string,
+          caption: '',
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Reset so same file can be selected again
+    input.value = '';
   }
 
-  removePortfolioItem(index: number): void {
-    this.portfolio.splice(index, 1);
+  removePortfolioFile(index: number): void {
+    this.portfolioFiles.splice(index, 1);
   }
 
   // ── Submit ────────────────────────────────────────────
@@ -100,9 +117,7 @@ export class SetupProfileComponent {
     this.saving = true;
     const formVal = this.profileForm.value;
 
-    // Filter out empty portfolio entries
-    const validPortfolio = this.portfolio.filter((p) => p.image_url.trim());
-
+    // First update the text fields
     this.profileService
       .updateProfile({
         first_name: formVal.first_name || undefined,
@@ -114,28 +129,48 @@ export class SetupProfileComponent {
         hourly_rate: formVal.hourly_rate ?? undefined,
         skills: this.skills.length ? this.skills : undefined,
         languages: this.languages.length ? this.languages : undefined,
-        portfolio: validPortfolio.length ? validPortfolio : undefined,
       })
       .subscribe({
         next: () => {
-          this.snackBar.open('Profile updated successfully!', 'Close', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-          });
-          this.saving = false;
-          this.router.navigate(['/home']);
+          // If portfolio files, upload them
+          if (this.portfolioFiles.length > 0) {
+            const formData = new FormData();
+            for (const pf of this.portfolioFiles) {
+              formData.append('images', pf.file);
+            }
+            this.profileService.uploadPortfolio(formData).subscribe({
+              next: () => {
+                this.finishSetup();
+              },
+              error: () => {
+                // Profile saved but images failed
+                this.snackBar.open('Profile saved but image upload failed.', 'Close', {
+                  duration: 4000, horizontalPosition: 'center', verticalPosition: 'top',
+                });
+                this.saving = false;
+                this.router.navigate(['/home']);
+              },
+            });
+          } else {
+            this.finishSetup();
+          }
         },
         error: (err) => {
           console.error('Profile update failed', err);
           this.snackBar.open('Failed to update profile. Please try again.', 'Close', {
-            duration: 4000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
+            duration: 4000, horizontalPosition: 'center', verticalPosition: 'top',
           });
           this.saving = false;
         },
       });
+  }
+
+  private finishSetup(): void {
+    this.snackBar.open('Profile updated successfully!', 'Close', {
+      duration: 3000, horizontalPosition: 'center', verticalPosition: 'top',
+    });
+    this.saving = false;
+    this.router.navigate(['/home']);
   }
 
   onSkip(): void {

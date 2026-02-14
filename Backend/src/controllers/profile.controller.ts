@@ -1,6 +1,20 @@
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "../middleware/auth";
 import pool from "../config/db";
+import multer from "multer";
+import path from "path";
+
+// ── Multer configuration (memory storage for base64 conversion) ──
+export const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    const allowed = /jpeg|jpg|png|gif|webp/;
+    const extOk = allowed.test(path.extname(file.originalname).toLowerCase());
+    const mimeOk = allowed.test(file.mimetype);
+    cb(null, extOk && mimeOk);
+  },
+});
 
 /**
  * PUT /api/profile/update-profile
@@ -17,7 +31,7 @@ export const updateProfile = async (
       res.status(401).json({ success: false, message: "Unauthorized" });
       return;
     }
-    
+
     const {
       first_name,
       last_name,
@@ -233,6 +247,57 @@ export const getMyProfile = async (
         portfolio: portfolioResult.rows,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/profile/upload-portfolio
+ * Uploads portfolio images for the authenticated user.
+ */
+export const uploadPortfolio = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) {
+      res.status(400).json({ success: false, message: "No files uploaded" });
+      return;
+    }
+
+    // Get current max sort_order
+    const maxOrderRes = await pool.query(
+      "SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM portfolio_images WHERE user_id = $1",
+      [userId]
+    );
+    let sortOrder: number = maxOrderRes.rows[0].max_order + 1;
+
+    const inserted: { image_url: string; caption: string | null; sort_order: number }[] = [];
+
+    for (const file of files) {
+      // Convert buffer to base64 data URL
+      const base64 = file.buffer.toString("base64");
+      const dataUrl = `data:${file.mimetype};base64,${base64}`;
+
+      await pool.query(
+        `INSERT INTO portfolio_images (user_id, image_url, caption, sort_order)
+         VALUES ($1, $2, $3, $4)`,
+        [userId, dataUrl, null, sortOrder]
+      );
+      inserted.push({ image_url: dataUrl, caption: null, sort_order: sortOrder });
+      sortOrder++;
+    }
+
+    res.json({ success: true, images: inserted });
   } catch (err) {
     next(err);
   }

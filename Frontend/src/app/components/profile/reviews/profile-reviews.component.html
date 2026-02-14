@@ -1,60 +1,18 @@
 <section class="card">
   <div class="card-header">
     <h2 class="card-title">Reviews</h2>
-    <span class="reviews-count">120</span>
+    <span class="reviews-count">{{ reviewCount }}</span>
   </div>
 
-  <div class="review">
-    <div class="review-header">
-      <div class="reviewer-info">
-        <div class="reviewer-avatar">
-          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah K." />
-        </div>
-        <div>
-          <div class="reviewer-name">Sarah K.</div>
-          <div class="review-date">2 days ago</div>
-        </div>
-      </div>
-      <div class="review-stars">
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-      </div>
-    </div>
-    <p class="review-text">
-      Jean-Paul was excellent for our private dinner. He was punctual, professional, and anticipated all our needs. The
-      kitchen was spotless when he left. Highly recommended!
-    </p>
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="reviewCount === 0">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <p class="empty-text" *ngIf="isOwner">No reviews yet. They'll show up here once clients leave feedback!</p>
+    <p class="empty-text" *ngIf="!isOwner">No reviews yet.</p>
   </div>
 
-  <div class="divider"></div>
-
-  <div class="review">
-    <div class="review-header">
-      <div class="reviewer-info">
-        <div class="reviewer-avatar">
-          <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Michael R." />
-        </div>
-        <div>
-          <div class="reviewer-name">Michael R.</div>
-          <div class="review-date">1 week ago</div>
-        </div>
-      </div>
-      <div class="review-stars">
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-        <span class="star">★</span>
-      </div>
-    </div>
-    <p class="review-text">
-      A true professional. Managed our event of 50 people effortlessly. Will definitely hire again.
-    </p>
-  </div>
-
-  <button class="show-all-btn">Show all 120 reviews</button>
+  <!-- Reviews will be rendered here when review system is built -->
 </section>
 

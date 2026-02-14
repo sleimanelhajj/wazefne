@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-profile-skills-languages',
@@ -8,5 +8,8 @@ import { Component } from '@angular/core';
   templateUrl: './profile-skills-languages.component.html',
   styleUrls: ['./profile-skills-languages.component.css'],
 })
-export class ProfileSkillsLanguagesComponent {}
+export class ProfileSkillsLanguagesComponent {
+  @Input() skills: string[] = [];
+  @Input() languages: string[] = [];
+}
 
