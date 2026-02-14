@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { categoryOptions } from './category-data';
 import { FilterService } from '../../../services/filter.service';
-import { users } from '../../../pages/browse/mock-users';
+import { User } from '../../../models/user-card.model';
 
 @Component({
   selector: 'app-side-bar',
@@ -12,7 +12,11 @@ import { users } from '../../../pages/browse/mock-users';
   templateUrl: './side-bar.component.html',
   styleUrls: ['./side-bar.component.css'],
 })
-export class SideBarComponent implements OnInit {
+export class SideBarComponent implements OnChanges {
+  private readonly filterService = inject(FilterService);
+
+  @Input() users: User[] = [];
+
   categories: CategoryOption[] = [];
   selectedCategory: string = '';
 
@@ -23,27 +27,30 @@ export class SideBarComponent implements OnInit {
   priceMax = 120;
   availabilityToday = false;
 
-  constructor(private filterService: FilterService) {}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['users']) {
+      this.buildCategories();
+    }
+  }
 
-  ngOnInit(): void {
-    // Calculate category counts from users
+  private buildCategories(): void {
     const categoryCounts = new Map<string, number>();
-    users.forEach((user) => {
-      categoryCounts.set(user.category, (categoryCounts.get(user.category) || 0) + 1);
+    this.users.forEach((user) => {
+      const count = categoryCounts.get(user.category) || 0;
+      categoryCounts.set(user.category, count + 1);
     });
 
-    // Create category options with counts
     this.categories = categoryOptions
       .map((label) => ({
         label,
         count: categoryCounts.get(label) || 0,
         selected: false,
       }))
-      .filter((cat) => cat.count > 0); // Only show categories with users
+      .filter((cat) => cat.count > 0);
 
-    // Set first category as selected by default
-    if (this.categories.length > 0) {
-      this.selectedCategory = this.categories[0].label;
+    // Reset selection if current category no longer exists
+    if (!this.categories.find((c) => c.label === this.selectedCategory)) {
+      this.selectedCategory = this.categories.length > 0 ? this.categories[0].label : '';
     }
 
     this.emitFilters();

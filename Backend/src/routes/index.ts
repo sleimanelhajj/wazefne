@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import authRoutes from "./auth.routes";
 import profileRoutes from "./profile.routes";
+import usersRoutes from "./users.routes";
 
 const router = Router();
 
@@ -12,6 +13,7 @@ router.get("/health", (_req: Request, res: Response) => {
 // ── Route files ───────────────────────────────────────
 router.use("/auth", authRoutes);
 router.use("/profile", profileRoutes);
+router.use("/users", usersRoutes);
 // import bookingRoutes from "./booking.routes";
 // import messageRoutes from "./message.routes";
 // router.use("/bookings", bookingRoutes);

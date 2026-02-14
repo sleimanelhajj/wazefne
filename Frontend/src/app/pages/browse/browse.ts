@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { TopBarComponent } from '../../components/top-bar/top-bar.component';
 import { SideBarComponent } from '../../components/browse/side-bar/side-bar.component';
 import { UserCardComponent } from '../../components/browse/user-card/user-card.component';
 import { User } from '../../models/user-card.model';
-import { users } from './mock-users';
+import { ProfileService } from '../../services/profile.service';
 import { FilterService } from '../../services/filter.service';
 import { Subscription } from 'rxjs';
 import { FilterCriteria } from '../../models/filter-criteria.model';
@@ -16,13 +16,34 @@ import { FilterCriteria } from '../../models/filter-criteria.model';
   standalone: true,
 })
 export class BrowseComponent implements OnInit, OnDestroy {
-  allUsers: User[] = users;
+  private readonly profileService = inject(ProfileService);
+  private readonly filterService = inject(FilterService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  allUsers: User[] = [];
   users: User[] = [];
+  loading = true;
   private filterSubscription?: Subscription;
 
-  constructor(private filterService: FilterService) {}
-
   ngOnInit(): void {
+    // Fetch users from backend
+    this.profileService.getUsers().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.allUsers = res.users;
+        }
+        this.loading = false;
+        // Apply current filters once data arrives
+        this.applyFilters(this.filterService.getCurrentFilters());
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+    });
+
+    // React to filter changes
     this.filterSubscription = this.filterService.filters$.subscribe((filters) => {
       this.applyFilters(filters);
     });
@@ -34,18 +55,11 @@ export class BrowseComponent implements OnInit, OnDestroy {
 
   private applyFilters(filters: FilterCriteria): void {
     this.users = this.allUsers.filter((user) => {
-      // Category filter
       const matchesCategory =
         filters.categories.length === 0 || filters.categories.includes(user.category);
-
-      // Price filter
       const matchesPrice =
         user.hourlyRate >= filters.priceMin && user.hourlyRate <= filters.priceMax;
-
-      // Rating filter
       const matchesRating = user.rating >= filters.minRating;
-
-      // Availability filter
       const matchesAvailability = !filters.availableToday || user.availableToday;
 
       return matchesCategory && matchesPrice && matchesRating && matchesAvailability;

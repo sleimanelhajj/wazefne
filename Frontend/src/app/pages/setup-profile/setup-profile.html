@@ -36,6 +36,20 @@
         </mat-error>
       </mat-form-field>
 
+      <!-- Category -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option *ngFor="let cat of categoryOptions" [value]="cat">
+            {{ cat }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>category</mat-icon>
+        <mat-error *ngIf="profileForm.get('category')?.hasError('required')">
+          Category is required
+        </mat-error>
+      </mat-form-field>
+
       <!-- What they offer -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>What do you offer?</mat-label>
@@ -120,13 +134,7 @@
         <div class="portfolio-header">
           <label class="chip-label">Portfolio (optional)</label>
           <label class="upload-trigger">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              (change)="onFileSelect($event)"
-            />
+            <input type="file" accept="image/*" multiple hidden (change)="onFileSelect($event)" />
             <mat-icon>add_photo_alternate</mat-icon>
             Upload Images
           </label>

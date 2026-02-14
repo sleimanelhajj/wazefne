@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,9 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ProfileService } from '../../services/profile.service';
-
+import { categoryOptions } from '../../components/browse/side-bar/category-data';
 @Component({
   selector: 'app-setup-profile',
   standalone: true,
@@ -24,6 +25,7 @@ import { ProfileService } from '../../services/profile.service';
     MatIconModule,
     MatChipsModule,
     MatSnackBarModule,
+    MatSelectModule,
   ],
   templateUrl: './setup-profile.html',
   styleUrl: './setup-profile.css',
@@ -33,8 +35,10 @@ export class SetupProfileComponent {
   private readonly profileService = inject(ProfileService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly separatorKeyCodes = [ENTER, COMMA] as const;
+  readonly categoryOptions = categoryOptions;
 
   skills: string[] = [];
   languages: string[] = [];
@@ -45,6 +49,7 @@ export class SetupProfileComponent {
     first_name: ['', Validators.required],
     last_name: ['', Validators.required],
     title: ['', Validators.required],
+    category: ['', Validators.required],
     offer_description: [''],
     location: ['', Validators.required],
     about_me: [''],
@@ -95,6 +100,7 @@ export class SetupProfileComponent {
           preview: e.target?.result as string,
           caption: '',
         });
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
@@ -123,6 +129,7 @@ export class SetupProfileComponent {
         first_name: formVal.first_name || undefined,
         last_name: formVal.last_name || undefined,
         title: formVal.title || undefined,
+        category: formVal.category || undefined,
         offer_description: formVal.offer_description || undefined,
         location: formVal.location || undefined,
         about_me: formVal.about_me || undefined,
@@ -145,7 +152,9 @@ export class SetupProfileComponent {
               error: () => {
                 // Profile saved but images failed
                 this.snackBar.open('Profile saved but image upload failed.', 'Close', {
-                  duration: 4000, horizontalPosition: 'center', verticalPosition: 'top',
+                  duration: 4000,
+                  horizontalPosition: 'center',
+                  verticalPosition: 'top',
                 });
                 this.saving = false;
                 this.router.navigate(['/home']);
@@ -158,7 +167,9 @@ export class SetupProfileComponent {
         error: (err) => {
           console.error('Profile update failed', err);
           this.snackBar.open('Failed to update profile. Please try again.', 'Close', {
-            duration: 4000, horizontalPosition: 'center', verticalPosition: 'top',
+            duration: 4000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top',
           });
           this.saving = false;
         },
@@ -167,7 +178,9 @@ export class SetupProfileComponent {
 
   private finishSetup(): void {
     this.snackBar.open('Profile updated successfully!', 'Close', {
-      duration: 3000, horizontalPosition: 'center', verticalPosition: 'top',
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
     });
     this.saving = false;
     this.router.navigate(['/home']);

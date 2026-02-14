@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticate from "../middleware/auth";
-import { updateProfile, getMyProfile, uploadPortfolio, upload } from "../controllers/profile.controller";
+import { updateProfile, getMyProfile, getProfileById, uploadPortfolio, upload } from "../controllers/profile.controller";
 
 const router = Router();
 
@@ -168,6 +168,36 @@ router.put("/update-profile", authenticate, updateProfile);
  *         description: Unauthorized
  */
 router.post("/upload-portfolio", authenticate, upload.array("images", 10), uploadPortfolio);
+
+/**
+ * @swagger
+ * /api/profile/{id}:
+ *   get:
+ *     summary: Get a user's public profile by ID
+ *     tags: [Profile]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user's UUID
+ *     responses:
+ *       200:
+ *         description: Profile data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 user:
+ *                   $ref: '#/components/schemas/UserProfile'
+ *       404:
+ *         description: User not found
+ */
+router.get("/:id", getProfileById, authenticate);
 
 /**
  * @swagger
