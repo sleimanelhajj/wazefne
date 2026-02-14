@@ -9,11 +9,13 @@ import { HomeHeroComponent } from './components/home/hero/hero.component';
 import { ProfilePageComponent } from './pages/profile/profile';
 import { BookingsHistoryComponent } from './pages/bookings-history/bookings-history';
 import { MessagesComponent } from './pages/messages/messages';
+import { SetupProfileComponent } from './pages/setup-profile/setup-profile';
 
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: AuthComponent },
+  { path: 'setup-profile', component: SetupProfileComponent },
   { path: 'test', component: HomeHeroComponent },
   { path: 'browse', component: BrowseComponent },
   { path: 'home', component: HomeComponent },

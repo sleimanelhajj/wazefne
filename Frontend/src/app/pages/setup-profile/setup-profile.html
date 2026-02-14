@@ -1,0 +1,170 @@
+<div class="setup-container">
+  <div class="setup-card">
+    <div class="setup-header">
+      <img src="assets/logo/logo.png" alt="Logo" class="setup-logo" />
+      <h1>Complete Your Profile</h1>
+      <p class="subtitle">Tell us about yourself so clients can find you.</p>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="setup-form" novalidate>
+      <!-- Name row -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="first_name" placeholder="John" />
+          <mat-error *ngIf="profileForm.get('first_name')?.hasError('required')">
+            First name is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="last_name" placeholder="Doe" />
+          <mat-error *ngIf="profileForm.get('last_name')?.hasError('required')">
+            Last name is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Title -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Professional Title</mat-label>
+        <input matInput formControlName="title" placeholder="e.g. Full-Stack Developer" />
+        <mat-icon matSuffix>work</mat-icon>
+        <mat-error *ngIf="profileForm.get('title')?.hasError('required')">
+          Title is required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- What they offer -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>What do you offer?</mat-label>
+        <textarea
+          matInput
+          formControlName="offer_description"
+          placeholder="Describe the services you provide..."
+          rows="3"
+        ></textarea>
+        <mat-icon matSuffix>local_offer</mat-icon>
+      </mat-form-field>
+
+      <!-- Location -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Location</mat-label>
+        <input matInput formControlName="location" placeholder="e.g. Beirut, Lebanon" />
+        <mat-icon matSuffix>location_on</mat-icon>
+        <mat-error *ngIf="profileForm.get('location')?.hasError('required')">
+          Location is required
+        </mat-error>
+      </mat-form-field>
+
+      <!-- About Me -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>About Me</mat-label>
+        <textarea
+          matInput
+          formControlName="about_me"
+          placeholder="Tell clients a bit about yourself, your experience..."
+          rows="4"
+        ></textarea>
+        <mat-icon matSuffix>person</mat-icon>
+      </mat-form-field>
+
+      <!-- Hourly Rate -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Hourly Rate ($)</mat-label>
+        <input matInput type="number" formControlName="hourly_rate" placeholder="35" />
+        <mat-icon matSuffix>attach_money</mat-icon>
+      </mat-form-field>
+
+      <!-- Skills -->
+      <div class="chip-section">
+        <label class="chip-label">Skills</label>
+        <mat-chip-grid #skillChipGrid>
+          <mat-chip-row *ngFor="let skill of skills" (removed)="removeSkill(skill)">
+            {{ skill }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        </mat-chip-grid>
+        <input
+          placeholder="Type a skill and press Enter..."
+          [matChipInputFor]="skillChipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+          (matChipInputTokenEnd)="addSkill($event)"
+        />
+      </div>
+
+      <!-- Languages -->
+      <div class="chip-section">
+        <label class="chip-label">Languages</label>
+        <mat-chip-grid #langChipGrid>
+          <mat-chip-row *ngFor="let lang of languages" (removed)="removeLanguage(lang)">
+            {{ lang }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        </mat-chip-grid>
+        <input
+          placeholder="Type a language and press Enter..."
+          [matChipInputFor]="langChipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+          (matChipInputTokenEnd)="addLanguage($event)"
+        />
+      </div>
+
+      <!-- Portfolio -->
+      <div class="portfolio-section">
+        <div class="portfolio-header">
+          <label class="chip-label">Portfolio (optional)</label>
+          <button mat-stroked-button type="button" (click)="addPortfolioItem()">
+            <mat-icon>add_photo_alternate</mat-icon>
+            Add Image
+          </button>
+        </div>
+
+        <div *ngFor="let item of portfolio; let i = index" class="portfolio-item">
+          <mat-form-field appearance="outline" class="portfolio-url">
+            <mat-label>Image URL</mat-label>
+            <input
+              matInput
+              [(ngModel)]="item.image_url"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="https://example.com/image.jpg"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="portfolio-caption">
+            <mat-label>Caption</mat-label>
+            <input
+              matInput
+              [(ngModel)]="item.caption"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Project name"
+            />
+          </mat-form-field>
+          <button mat-icon-button type="button" color="warn" (click)="removePortfolioItem(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="onSkip()" class="skip-btn">
+          Skip for now
+        </button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="save-btn"
+          [disabled]="profileForm.invalid || saving"
+        >
+          {{ saving ? 'Saving...' : 'Save & Continue' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
