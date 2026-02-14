@@ -16,7 +16,7 @@ export const routes: Routes = [
   { path: 'setup-profile', component: SetupProfileComponent, canActivate: [authGuard] },
   { path: 'test', component: HomeHeroComponent },
   { path: 'browse', component: BrowseComponent, canActivate: [authGuard] },
-  { path: 'profile', component: ProfilePageComponent, canActivate: [authGuard] },
+  { path: 'profile/:id', component: ProfilePageComponent, canActivate: [authGuard] },
   {
     path: 'my-profile',
     component: ProfilePageComponent,

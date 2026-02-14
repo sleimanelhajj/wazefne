@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UpdateProfileRequest, ProfileResponse } from '../models/profile.model';
+import { User } from '../models/user-card.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,10 +12,24 @@ export class ProfileService {
   private readonly apiUrl = 'http://localhost:3000/api';
 
   /**
+   * Get all users for browsing
+   */
+  getUsers(): Observable<{ success: boolean; users: User[] }> {
+    return this.http.get<{ success: boolean; users: User[] }>(`${this.apiUrl}/users`);
+  }
+
+  /**
    * Get authenticated user's profile
    */
   getMyProfile(): Observable<ProfileResponse> {
     return this.http.get<ProfileResponse>(`${this.apiUrl}/profile/me`);
+  }
+
+  /**
+   * Get a user's public profile by ID
+   */
+  getProfileById(id: string): Observable<ProfileResponse> {
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/profile/${id}`);
   }
 
   /**

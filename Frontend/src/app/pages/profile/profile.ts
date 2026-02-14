@@ -38,7 +38,13 @@ export class ProfilePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.isOwner = this.route.snapshot.data['isOwner'] === true;
-    this.profileService.getMyProfile().subscribe({
+    const userId = this.route.snapshot.paramMap.get('id');
+
+    const profile$ = userId
+      ? this.profileService.getProfileById(userId)
+      : this.profileService.getMyProfile();
+
+    profile$.subscribe({
       next: (res) => {
         if (res.success && res.user) {
           this.user = res.user;

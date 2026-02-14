@@ -253,6 +253,71 @@ export const getMyProfile = async (
 };
 
 /**
+ * GET /api/profile/:id
+ * Returns a public user profile by ID.
+ */
+export const getProfileById = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const userResult = await pool.query(
+      `SELECT id, email, first_name, last_name, title,
+              offer_description, location, about_me,
+              hourly_rate, profile_image, category,
+              available_today, rating, review_count, verified,
+              created_at
+       FROM users WHERE id = $1`,
+      [id]
+    );
+
+    if (userResult.rows.length === 0) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    const user = userResult.rows[0];
+
+    const skillsResult = await pool.query(
+      `SELECT s.name FROM skills s
+       JOIN user_skills us ON us.skill_id = s.id
+       WHERE us.user_id = $1 ORDER BY s.name`,
+      [id]
+    );
+
+    const langsResult = await pool.query(
+      `SELECT l.name FROM languages l
+       JOIN user_languages ul ON ul.language_id = l.id
+       WHERE ul.user_id = $1 ORDER BY l.name`,
+      [id]
+    );
+
+    const portfolioResult = await pool.query(
+      `SELECT image_url, caption, sort_order
+       FROM portfolio_images WHERE user_id = $1
+       ORDER BY sort_order`,
+      [id]
+    );
+
+    res.json({
+      success: true,
+      user: {
+        ...user,
+        name: [user.first_name, user.last_name].filter(Boolean).join(" ") || undefined,
+        skills: skillsResult.rows.map((r: { name: string }) => r.name),
+        languages: langsResult.rows.map((r: { name: string }) => r.name),
+        portfolio: portfolioResult.rows,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * POST /api/profile/upload-portfolio
  * Uploads portfolio images for the authenticated user.
  */

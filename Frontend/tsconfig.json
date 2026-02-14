@@ -21,6 +21,11 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
+"exclude": [
+  "../Backend",
+  "**/node_modules", 
+  "**/dist"
+],
   "files": [],
   "references": [
     {
