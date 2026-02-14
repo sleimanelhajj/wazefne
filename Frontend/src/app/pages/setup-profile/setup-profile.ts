@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ProfileService } from '../../services/profile.service';
+import { AuthService } from '../../services/auth.service';
 import { categoryOptions } from '../../components/browse/side-bar/category-data';
 @Component({
   selector: 'app-setup-profile',
@@ -33,6 +34,7 @@ import { categoryOptions } from '../../components/browse/side-bar/category-data'
 export class SetupProfileComponent {
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -139,6 +141,11 @@ export class SetupProfileComponent {
       })
       .subscribe({
         next: () => {
+          // Update stored display name
+          const fullName = [formVal.first_name, formVal.last_name].filter(Boolean).join(' ');
+          if (fullName) {
+            this.authService.saveUserName(fullName);
+          }
           // If portfolio files, upload them
           if (this.portfolioFiles.length > 0) {
             const formData = new FormData();

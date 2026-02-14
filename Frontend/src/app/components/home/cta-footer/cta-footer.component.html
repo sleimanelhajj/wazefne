@@ -4,8 +4,10 @@
       <h2>Ready to get started?</h2>
       <p>Join thousands of Lebanese users finding help and work on Sta2jerne today.</p>
       <div class="cta-actions">
-        <button type="button" class="cta-primary">Sign Up Now</button>
-        <button type="button" class="cta-secondary">Learn More</button>
+        <button type="button" class="cta-primary" (click)="onCtaPrimary()">
+          {{ isLoggedIn ? 'Browse Services' : 'Sign Up Now' }}
+        </button>
+        <button type="button" class="cta-secondary" (click)="onLearnMore()">Learn More</button>
       </div>
     </div>
   </div>

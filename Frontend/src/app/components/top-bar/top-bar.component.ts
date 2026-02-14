@@ -1,9 +1,8 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { ProfileService } from '../../services/profile.service';
 
 @Component({
   selector: 'app-top-bar',
@@ -15,13 +14,11 @@ import { ProfileService } from '../../services/profile.service';
 export class TopBarComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly profileService = inject(ProfileService);
   private readonly router = inject(Router);
-  private readonly cdr = inject(ChangeDetectorRef);
+
+  @Input() showSearch = true;
 
   searchForm: FormGroup;
-  userName = '';
-  userRole = '';
   dropdownOpen = false;
 
   constructor() {
@@ -35,27 +32,14 @@ export class TopBarComponent implements OnInit {
     this.searchForm.valueChanges.subscribe((value) => {
       console.log('Search form value changed:', value);
     });
-
-    // Load user profile to display name
-    if (this.authService.isAuthenticated()) {
-      this.profileService.getMyProfile().subscribe({
-        next: (res) => {
-          if (res.success && res.user) {
-            this.userName = res.user.name || res.user.email;
-            this.userRole = res.user.title || '';
-          }
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.userName = 'User';
-          this.cdr.markForCheck();
-        },
-      });
-    }
   }
 
   get isLoggedIn(): boolean {
     return this.authService.isAuthenticated();
+  }
+
+  get userName(): string {
+    return this.authService.getUserName() || 'User';
   }
 
   toggleDropdown(): void {

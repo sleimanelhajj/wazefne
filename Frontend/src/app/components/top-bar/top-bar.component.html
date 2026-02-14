@@ -4,7 +4,7 @@
     <span class="logo-text">Wazefne</span>
   </div>
 
-  <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-group">
+  <form *ngIf="showSearch" [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-group">
     <label class="search-input">
       <img src="assets/icons/search.svg" alt="Search" />
       <input type="text" placeholder="Search..." formControlName="search" />
@@ -28,8 +28,7 @@
   <div class="profile" *ngIf="isLoggedIn" (click)="toggleDropdown()">
     <img class="profile-icon" src="assets/icons/profile.svg" alt="Profile" />
     <div class="profile-meta">
-      <span class="name">{{ userName || 'User' }}</span>
-      <span class="role">{{ userRole || '' }}</span>
+      <span class="name">{{ userName }}</span>
     </div>
     <span class="chevron chevron-dark"></span>
 

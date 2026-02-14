@@ -12,6 +12,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly apiUrl = 'http://localhost:3000/api';
   private readonly TOKEN_KEY = 'auth_token';
+  private readonly NAME_KEY = 'user_name';
 
   /**
    * Login user with email and password
@@ -21,6 +22,11 @@ export class AuthService {
       tap((res) => {
         if (res.success && res.token) {
           this.saveToken(res.token);
+          if (res.user?.name) {
+            this.saveUserName(res.user.name);
+          } else if (res.user?.email) {
+            this.saveUserName(res.user.email);
+          }
         }
       })
     );
@@ -34,6 +40,11 @@ export class AuthService {
       tap((res) => {
         if (res.success && res.token) {
           this.saveToken(res.token);
+          if (res.user?.name) {
+            this.saveUserName(res.user.name);
+          } else if (res.user?.email) {
+            this.saveUserName(res.user.email);
+          }
         }
       })
     );
@@ -44,6 +55,7 @@ export class AuthService {
    */
   logout(): void {
     this.removeToken();
+    localStorage.removeItem(this.NAME_KEY);
     this.router.navigate(['/login']);
   }
 
@@ -73,5 +85,19 @@ export class AuthService {
    */
   removeToken(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+  }
+
+  /**
+   * Save user display name to storage
+   */
+  saveUserName(name: string): void {
+    localStorage.setItem(this.NAME_KEY, name);
+  }
+
+  /**
+   * Get user display name from storage
+   */
+  getUserName(): string {
+    return localStorage.getItem(this.NAME_KEY) || '';
   }
 }
