@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { ProcessComponent } from '../../components/home/process/process.component';
 import { HomeCategoriesComponent } from '../../components/home/categories/categories.component';
 import { CtaFooterComponent } from '../../components/home/cta-footer/cta-footer.component';
-import { TopBarComponent } from '../../components/top-bar/top-bar.component';
+import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { HomeHeroComponent } from '../../components/home/hero/hero.component';
 
 @Component({

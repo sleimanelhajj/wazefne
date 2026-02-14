@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
-import { TopBarComponent } from '../../components/top-bar/top-bar.component';
+import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { SideBarComponent } from '../../components/browse/side-bar/side-bar.component';
 import { UserCardComponent } from '../../components/browse/user-card/user-card.component';
 import { User } from '../../models/user-card.model';

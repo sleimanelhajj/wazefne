@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { TopBarComponent } from '../../components/top-bar/top-bar.component';
+import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { BookingStatsCardsComponent } from '../../components/bookings-history/stats-cards/stats-cards.component';
 import { BookingTabsComponent } from '../../components/bookings-history/booking-tabs/booking-tabs.component';
 import { BookingCardComponent } from '../../components/bookings-history/booking-card/booking-card.component';

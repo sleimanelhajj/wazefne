@@ -7,7 +7,7 @@ import { ProfileSkillsLanguagesComponent } from '../../components/profile/skills
 import { ProfilePortfolioComponent } from '../../components/profile/portfolio/profile-portfolio.component';
 import { ProfileReviewsComponent } from '../../components/profile/reviews/profile-reviews.component';
 import { ProfileSidebarComponent } from '../../components/profile/sidebar/profile-sidebar.component';
-import { TopBarComponent } from '../../components/top-bar/top-bar.component';
+import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { ProfileService } from '../../services/profile.service';
 import { UserProfile } from '../../models/profile.model';
 
