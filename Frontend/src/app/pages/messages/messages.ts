@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TopBarComponent } from '../../components/top-bar/top-bar.component';
+import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { ConversationListComponent } from '../../components/messages/conversation-list/conversation-list.component';
 import { ChatHeaderComponent } from '../../components/messages/chat-header/chat-header.component';
 import { ChatMessagesComponent } from '../../components/messages/chat-messages/chat-messages.component';
