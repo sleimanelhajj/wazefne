@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getUsers } from "../controllers/users.controller";
+import authenticate from "../middleware/auth";
 
 const router = Router();
 
@@ -58,6 +59,6 @@ const router = Router();
  *                       availableToday:
  *                         type: boolean
  */
-router.get("/", getUsers);
+router.get("/", getUsers, authenticate);
 
 export default router;
