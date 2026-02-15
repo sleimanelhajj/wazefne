@@ -1,6 +1,13 @@
 import { Router } from "express";
 import authenticate from "../middleware/auth";
-import { updateProfile, getMyProfile, getProfileById, uploadPortfolio, upload } from "../controllers/profile.controller";
+import {
+  updateProfile,
+  getMyProfile,
+  getProfileById,
+  uploadPortfolio,
+  uploadProfilePicture,
+  upload,
+} from "../controllers/profile.controller";
 
 const router = Router();
 
@@ -167,7 +174,68 @@ router.put("/update-profile", authenticate, updateProfile);
  *       401:
  *         description: Unauthorized
  */
-router.post("/upload-portfolio", authenticate, upload.array("images", 10), uploadPortfolio);
+router.post(
+  "/upload-portfolio",
+  authenticate,
+  upload.array("images", 10),
+  uploadPortfolio,
+);
+
+/**
+ * @swagger
+ * /api/profile/upload-profile-picture:
+ *   post:
+ *     summary: Upload a profile picture
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - image
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Profile picture file (jpeg, jpg, png, gif, webp)
+ *     responses:
+ *       200:
+ *         description: Profile picture uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     firstName:
+ *                       type: string
+ *                     lastName:
+ *                       type: string
+ *                     profileImage:
+ *                       type: string
+ *       400:
+ *         description: No file uploaded
+ *       401:
+ *         description: Unauthorized
+ */
+router.post(
+  "/upload-profile-picture",
+  authenticate,
+  upload.single("image"),
+  uploadProfilePicture,
+);
 
 /**
  * @swagger

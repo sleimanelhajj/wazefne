@@ -13,6 +13,7 @@ export class AuthService {
   private readonly apiUrl = 'http://localhost:3000/api';
   private readonly TOKEN_KEY = 'auth_token';
   private readonly NAME_KEY = 'user_name';
+  private readonly PROFILE_IMAGE_KEY = 'user_profile_image';
 
   /**
    * Login user with email and password
@@ -27,8 +28,11 @@ export class AuthService {
           } else if (res.user?.email) {
             this.saveUserName(res.user.email);
           }
+          if (res.user?.profileImage) {
+            this.saveProfileImage(res.user.profileImage);
+          }
         }
-      })
+      }),
     );
   }
 
@@ -46,7 +50,7 @@ export class AuthService {
             this.saveUserName(res.user.email);
           }
         }
-      })
+      }),
     );
   }
 
@@ -56,6 +60,7 @@ export class AuthService {
   logout(): void {
     this.removeToken();
     localStorage.removeItem(this.NAME_KEY);
+    this.removeProfileImage();
     this.router.navigate(['/login']);
   }
 
@@ -99,5 +104,26 @@ export class AuthService {
    */
   getUserName(): string {
     return localStorage.getItem(this.NAME_KEY) || '';
+  }
+
+  /**
+   * Save user profile image to storage
+   */
+  saveProfileImage(imageUrl: string): void {
+    localStorage.setItem(this.PROFILE_IMAGE_KEY, imageUrl);
+  }
+
+  /**
+   * Get user profile image from storage
+   */
+  getProfileImage(): string | null {
+    return localStorage.getItem(this.PROFILE_IMAGE_KEY);
+  }
+
+  /**
+   * Remove profile image from storage
+   */
+  removeProfileImage(): void {
+    localStorage.removeItem(this.PROFILE_IMAGE_KEY);
   }
 }

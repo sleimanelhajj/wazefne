@@ -67,4 +67,8 @@ export class ProfilePageComponent implements OnInit {
   onReviewAdded(): void {
     this.loadProfile(); // Refresh profile data to show new review
   }
+
+  onProfileUpdated(): void {
+    this.loadProfile(); // Refresh profile data to show new profile picture
+  }
 }

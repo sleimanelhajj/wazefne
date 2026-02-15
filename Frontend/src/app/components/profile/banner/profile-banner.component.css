@@ -43,6 +43,55 @@
   display: block;
 }
 
+.upload-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-overlay:hover:not(:disabled) {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+.upload-overlay:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.upload-overlay .spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-banner {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-top: 12px;
+  border: 1px solid #fecaca;
+}
+
 .banner-main-info {
   display: flex;
   flex-direction: column;
@@ -65,7 +114,6 @@
   color: #111827;
   letter-spacing: -0.01em;
 }
-
 
 .headline {
   margin: 0;
