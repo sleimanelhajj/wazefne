@@ -421,3 +421,60 @@ export const uploadPortfolio = async (
     next(err);
   }
 };
+
+/**
+ * POST /api/profile/upload-profile-picture
+ * Upload profile picture for authenticated user
+ */
+export const uploadProfilePicture = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    const file = req.file as Express.Multer.File;
+    if (!file) {
+      res.status(400).json({ success: false, message: "No file uploaded" });
+      return;
+    }
+
+    // Convert buffer to base64 data URL
+    const base64 = file.buffer.toString("base64");
+    const dataUrl = `data:${file.mimetype};base64,${base64}`;
+
+    // Update user's profile_image
+    const result = await pool.query(
+      `UPDATE users 
+       SET profile_image = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING id, email, first_name, last_name, profile_image`,
+      [dataUrl, userId],
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    const user = result.rows[0];
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        profileImage: user.profile_image,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};

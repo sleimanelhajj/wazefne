@@ -66,4 +66,11 @@ export class ProfileService {
   getReviewsByUserId(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/reviews/user/${userId}`);
   }
+
+  /**
+   * Upload profile picture
+   */
+  uploadProfilePicture(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/profile/upload-profile-picture`, formData);
+  }
 }

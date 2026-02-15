@@ -20,6 +20,7 @@ export class TopBarComponent implements OnInit {
 
   searchForm: FormGroup;
   dropdownOpen = false;
+  profileImage: string | null = null;
 
   constructor() {
     this.searchForm = this.fb.group({
@@ -40,6 +41,10 @@ export class TopBarComponent implements OnInit {
 
   get userName(): string {
     return this.authService.getUserName() || 'User';
+  }
+
+  get userProfileImage(): string | null {
+    return this.authService.getProfileImage();
   }
 
   toggleDropdown(): void {

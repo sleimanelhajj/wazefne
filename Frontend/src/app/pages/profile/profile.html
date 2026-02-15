@@ -3,7 +3,11 @@
 
   <div class="profile-shell" *ngIf="!loading && user">
     <div class="profile-banner-wrapper">
-      <app-profile-banner [user]="user" [isOwner]="isOwner"></app-profile-banner>
+      <app-profile-banner
+        [user]="user"
+        [isOwner]="isOwner"
+        (profileUpdated)="onProfileUpdated()"
+      ></app-profile-banner>
     </div>
 
     <div class="profile-content-grid">
