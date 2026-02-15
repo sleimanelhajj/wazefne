@@ -2,17 +2,117 @@
   <div class="card-header">
     <h2 class="card-title">Reviews</h2>
     <span class="reviews-count">{{ reviewCount }}</span>
+    <button
+      *ngIf="!isOwner && isAuthenticated"
+      class="add-review-btn"
+      (click)="openModal()"
+      type="button"
+    >
+      Add Review
+    </button>
+  </div>
+
+  <!-- Reviews list -->
+  <div *ngIf="reviewCount > 0" class="reviews-list">
+    <div *ngFor="let review of reviews; let last = last" class="review">
+      <div class="review-header">
+        <div class="reviewer-info">
+          <div class="reviewer-avatar">
+            <img
+              [src]="review.reviewer?.profileImage || 'https://via.placeholder.com/36'"
+              [alt]="getReviewerName(review)"
+            />
+          </div>
+          <div>
+            <div class="reviewer-name">{{ getReviewerName(review) }}</div>
+            <div class="review-date">{{ formatDate(review.createdAt) }}</div>
+          </div>
+        </div>
+        <div class="review-stars">
+          <span *ngFor="let filled of getStarArray(review.rating)" class="star">
+            {{ filled ? '★' : '☆' }}
+          </span>
+        </div>
+      </div>
+      <p *ngIf="review.comment" class="review-text">{{ review.comment }}</p>
+      <div *ngIf="!last" class="divider"></div>
+    </div>
   </div>
 
   <!-- Empty state -->
   <div class="empty-state" *ngIf="reviewCount === 0">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    </svg>
-    <p class="empty-text" *ngIf="isOwner">No reviews yet. They'll show up here once clients leave feedback!</p>
-    <p class="empty-text" *ngIf="!isOwner">No reviews yet.</p>
-  </div>
+    <!-- TODO: export this svg later      -->
 
-  <!-- Reviews will be rendered here when review system is built -->
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#94a3b8"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+    <p class="empty-text" *ngIf="isOwner">
+      No reviews yet. They'll show up here once clients leave feedback!
+    </p>
+    <p class="empty-text" *ngIf="!isOwner">No reviews yet. Be the first to leave a review!</p>
+  </div>
 </section>
 
+<!-- Add Review Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Add Your Review</h3>
+      <button class="close-btn" (click)="closeModal()" type="button">&times;</button>
+    </div>
+
+    <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="review-form">
+      <!-- Star Rating -->
+      <div class="form-group">
+        <label class="form-label">Rating *</label>
+        <div class="star-rating">
+          <span
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            class="star-input"
+            [class.filled]="star <= (hoverRating || selectedRating)"
+            (click)="selectRating(star)"
+            (mouseenter)="setHoverRating(star)"
+            (mouseleave)="clearHoverRating()"
+          >
+            ★
+          </span>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div class="form-group">
+        <label class="form-label">Your Review (optional)</label>
+        <textarea
+          formControlName="comment"
+          class="form-textarea"
+          placeholder="Share your experience..."
+          rows="4"
+          maxlength="500"
+        ></textarea>
+        <div class="char-count">{{ reviewForm.get('comment')?.value?.length || 0 }} / 500</div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn-submit" [disabled]="submitting">
+          {{ submitting ? 'Submitting...' : 'Submit Review' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

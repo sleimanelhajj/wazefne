@@ -45,7 +45,25 @@ export class ProfileService {
   uploadPortfolio(formData: FormData): Observable<{ success: boolean; images?: any[] }> {
     return this.http.post<{ success: boolean; images?: any[] }>(
       `${this.apiUrl}/profile/upload-portfolio`,
-      formData
+      formData,
     );
+  }
+
+  /**
+   * Create a review for a user
+   */
+  createReview(data: {
+    reviewed_user_id: string;
+    rating: number;
+    comment?: string;
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reviews`, data);
+  }
+
+  /**
+   * Get reviews for a specific user
+   */
+  getReviewsByUserId(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/reviews/user/${userId}`);
   }
 }

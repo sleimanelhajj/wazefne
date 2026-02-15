@@ -38,6 +38,11 @@ export class ProfilePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.isOwner = this.route.snapshot.data['isOwner'] === true;
+    this.loadProfile();
+  }
+
+  loadProfile(): void {
+    this.loading = true;
     const userId = this.route.snapshot.paramMap.get('id');
 
     const profile$ = userId
@@ -57,5 +62,9 @@ export class ProfilePageComponent implements OnInit {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  onReviewAdded(): void {
+    this.loadProfile(); // Refresh profile data to show new review
   }
 }
