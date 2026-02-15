@@ -26,7 +26,8 @@ const options: swaggerJsdoc.Options = {
       },
     },
   },
-  apis: ["./src/routes/*.ts"],
+  // When running with ts-node (dev), look at src; when running compiled (prod), look at dist
+  apis: ["./src/routes/*.ts", "./dist/src/routes/*.js", "./src/routes/**/*.ts"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

@@ -34,6 +34,7 @@ export interface UserProfile {
   skills: string[];
   languages: string[];
   portfolio: { image_url: string; caption: string; sort_order: number }[];
+  reviews?: any[]; // Reviews will be populated when viewing other users' profiles
 }
 
 export interface ProfileResponse {

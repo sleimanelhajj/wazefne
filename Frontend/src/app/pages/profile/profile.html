@@ -9,13 +9,27 @@
     <div class="profile-content-grid">
       <div class="profile-main-column">
         <app-profile-about [aboutMe]="user.about_me"></app-profile-about>
-        <app-profile-skills-languages [skills]="user.skills" [languages]="user.languages"></app-profile-skills-languages>
-        <app-profile-portfolio [portfolio]="user.portfolio" [isOwner]="isOwner"></app-profile-portfolio>
-        <app-profile-reviews [reviewCount]="user.review_count" [isOwner]="isOwner"></app-profile-reviews>
+        <app-profile-skills-languages
+          [skills]="user.skills"
+          [languages]="user.languages"
+        ></app-profile-skills-languages>
+        <app-profile-portfolio
+          [portfolio]="user.portfolio"
+          [isOwner]="isOwner"
+        ></app-profile-portfolio>
+        <app-profile-reviews
+          [reviews]="user.reviews || []"
+          [isOwner]="isOwner"
+          [profileUserId]="user.id"
+          (reviewAdded)="onReviewAdded()"
+        ></app-profile-reviews>
       </div>
 
       <div class="profile-sidebar-column">
-        <app-profile-sidebar [hourlyRate]="user.hourly_rate" [isOwner]="isOwner"></app-profile-sidebar>
+        <app-profile-sidebar
+          [hourlyRate]="user.hourly_rate"
+          [isOwner]="isOwner"
+        ></app-profile-sidebar>
       </div>
     </div>
   </div>
@@ -24,4 +38,3 @@
     <p>Loading profile...</p>
   </div>
 </div>
-
