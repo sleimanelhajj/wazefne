@@ -1,6 +1,38 @@
 <aside class="filter-sidebar">
   <section class="filter-card">
     <header class="card-header">
+      <img src="assets/icons/location.svg" alt="Location" />
+      <h3>Location</h3>
+    </header>
+    <div class="card-body">
+      <select
+        class="category-dropdown"
+        [(ngModel)]="selectedLocation"
+        (change)="selectLocation(selectedLocation)"
+      >
+        <option *ngFor="let loc of locationOptions" [value]="loc.value">
+          {{ loc.label }}
+        </option>
+      </select>
+      <span class="detecting-label" *ngIf="detectingLocation">
+        <svg
+          class="spinner"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#2563eb"
+          stroke-width="3"
+        >
+          <circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="10" />
+        </svg>
+        Detecting your location…
+      </span>
+    </div>
+  </section>
+
+  <section class="filter-card">
+    <header class="card-header">
       <img src="assets/icons/category.svg" alt="Category" />
       <h3>Category</h3>
     </header>
@@ -10,6 +42,7 @@
         [(ngModel)]="selectedCategory"
         (change)="selectCategory(selectedCategory)"
       >
+        <option value="">All Categories</option>
         <option *ngFor="let category of categories" [value]="category.label">
           {{ category.label }} ({{ category.count }})
         </option>

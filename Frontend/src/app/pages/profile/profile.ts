@@ -10,6 +10,7 @@ import { ProfileSidebarComponent } from '../../components/profile/sidebar/profil
 import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { ProfileService } from '../../services/profile.service';
 import { UserProfile } from '../../models/profile.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -31,6 +32,7 @@ export class ProfilePageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly profileService = inject(ProfileService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly authService = inject(AuthService);
 
   user: UserProfile | null = null;
   isOwner = false;

@@ -12,42 +12,42 @@ BEGIN
 -- ── Insert Users ──────────────────────────────────────
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'sarah.dev@example.com', pwd, 'Sarah', 'Johnson', 'Professional House Cleaner', 'Deep cleaning, regular cleaning, and move-in/move-out services', 'Beirut, Lebanon', 'Professional cleaner with 5 years of experience. I take pride in making homes spotless and organized.', 25.00, 4.9, 32, true, 'House Cleaning', true)
+  (gen_random_uuid(), 'sarah.dev@example.com', pwd, 'Sarah', 'Johnson', 'Professional House Cleaner', 'Deep cleaning, regular cleaning, and move-in/move-out services', 'Achrafieh, Beirut', 'Professional cleaner with 5 years of experience. I take pride in making homes spotless and organized.', 25.00, 0, 0, true, 'House Cleaning', true)
 RETURNING id INTO u1;
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'mike.butler@example.com', pwd, 'Mike', 'Chen', 'Expert Butler', 'Premium household management and butler services', 'Amman, Jordan', 'Trained butler with experience serving high-profile households. I ensure your home runs like clockwork.', 55.00, 4.8, 28, true, 'Butler Services', true)
+  (gen_random_uuid(), 'mike.butler@example.com', pwd, 'Mike', 'Chen', 'Expert Butler', 'Premium household management and butler services', 'Jounieh', 'Trained butler with experience serving high-profile households. I ensure your home runs like clockwork.', 55.00, 0, 0, true, 'Butler Services', true)
 RETURNING id INTO u2;
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'lina.photo@example.com', pwd, 'Lina', 'Khoury', 'Professional Photographer', 'Capturing moments that tell your story', 'Tripoli, Lebanon', 'Professional photographer specializing in portraits, events, and commercial photography. Over 8 years of experience.', 60.00, 4.7, 45, true, 'Photography', false)
+  (gen_random_uuid(), 'lina.photo@example.com', pwd, 'Lina', 'Khoury', 'Professional Photographer', 'Capturing moments that tell your story', 'Tripoli', 'Professional photographer specializing in portraits, events, and commercial photography. Over 8 years of experience.', 60.00, 0, 0, true, 'Photography', false)
 RETURNING id INTO u3;
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'omar.tutor@example.com', pwd, 'Omar', 'Hassan', 'Math & Science Tutor', 'Making learning fun and accessible for all ages', 'Dubai, UAE', 'Certified tutor with 6 years of experience in mathematics and science. I help students build confidence and achieve top grades.', 30.00, 4.6, 19, false, 'Tutoring', true)
+  (gen_random_uuid(), 'omar.tutor@example.com', pwd, 'Omar', 'Hassan', 'Math & Science Tutor', 'Making learning fun and accessible for all ages', 'Zahle', 'Certified tutor with 6 years of experience in mathematics and science. I help students build confidence and achieve top grades.', 30.00, 0, 0, false, 'Tutoring', true)
 RETURNING id INTO u4;
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'nadia.events@example.com', pwd, 'Nadia', 'Farah', 'Event Planning Expert', 'Creating unforgettable events from concept to execution', 'Beirut, Lebanon', 'Event planner with expertise in weddings, corporate events, and private parties. Helped plan 100+ successful events.', 40.00, 4.5, 22, true, 'Event Planning', true)
+  (gen_random_uuid(), 'nadia.events@example.com', pwd, 'Nadia', 'Farah', 'Event Planning Expert', 'Creating unforgettable events from concept to execution', 'Hamra, Beirut', 'Event planner with expertise in weddings, corporate events, and private parties. Helped plan 100+ successful events.', 40.00, 0, 0, true, 'Event Planning', true)
 RETURNING id INTO u5;
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'ali.driver@example.com', pwd, 'Ali', 'Mansour', 'Professional Chauffeur', 'Safe and reliable private driving services', 'Jeddah, Saudi Arabia', 'Licensed chauffeur with 10 years of experience. I provide safe, punctual, and comfortable transportation.', 35.00, 4.8, 37, true, 'Chauffeur & Drivers', false)
+  (gen_random_uuid(), 'ali.driver@example.com', pwd, 'Ali', 'Mansour', 'Professional Chauffeur', 'Safe and reliable private driving services', 'Baabda', 'Licensed chauffeur with 10 years of experience. I provide safe, punctual, and comfortable transportation.', 35.00, 0, 0, true, 'Chauffeur & Drivers', false)
 RETURNING id INTO u6;
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'raya.nanny@example.com', pwd, 'Raya', 'Abdel', 'Childcare Specialist', 'Loving and professional childcare and nanny services', 'Cairo, Egypt', 'Certified childcare provider with first aid training. I create a safe, fun, and nurturing environment for your children.', 20.00, 4.9, 53, true, 'Childcare & Nanny', true)
+  (gen_random_uuid(), 'raya.nanny@example.com', pwd, 'Raya', 'Abdel', 'Childcare Specialist', 'Loving and professional childcare and nanny services', 'Saida (Sidon)', 'Certified childcare provider with first aid training. I create a safe, fun, and nurturing environment for your children.', 20.00, 0, 0, true, 'Childcare & Nanny', true)
 RETURNING id INTO u7;
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, title, offer_description, location, about_me, hourly_rate, rating, review_count, verified, category, available_today)
 VALUES
-  (gen_random_uuid(), 'karim.fitness@example.com', pwd, 'Karim', 'Nasser', 'Personal Fitness Trainer', 'Transform your body and mind with personalized training', 'Beirut, Lebanon', 'Certified personal trainer specializing in strength training, HIIT, and nutrition planning. Helping clients reach their goals for 7 years.', 45.00, 4.4, 15, false, 'Personal Training', true)
+  (gen_random_uuid(), 'karim.fitness@example.com', pwd, 'Karim', 'Nasser', 'Personal Fitness Trainer', 'Transform your body and mind with personalized training', 'Verdun, Beirut', 'Certified personal trainer specializing in strength training, HIIT, and nutrition planning. Helping clients reach their goals for 7 years.', 45.00, 0, 0, false, 'Personal Training', true)
 RETURNING id INTO u8;
 
 -- ── Insert Skills ─────────────────────────────────────

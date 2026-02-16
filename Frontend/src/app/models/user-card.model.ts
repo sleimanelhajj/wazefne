@@ -11,4 +11,5 @@ export interface User {
   verified: boolean;
   category: string;
   availableToday: boolean;
+  location: string;
 }

@@ -2,9 +2,38 @@
   <app-top-bar></app-top-bar>
 
   <div class="browse-layout">
-    <aside class="sidebar-column">
+    <!-- Sidebar - Desktop: Column, Mobile: Modal -->
+    <aside class="sidebar-column" [class.mobile-modal]="mobileFiltersOpen">
+      <div class="mobile-modal-header" *ngIf="mobileFiltersOpen">
+        <h3>Filters</h3>
+        <button class="close-btn" (click)="toggleMobileFilters()">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
       <app-side-bar [users]="allUsers"></app-side-bar>
+      <div class="mobile-modal-footer" *ngIf="mobileFiltersOpen">
+        <button class="apply-btn" (click)="toggleMobileFilters()">Apply Filters</button>
+      </div>
     </aside>
+
+    <!-- Mobile modal overlay -->
+    <div class="modal-overlay" *ngIf="mobileFiltersOpen" (click)="toggleMobileFilters()"></div>
+
+    <!-- Mobile Filter Floating Button -->
+    <button class="mobile-filter-btn" (click)="toggleMobileFilters()">
+      <img src="assets/icons/filter.svg" alt="Filters" />
+      <span>Filters</span>
+    </button>
 
     <main class="results-column">
       <div class="results-grid">

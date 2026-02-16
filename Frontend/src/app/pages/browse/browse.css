@@ -25,6 +25,7 @@
 .sidebar-column {
   display: flex;
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
 }
 
@@ -113,5 +114,196 @@
   .browse-layout {
     padding: 12px 24px 16px;
     gap: 16px;
+  }
+}
+
+/* Mobile Filter Styles - Hidden on Desktop */
+.mobile-filter-btn {
+  display: none;
+}
+
+.modal-overlay {
+  display: none;
+}
+
+.mobile-modal-header,
+.mobile-modal-footer {
+  display: none;
+}
+
+/* Mobile Responsive (< 1024px) */
+@media (max-width: 1024px) {
+  .browse-layout {
+    grid-template-columns: 1fr;
+    display: block; /* Stack layout */
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  /* Hide sidebar by default on mobile */
+  .sidebar-column {
+    display: none;
+  }
+
+  .results-column {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .results-grid {
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    padding-bottom: 80px; /* Space for FAB */
+    overflow: visible;
+    height: auto;
+  }
+
+  .results-grid app-user-card {
+    max-width: none;
+  }
+
+  /* Filter Floating Button */
+  .mobile-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 0 24px;
+    height: 56px;
+    border-radius: 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    z-index: 100;
+    cursor: pointer;
+    transition:
+      transform 0.2s,
+      background 0.2s;
+  }
+
+  .mobile-filter-btn:active {
+    transform: scale(0.96);
+    background: #1d4ed8;
+  }
+
+  .mobile-filter-btn img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+  }
+
+  /* Filter Modal Open State */
+  .sidebar-column.mobile-modal {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 320px;
+    background: white;
+    z-index: 1002;
+    padding: 0;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  .mobile-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #fff;
+  }
+
+  .mobile-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Make the sidebar content scrollable */
+  .sidebar-column.mobile-modal > app-side-bar {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+  }
+
+  .close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #64748b;
+  }
+
+  .mobile-modal-footer {
+    display: flex;
+    padding: 16px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #fff;
+    margin-top: auto;
+  }
+
+  .apply-btn {
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .modal-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .sidebar-column.mobile-modal {
+    max-width: 100%; /* Full screen on small phones */
   }
 }

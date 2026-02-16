@@ -13,6 +13,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
 import { categoryOptions } from '../../components/browse/side-bar/category-data';
+import { LOCATION_OPTIONS } from '../../models/available-locations';
 @Component({
   selector: 'app-setup-profile',
   standalone: true,
@@ -41,6 +42,7 @@ export class SetupProfileComponent {
 
   readonly separatorKeyCodes = [ENTER, COMMA] as const;
   readonly categoryOptions = categoryOptions;
+  readonly locationOptions = LOCATION_OPTIONS;
 
   skills: string[] = [];
   languages: string[] = [];
