@@ -246,6 +246,16 @@
   text-decoration: underline;
 }
 
+.forgot-link {
+  color: #2d68ff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
 .tab-body.placeholder {
   text-align: center;
   color: #94a3b8;
@@ -343,6 +353,11 @@
   }
 }
 
+/* Mobile Logo - Hidden on desktop, shown on mobile */
+.mobile-logo {
+  display: none;
+}
+
 /* Responsive - narrow widths */
 @media (max-width: 1024px) {
   .login-container {
@@ -364,5 +379,115 @@
 
   .right-panel {
     min-height: 100vh;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Show mobile logo */
+  .mobile-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  .mobile-logo img {
+    height: 70px;
+    width: auto;
+  }
+
+  .auth-card {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
+  }
+
+  .tab-body {
+    padding: 24px 24px 32px;
+  }
+
+  .tab-body h2 {
+    font-size: 1.5rem;
+  }
+
+  .social-row {
+    flex-direction: column;
+  }
+
+  .social-row button {
+    width: 100%;
+  }
+
+  /* Improve touch targets */
+  .submit-btn {
+    min-height: 48px;
+    padding: 14px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .right-panel {
+    padding: 20px 12px;
+  }
+
+  .mobile-logo {
+    margin-bottom: 24px;
+  }
+
+  .mobile-logo img {
+    height: 60px;
+  }
+
+  .auth-card {
+    border-radius: 16px;
+  }
+
+  .tab-body {
+    padding: 20px 20px 28px;
+  }
+
+  .tab-body h2 {
+    font-size: 1.35rem;
+  }
+
+  .tab-body .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .social-row button {
+    padding: 10px 16px;
+  }
+
+  .form-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .forgot-link {
+    align-self: flex-end;
+    width: 100%;
+    text-align: right;
+  }
+}
+
+@media (max-width: 375px) {
+  .mobile-logo img {
+    height: 50px;
+  }
+
+  .tab-body {
+    padding: 16px 16px 24px;
+  }
+
+  .tab-body h2 {
+    font-size: 1.25rem;
+  }
+
+  .auth-form {
+    gap: 14px;
   }
 }
