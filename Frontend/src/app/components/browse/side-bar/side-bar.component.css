@@ -167,6 +167,7 @@
   width: 100%;
   height: 28px;
   -webkit-appearance: none;
+  appearance: none;
   background: transparent;
   pointer-events: none;
 }

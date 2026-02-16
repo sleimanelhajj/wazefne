@@ -2,7 +2,7 @@
 .hero {
   position: relative;
   min-height: 480px;
-  overflow: hidden;
+  overflow: visible;
   background: url('/assets/hero.png') center/cover no-repeat;
   display: flex;
   align-items: center;
@@ -128,7 +128,8 @@
   align-items: center;
   gap: 6px;
   flex: 0.8;
-  min-width: 0;
+  min-width: 140px;
+  white-space: nowrap;
 }
 
 .location-icon {

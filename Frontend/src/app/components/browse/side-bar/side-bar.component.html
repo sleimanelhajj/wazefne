@@ -42,6 +42,7 @@
         [(ngModel)]="selectedCategory"
         (change)="selectCategory(selectedCategory)"
       >
+        <option value="">All Categories</option>
         <option *ngFor="let category of categories" [value]="category.label">
           {{ category.label }} ({{ category.count }})
         </option>

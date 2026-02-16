@@ -9,8 +9,8 @@
     <h1>Find the perfect help,<br />right when you need it.</h1>
 
     <p class="hero-subtitle">
-      Sta2jerne connects you with trusted freelancers, butlers, and
-      professionals across Lebanon for any task, big or small.
+      Sta2jerne connects you with trusted freelancers, butlers, and professionals across Lebanon for
+      any task, big or small.
     </p>
 
     <div class="hero-search-bar">
@@ -27,7 +27,11 @@
 
       <div class="location-field">
         <mat-icon class="location-icon">location_on</mat-icon>
-        <mat-select [(ngModel)]="selectedLocation" class="location-select">
+        <mat-select
+          [(ngModel)]="selectedLocation"
+          class="location-select"
+          panelClass="hero-location-panel"
+        >
           @for (loc of locations; track loc.value) {
             <mat-option [value]="loc.value">{{ loc.label }}</mat-option>
           }

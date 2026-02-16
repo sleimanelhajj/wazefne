@@ -65,7 +65,11 @@
       <!-- Location -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Location</mat-label>
-        <input matInput formControlName="location" placeholder="e.g. Beirut, Lebanon" />
+        <mat-select formControlName="location">
+          <mat-option *ngFor="let loc of locationOptions" [value]="loc">
+            {{ loc }}
+          </mat-option>
+        </mat-select>
         <mat-icon matSuffix>location_on</mat-icon>
         <mat-error *ngIf="profileForm.get('location')?.hasError('required')">
           Location is required

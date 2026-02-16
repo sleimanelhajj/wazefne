@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { REGION_OPTIONS } from '../../../models/available-locations';
 
 @Component({
   selector: 'app-home-hero',
@@ -25,15 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class HomeHeroComponent {
   searchQuery = '';
   selectedLocation = 'all';
-
-  locations = [
-    { value: 'all', label: 'All Lebanon' },
-    { value: 'beirut', label: 'Beirut' },
-    { value: 'mount-lebanon', label: 'Mount Lebanon' },
-    { value: 'north', label: 'North' },
-    { value: 'south', label: 'South' },
-    { value: 'bekaa', label: 'Bekaa' },
-  ];
+  locations = REGION_OPTIONS;
 
   onSearch(): void {
     console.log('Search:', this.searchQuery, 'Location:', this.selectedLocation);

@@ -25,3 +25,8 @@ app-root {
   display: block;
   height: 100%;
 }
+
+/* Hero location mat-select dropdown panel (global because CDK overlay renders at root level) */
+.hero-location-panel {
+  min-width: 200px !important;
+}

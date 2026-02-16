@@ -64,7 +64,8 @@ export class BrowseComponent implements OnInit, OnDestroy {
       const matchesAvailability = !filters.availableToday || user.availableToday;
       const matchesLocation =
         filters.location === 'all' ||
-        (user.location || '').toLowerCase().includes(filters.location.toLowerCase());
+        (user.location || '').toLowerCase().includes(filters.location.toLowerCase()) ||
+        filters.location.toLowerCase().includes((user.location || '').toLowerCase());
 
       return (
         matchesCategory && matchesPrice && matchesRating && matchesAvailability && matchesLocation
