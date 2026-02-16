@@ -21,11 +21,11 @@ export class TopBarComponent implements OnInit {
   searchForm: FormGroup;
   dropdownOpen = false;
   profileImage: string | null = null;
+  mobileMenuOpen = false;
 
   constructor() {
     this.searchForm = this.fb.group({
       search: [''],
-      location: ['Beirut'],
     });
   }
 
@@ -33,6 +33,7 @@ export class TopBarComponent implements OnInit {
     this.searchForm.valueChanges.subscribe((value) => {
       console.log('Search form value changed:', value);
     });
+    console.log(this.authService.getProfileImage());
   }
 
   get isLoggedIn(): boolean {
@@ -71,5 +72,36 @@ export class TopBarComponent implements OnInit {
 
   onSubmit(): void {
     console.log('Search:', this.searchForm.value);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    if (this.mobileMenuOpen) {
+      this.dropdownOpen = false; // Close profile dropdown when opening mobile menu
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+  }
+
+  goToBrowse(): void {
+    this.mobileMenuOpen = false;
+    this.router.navigate(['/browse']);
+  }
+
+  goToJobs(): void {
+    this.mobileMenuOpen = false;
+    this.router.navigate(['/jobs']);
+  }
+
+  goToBookings(): void {
+    this.mobileMenuOpen = false;
+    this.router.navigate(['/bookings']);
+  }
+
+  goToMessages(): void {
+    this.mobileMenuOpen = false;
+    this.router.navigate(['/messages']);
   }
 }

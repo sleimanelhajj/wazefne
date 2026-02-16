@@ -23,6 +23,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
   allUsers: User[] = [];
   users: User[] = [];
   loading = true;
+  mobileFiltersOpen = false;
   private filterSubscription?: Subscription;
 
   ngOnInit(): void {
@@ -61,8 +62,23 @@ export class BrowseComponent implements OnInit, OnDestroy {
         user.hourlyRate >= filters.priceMin && user.hourlyRate <= filters.priceMax;
       const matchesRating = user.rating >= filters.minRating;
       const matchesAvailability = !filters.availableToday || user.availableToday;
+      const matchesLocation =
+        filters.location === 'all' ||
+        (user.location || '').toLowerCase().includes(filters.location.toLowerCase());
 
-      return matchesCategory && matchesPrice && matchesRating && matchesAvailability;
+      return (
+        matchesCategory && matchesPrice && matchesRating && matchesAvailability && matchesLocation
+      );
     });
+  }
+
+  toggleMobileFilters(): void {
+    this.mobileFiltersOpen = !this.mobileFiltersOpen;
+    // Prevent body scroll when modal is open
+    if (this.mobileFiltersOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 }

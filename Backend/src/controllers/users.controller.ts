@@ -8,15 +8,15 @@ import pool from "../config/db";
 export const getUsers = async (
   _req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const usersResult = await pool.query(
       `SELECT id, first_name, last_name, title, profile_image,
               rating, review_count, hourly_rate, verified,
-              category, available_today
+              category, available_today, location
        FROM users
-       ORDER BY created_at DESC`
+       ORDER BY created_at DESC`,
     );
 
     // Fetch skills for all users in one query
@@ -24,7 +24,7 @@ export const getUsers = async (
       `SELECT us.user_id, s.name
        FROM user_skills us
        JOIN skills s ON s.id = us.skill_id
-       ORDER BY s.name`
+       ORDER BY s.name`,
     );
 
     // Group skills by user_id
@@ -47,6 +47,7 @@ export const getUsers = async (
       verified: u.verified || false,
       category: u.category || "",
       availableToday: u.available_today || false,
+      location: u.location || "",
     }));
 
     res.json({ success: true, users });

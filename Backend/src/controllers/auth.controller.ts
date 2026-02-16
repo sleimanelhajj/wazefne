@@ -75,7 +75,7 @@ export const login = async (
 
     // Find user
     const result = await pool.query(
-      "SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = $1",
+      "SELECT id, email, password_hash, first_name, last_name, profile_image FROM users WHERE email = $1",
       [email],
     );
 
@@ -106,6 +106,7 @@ export const login = async (
         name:
           [user.first_name, user.last_name].filter(Boolean).join(" ") ||
           undefined,
+        profileImage: user.profile_image || null,
       },
     });
   } catch (err) {

@@ -12,6 +12,7 @@ export class FilterService {
     priceMax: 120,
     minRating: 0,
     availableToday: false,
+    location: 'all',
   });
 
   filters$: Observable<FilterCriteria> = this.filterSubject.asObservable();

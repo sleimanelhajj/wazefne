@@ -27,6 +27,28 @@ export class SideBarComponent implements OnChanges {
   priceMax = 120;
   availabilityToday = false;
 
+  // Location filter
+  selectedLocation = 'all';
+  detectingLocation = false;
+  locationOptions = [
+    { value: 'all', label: 'All Locations' },
+    { value: 'current', label: '📍 Current Location' },
+    { value: 'beirut', label: 'Beirut' },
+    { value: 'mount-lebanon', label: 'Mount Lebanon' },
+    { value: 'north', label: 'North' },
+    { value: 'south', label: 'South' },
+    { value: 'bekaa', label: 'Bekaa' },
+  ];
+
+  // Simple bounding boxes for Lebanese regions (lat/lng centers)
+  private readonly regionCoords: { value: string; lat: number; lng: number }[] = [
+    { value: 'beirut', lat: 33.8938, lng: 35.5018 },
+    { value: 'mount-lebanon', lat: 33.85, lng: 35.6 },
+    { value: 'north', lat: 34.4367, lng: 35.8308 },
+    { value: 'south', lat: 33.2721, lng: 35.2033 },
+    { value: 'bekaa', lat: 33.8463, lng: 35.9019 },
+  ];
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['users']) {
       this.buildCategories();
@@ -59,6 +81,62 @@ export class SideBarComponent implements OnChanges {
   selectCategory(category: string): void {
     this.selectedCategory = category;
     this.emitFilters();
+  }
+
+  selectLocation(location: string): void {
+    if (location === 'current') {
+      this.detectCurrentLocation();
+    } else {
+      this.selectedLocation = location;
+      this.emitFilters();
+    }
+  }
+
+  private detectCurrentLocation(): void {
+    if (!navigator.geolocation) {
+      this.selectedLocation = 'all';
+      this.emitFilters();
+      return;
+    }
+
+    this.detectingLocation = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const nearest = this.findNearestRegion(latitude, longitude);
+        this.selectedLocation = nearest;
+        this.detectingLocation = false;
+
+        // Update the dropdown to show the detected region
+        const regionLabel = this.locationOptions.find((o) => o.value === nearest)?.label || nearest;
+        const currentOption = this.locationOptions.find((o) => o.value === 'current');
+        if (currentOption) {
+          currentOption.label = `📍 ${regionLabel}`;
+        }
+
+        this.emitFilters();
+      },
+      () => {
+        // On error, fall back to all
+        this.selectedLocation = 'all';
+        this.detectingLocation = false;
+        this.emitFilters();
+      },
+      { timeout: 10000 },
+    );
+  }
+
+  private findNearestRegion(lat: number, lng: number): string {
+    let nearest = 'beirut';
+    let minDist = Infinity;
+    for (const region of this.regionCoords) {
+      const dist = Math.pow(lat - region.lat, 2) + Math.pow(lng - region.lng, 2);
+      if (dist < minDist) {
+        minDist = dist;
+        nearest = region.value;
+      }
+    }
+    return nearest;
   }
 
   clampPrices(): void {
@@ -102,6 +180,7 @@ export class SideBarComponent implements OnChanges {
       priceMax: this.priceMax,
       minRating: this.selectedRating,
       availableToday: this.availabilityToday,
+      location: this.selectedLocation,
     });
   }
 }
