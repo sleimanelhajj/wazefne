@@ -55,6 +55,12 @@
               <mat-divider></mat-divider>
             </div>
 
+            <!-- Login error banner -->
+            <div class="error-banner" *ngIf="loginError">
+              <span>{{ loginError }}</span>
+              <button type="button" class="dismiss-btn" (click)="loginError = ''">×</button>
+            </div>
+
             <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="auth-form" novalidate>
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Email</mat-label>
@@ -128,6 +134,12 @@
           <div class="tab-body">
             <h2>Create your account</h2>
             <p class="subtitle">Only a few quick details to get started.</p>
+
+            <!-- Signup error banner -->
+            <div class="error-banner" *ngIf="signupError">
+              <span>{{ signupError }}</span>
+              <button type="button" class="dismiss-btn" (click)="signupError = ''">×</button>
+            </div>
 
             <form
               [formGroup]="signupForm"

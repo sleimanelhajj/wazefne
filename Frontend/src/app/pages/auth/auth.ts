@@ -62,6 +62,8 @@ export class AuthComponent {
   protected hideSignupConfirm = true;
   protected loginLoading = false;
   protected signupLoading = false;
+  protected loginError = '';
+  protected signupError = '';
 
   protected onLoginSubmit(): void {
     if (this.loginForm.invalid) {
@@ -71,6 +73,7 @@ export class AuthComponent {
     }
 
     this.loginLoading = true;
+    this.loginError = '';
     const { email, password, remember } = this.loginForm.value;
 
     // Call the AuthService to perform login
@@ -89,6 +92,8 @@ export class AuthComponent {
         },
         error: (error) => {
           console.error('Login failed', error);
+          this.loginError =
+            error.error?.message || 'Login failed. Please check your credentials and try again.';
           this.loginLoading = false;
         },
       });
@@ -102,6 +107,7 @@ export class AuthComponent {
     }
 
     this.signupLoading = true;
+    this.signupError = '';
     const { email, password } = this.signupForm.value;
 
     // Call the AuthService to perform signup
@@ -114,12 +120,13 @@ export class AuthComponent {
         next: (response) => {
           console.log('Signup successful', response);
           this.signupLoading = false;
-          // Navigate to profile setup so user can fill out their inf
+          // Navigate to profile setup so user can fill out their info
           this.locationService.detectCurrentLocation();
           this.router.navigate(['/setup-profile']);
         },
         error: (error) => {
           console.error('Signup failed', error);
+          this.signupError = error.error?.message || 'Signup failed. Please try again.';
           this.signupLoading = false;
         },
       });
