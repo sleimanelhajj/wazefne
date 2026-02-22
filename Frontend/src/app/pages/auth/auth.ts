@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'app-auth',
@@ -38,6 +39,7 @@ export class AuthComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly locationService = inject(LocationService);
 
   // create reactive forms for login and signup
   readonly loginForm = this.fb.group({
@@ -82,6 +84,7 @@ export class AuthComponent {
         next: (response) => {
           console.log('Login successful', response);
           this.loginLoading = false;
+          this.locationService.detectCurrentLocation();
           this.router.navigate(['/browse']);
         },
         error: (error) => {
@@ -111,7 +114,8 @@ export class AuthComponent {
         next: (response) => {
           console.log('Signup successful', response);
           this.signupLoading = false;
-          // Navigate to profile setup so user can fill out their info
+          // Navigate to profile setup so user can fill out their inf
+          this.locationService.detectCurrentLocation();
           this.router.navigate(['/setup-profile']);
         },
         error: (error) => {
