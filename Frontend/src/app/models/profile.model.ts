@@ -26,6 +26,7 @@ export interface UserProfile {
   about_me: string;
   hourly_rate: number;
   profile_image: string;
+  cover_image?: string;
   category: string;
   available_today: boolean;
   rating: number;
