@@ -208,7 +208,7 @@ export const getMyProfile = async (
     const userResult = await pool.query(
       `SELECT id, email, first_name, last_name, title,
               offer_description, location, about_me,
-              hourly_rate, profile_image, category,
+              hourly_rate, profile_image, cover_image, category,
               available_today, rating, review_count, verified,
               created_at
        FROM users WHERE id = $1`,
@@ -243,6 +243,41 @@ export const getMyProfile = async (
       [userId],
     );
 
+    // Fetch reviews for this user
+    const reviewsResult = await pool.query(
+      `SELECT 
+        r.id,
+        r.reviewer_id,
+        r.reviewed_user_id,
+        r.rating,
+        r.comment,
+        r.created_at,
+        r.updated_at,
+        u.first_name,
+        u.last_name,
+        u.profile_image
+       FROM reviews r
+       JOIN users u ON u.id = r.reviewer_id
+       WHERE r.reviewed_user_id = $1
+       ORDER BY r.created_at DESC`,
+      [userId],
+    );
+
+    const reviews = reviewsResult.rows.map((row: any) => ({
+      id: row.id,
+      reviewerId: row.reviewer_id,
+      reviewedUserId: row.reviewed_user_id,
+      rating: row.rating,
+      comment: row.comment,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      reviewer: {
+        firstName: row.first_name,
+        lastName: row.last_name,
+        profileImage: row.profile_image,
+      },
+    }));
+
     res.json({
       success: true,
       user: {
@@ -253,6 +288,7 @@ export const getMyProfile = async (
         skills: skillsResult.rows.map((r: { name: string }) => r.name),
         languages: langsResult.rows.map((r: { name: string }) => r.name),
         portfolio: portfolioResult.rows,
+        reviews,
       },
     });
   } catch (err) {
@@ -275,7 +311,7 @@ export const getProfileById = async (
     const userResult = await pool.query(
       `SELECT id, email, first_name, last_name, title,
               offer_description, location, about_me,
-              hourly_rate, profile_image, category,
+              hourly_rate, profile_image, cover_image, category,
               available_today, rating, review_count, verified,
               created_at
        FROM users WHERE id = $1`,
@@ -473,6 +509,55 @@ export const uploadProfilePicture = async (
         lastName: user.last_name,
         profileImage: user.profile_image,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/profile/upload-cover-image
+ * Upload cover image for authenticated user
+ */
+export const uploadCoverImage = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    const file = req.file as Express.Multer.File;
+    if (!file) {
+      res.status(400).json({ success: false, message: "No file uploaded" });
+      return;
+    }
+
+    // Convert buffer to base64 data URL
+    const base64 = file.buffer.toString("base64");
+    const dataUrl = `data:${file.mimetype};base64,${base64}`;
+
+    // Update user's cover_image
+    const result = await pool.query(
+      `UPDATE users 
+       SET cover_image = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING id, cover_image`,
+      [dataUrl, userId],
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    res.json({
+      success: true,
+      coverImage: result.rows[0].cover_image,
     });
   } catch (err) {
     next(err);

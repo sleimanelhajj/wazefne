@@ -6,6 +6,7 @@ import {
   getProfileById,
   uploadPortfolio,
   uploadProfilePicture,
+  uploadCoverImage,
   upload,
 } from "../controllers/profile.controller";
 
@@ -235,6 +236,13 @@ router.post(
   authenticate,
   upload.single("image"),
   uploadProfilePicture,
+);
+
+router.post(
+  "/upload-cover-image",
+  authenticate,
+  upload.single("image"),
+  uploadCoverImage,
 );
 
 /**

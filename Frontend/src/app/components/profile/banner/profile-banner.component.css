@@ -12,6 +12,34 @@
   position: relative;
 }
 
+.cover-upload-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+
+.cover-upload-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.cover-upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .cover-img {
   width: 100%;
   height: 100%;

@@ -73,4 +73,11 @@ export class ProfileService {
   uploadProfilePicture(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/profile/upload-profile-picture`, formData);
   }
+
+  /**
+   * Upload cover image
+   */
+  uploadCoverImage(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/profile/upload-cover-image`, formData);
+  }
 }
