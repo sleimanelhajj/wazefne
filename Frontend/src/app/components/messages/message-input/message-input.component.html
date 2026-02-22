@@ -22,8 +22,9 @@
       type="text"
       class="msg-input"
       placeholder="Type a message..."
-      [(ngModel)]="messageText"
-      (keydown)="onKeyDown($event)"
+      [value]="messageText"
+      (input)="onInput($event)"
+      (keydown.enter)="onEnter($event)"
     />
 
     <!-- Emoji -->

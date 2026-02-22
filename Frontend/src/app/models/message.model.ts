@@ -1,36 +1,34 @@
+// ── Conversation (from REST API) ─────────────────────
+export interface ConversationUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  title: string;
+}
+
 export interface Conversation {
   id: number;
-  avatar: string;
-  name: string;
-  role: string;
+  otherUser: ConversationUser;
   lastMessage: string;
-  time: string;
-  online: boolean;
-  unread: boolean;
+  lastMessageTime: string;
+  lastMessageSenderId?: string | null;
 }
 
+// ── Chat message (from REST API / WebSocket) ─────────
 export interface ChatMessage {
   id: number;
-  conversationId: number;
-  senderId: 'me' | 'them';
-  type: 'text' | 'image' | 'offer';
+  conversation_id: number;
+  sender_id: string;
   content: string;
-  time: string;
-  imageUrl?: string;
-  offer?: CustomOffer;
+  created_at: string;
 }
 
-export interface CustomOffer {
-  service: string;
-  description: string;
-  duration: string;
-  price: string;
-}
-
+// ── Chat contact (derived from ConversationUser) ─────
 export interface ChatContact {
-  id: number;
+  id: string;
   avatar: string;
   name: string;
   online: boolean;
-  responseTime: string;
+  title: string;
 }

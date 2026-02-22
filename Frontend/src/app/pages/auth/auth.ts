@@ -75,6 +75,7 @@ export class AuthComponent {
     this.loginError = '';
     const { email, password } = this.loginForm.value;
 
+    //TODO: Remove rememebr
     this.authService
       .login({
         email: email!,

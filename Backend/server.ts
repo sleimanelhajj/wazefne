@@ -2,14 +2,17 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
+import http from "http";
 import swaggerUi from "swagger-ui-express";
 import pool from "./src/config/db";
 import routes from "./src/routes";
 import errorHandler from "./src/middleware/errorHandler";
 import swaggerSpec from "./src/config/swagger";
 import runMigrations from "./src/config/migrate";
+import { initSocket } from "./src/config/socket";
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
 // ── Middleware ──────────────────────────────────────────
@@ -42,7 +45,11 @@ const start = async (): Promise<void> => {
     // Run pending migrations
     await runMigrations();
 
-    app.listen(PORT, () => {
+    // Initialize Socket.IO
+    initSocket(server);
+    console.log("Socket.IO initialized");
+
+    server.listen(PORT, () => {
       console.log(` Server running on http://localhost:${PORT}`);
     });
   } catch (err: unknown) {

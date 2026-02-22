@@ -3,6 +3,7 @@ import authRoutes from "./auth.routes";
 import profileRoutes from "./profile.routes";
 import usersRoutes from "./users.routes";
 import reviewsRoutes from "./reviews.routes";
+import messageRoutes from "./messages.routes";
 
 const router = Router();
 
@@ -16,9 +17,6 @@ router.use("/auth", authRoutes);
 router.use("/profile", profileRoutes);
 router.use("/users", usersRoutes);
 router.use("/reviews", reviewsRoutes);
-// import bookingRoutes from "./booking.routes";
-// import messageRoutes from "./message.routes";
-// router.use("/bookings", bookingRoutes);
-// router.use("/messages", messageRoutes);
+router.use("/messages", messageRoutes);
 
 export default router;

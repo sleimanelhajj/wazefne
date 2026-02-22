@@ -22,11 +22,13 @@ export class MessageInputComponent {
     this.messageText = '';
   }
 
-  onKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.sendMessage();
-    }
+  onInput(event: Event) {
+    this.messageText = (event.target as HTMLInputElement).value;
+  }
+
+  onEnter(event: Event) {
+    event.preventDefault();
+    this.sendMessage();
   }
 
   onCreateOffer() {

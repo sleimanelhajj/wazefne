@@ -10,25 +10,33 @@
   </div>
 
   <div class="conversations">
+    <div class="empty-state" *ngIf="filteredConversations.length === 0">
+      <p>No conversations yet</p>
+    </div>
+
     <div
       *ngFor="let conv of filteredConversations"
       class="conversation-item"
       [class.active]="conv.id === activeConversationId"
-      [class.unread]="conv.unread"
       (click)="selectConversation(conv)"
     >
       <div class="avatar-wrapper">
-        <img [src]="conv.avatar" [alt]="conv.name" class="avatar" />
+        <img
+          [src]="conv.otherUser.avatar || 'assets/icons/default-avatar.svg'"
+          [alt]="conv.otherUser.firstName"
+          class="avatar"
+        />
       </div>
 
       <div class="conv-info">
         <div class="conv-top">
-          <span class="conv-name"
-            >{{ conv.name }} <span class="conv-role">({{ conv.role }})</span></span
-          >
-          <span class="conv-time">{{ conv.time }}</span>
+          <span class="conv-name">
+            {{ conv.otherUser.firstName }} {{ conv.otherUser.lastName }}
+            <span class="conv-role" *ngIf="conv.otherUser.title">({{ conv.otherUser.title }})</span>
+          </span>
+          <span class="conv-time">{{ getTimeLabel(conv.lastMessageTime) }}</span>
         </div>
-        <p class="conv-preview">{{ conv.lastMessage }}</p>
+        <p class="conv-preview">{{ conv.lastMessage || 'No messages yet' }}</p>
       </div>
     </div>
   </div>

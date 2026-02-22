@@ -11,6 +11,8 @@ import { ChatMessage } from '../../../models/message.model';
 })
 export class ChatMessagesComponent implements AfterViewChecked {
   @Input() messages: ChatMessage[] = [];
+  @Input() currentUserId: string = '';
+  @Input() otherUserAvatar: string = '';
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   private shouldScroll = true;
@@ -26,5 +28,15 @@ export class ChatMessagesComponent implements AfterViewChecked {
       this.scrollContainer.nativeElement.scrollTop =
         this.scrollContainer.nativeElement.scrollHeight;
     } catch (err) {}
+  }
+
+  isMine(msg: ChatMessage): boolean {
+    return msg.sender_id === this.currentUserId;
+  }
+
+  formatTime(dateStr: string): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 }
