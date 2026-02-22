@@ -30,6 +30,13 @@
       </p>
     </div>
 
-    <button class="btn-primary full-width" *ngIf="!isOwner">Get in Touch</button>
+    <button
+      class="btn-primary full-width"
+      *ngIf="!isOwner"
+      [disabled]="startingChat"
+      (click)="startChat()"
+    >
+      {{ startingChat ? 'Starting chat...' : 'Get in Touch' }}
+    </button>
   </section>
 </aside>

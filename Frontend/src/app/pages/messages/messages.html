@@ -3,16 +3,30 @@
 <div class="messages-shell">
   <app-conversation-list
     [conversations]="conversations"
-    [activeConversationId]="activeConversationId"
+    [activeConversationId]="activeConversation?.id || null"
     (conversationSelected)="onConversationSelected($event)"
   ></app-conversation-list>
 
   <div class="chat-panel">
-    <app-chat-header [contact]="activeContact"></app-chat-header>
-    <app-chat-messages [messages]="activeMessages"></app-chat-messages>
-    <app-message-input
-      (messageSent)="onMessageSent($event)"
-      (createOffer)="onCreateOffer()"
-    ></app-message-input>
+    <ng-container *ngIf="activeConversation; else noChat">
+      <app-chat-header [contact]="activeContact"></app-chat-header>
+      <app-chat-messages
+        [messages]="messages"
+        [currentUserId]="currentUserId"
+        [otherUserAvatar]="activeContact?.avatar || 'assets/icons/default-avatar.svg'"
+      ></app-chat-messages>
+      <app-message-input
+        (messageSent)="onMessageSent($event)"
+        (createOffer)="onCreateOffer()"
+      ></app-message-input>
+    </ng-container>
+
+    <ng-template #noChat>
+      <div class="no-chat-placeholder">
+        <div class="no-chat-icon">💬</div>
+        <h3>Select a conversation</h3>
+        <p>Choose a conversation from the left to start messaging.</p>
+      </div>
+    </ng-template>
   </div>
 </div>

@@ -238,6 +238,45 @@ router.post(
   uploadProfilePicture,
 );
 
+/**
+ * @swagger
+ * /api/profile/upload-cover-image:
+ *   post:
+ *     summary: Upload a cover/banner image
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - image
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Cover image file (jpeg, jpg, png, gif, webp)
+ *     responses:
+ *       200:
+ *         description: Cover image uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 coverImage:
+ *                   type: string
+ *                   description: URL of the uploaded cover image
+ *       400:
+ *         description: No file uploaded
+ *       401:
+ *         description: Unauthorized
+ */
 router.post(
   "/upload-cover-image",
   authenticate,

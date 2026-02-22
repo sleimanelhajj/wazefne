@@ -79,6 +79,13 @@
   background: #cbd5e1;
 }
 
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 /* Bubbles */
 .bubble {
   padding: 10px 16px;
