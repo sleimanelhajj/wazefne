@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, delay, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { LoginRequest, SignupRequest, AuthResponse } from '../models/auth.model';
+import { LocationService } from './location.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,10 +11,12 @@ import { LoginRequest, SignupRequest, AuthResponse } from '../models/auth.model'
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly locationService = inject(LocationService);
   private readonly apiUrl = 'http://localhost:3000/api';
   private readonly TOKEN_KEY = 'auth_token';
   private readonly NAME_KEY = 'user_name';
   private readonly PROFILE_IMAGE_KEY = 'user_profile_image';
+  private readonly USER_ID_KEY = 'user_id';
 
   /**
    * Login user with email and password
@@ -23,6 +26,9 @@ export class AuthService {
       tap((res) => {
         if (res.success && res.token) {
           this.saveToken(res.token);
+          if (res.user?.id) {
+            localStorage.setItem(this.USER_ID_KEY, res.user.id);
+          }
           if (res.user?.name) {
             this.saveUserName(res.user.name);
           } else if (res.user?.email) {
@@ -44,6 +50,9 @@ export class AuthService {
       tap((res) => {
         if (res.success && res.token) {
           this.saveToken(res.token);
+          if (res.user?.id) {
+            localStorage.setItem(this.USER_ID_KEY, res.user.id);
+          }
           if (res.user?.name) {
             this.saveUserName(res.user.name);
           } else if (res.user?.email) {
@@ -60,7 +69,9 @@ export class AuthService {
   logout(): void {
     this.removeToken();
     localStorage.removeItem(this.NAME_KEY);
+    localStorage.removeItem(this.USER_ID_KEY);
     this.removeProfileImage();
+    this.locationService.clearLocation();
     this.router.navigate(['/login']);
   }
 
@@ -125,5 +136,12 @@ export class AuthService {
    */
   removeProfileImage(): void {
     localStorage.removeItem(this.PROFILE_IMAGE_KEY);
+  }
+
+  /**
+   * Get the logged-in user's ID
+   */
+  getUserId(): string | null {
+    return localStorage.getItem(this.USER_ID_KEY);
   }
 }
