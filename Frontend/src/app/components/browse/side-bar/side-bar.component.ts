@@ -121,11 +121,6 @@ export class SideBarComponent implements OnInit, OnChanges, OnDestroy {
     this.emitFilters();
   }
 
-  toggleAvailability(): void {
-    this.availabilityToday = !this.availabilityToday;
-    this.emitFilters();
-  }
-
   setRating(value: number): void {
     this.selectedRating = this.selectedRating === value ? 0 : value;
     this.emitFilters();
@@ -152,7 +147,6 @@ export class SideBarComponent implements OnInit, OnChanges, OnDestroy {
       priceMin: this.priceMin,
       priceMax: this.priceMax,
       minRating: this.selectedRating,
-      availableToday: this.availabilityToday,
       location: this.selectedLocation,
     });
   }

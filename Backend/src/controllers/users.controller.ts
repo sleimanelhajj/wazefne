@@ -16,6 +16,7 @@ export const getUsers = async (
               rating, review_count, hourly_rate, verified,
               category, available_today, location
        FROM users
+       WHERE available_today = true
        ORDER BY created_at DESC`,
     );
 

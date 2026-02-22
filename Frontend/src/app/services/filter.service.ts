@@ -11,7 +11,6 @@ export class FilterService {
     priceMin: 0,
     priceMax: 120,
     minRating: 0,
-    availableToday: false,
     location: 'all',
   });
 

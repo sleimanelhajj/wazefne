@@ -33,6 +33,8 @@
         <app-profile-sidebar
           [hourlyRate]="user.hourly_rate"
           [isOwner]="isOwner"
+          [availableToday]="user.available_today"
+          (profileUpdated)="onProfileUpdated()"
         ></app-profile-sidebar>
       </div>
     </div>

@@ -3,6 +3,5 @@ export interface FilterCriteria {
   priceMin: number;
   priceMax: number;
   minRating: number;
-  availableToday: boolean;
   location: string;
 }
