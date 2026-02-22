@@ -8,6 +8,28 @@
       </div>
     </div>
 
+    <!-- Availability toggle (owner only) -->
+    <div class="availability-section" *ngIf="isOwner">
+      <div class="availability-row">
+        <span class="availability-label">Available for Hire</span>
+        <button
+          class="toggle"
+          type="button"
+          [class.active]="availableToday"
+          [disabled]="toggling"
+          (click)="toggleAvailability()"
+        >
+          <span class="thumb"></span>
+        </button>
+      </div>
+      <p class="availability-hint" *ngIf="!availableToday">
+        You are hidden from browse. Toggle to appear in search results.
+      </p>
+      <p class="availability-hint available" *ngIf="availableToday">
+        You are visible to clients browsing for talent.
+      </p>
+    </div>
+
     <button class="btn-primary full-width" *ngIf="!isOwner">Get in Touch</button>
   </section>
 </aside>

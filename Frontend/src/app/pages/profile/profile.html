@@ -33,12 +33,68 @@
         <app-profile-sidebar
           [hourlyRate]="user.hourly_rate"
           [isOwner]="isOwner"
+          [availableToday]="user.available_today"
+          (profileUpdated)="onProfileUpdated()"
         ></app-profile-sidebar>
       </div>
     </div>
   </div>
 
-  <div class="profile-shell loading-state" *ngIf="loading">
-    <p>Loading profile...</p>
+  <!-- Skeleton loader -->
+  <div class="profile-shell" *ngIf="loading">
+    <!-- Banner skeleton -->
+    <div class="skeleton-banner">
+      <div class="skeleton-cover shimmer"></div>
+      <div class="skeleton-banner-body">
+        <div class="skeleton-avatar-row">
+          <div class="skeleton-avatar shimmer"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-line w-40 shimmer"></div>
+            <div class="skeleton-line w-60 shimmer"></div>
+            <div class="skeleton-line w-30 shimmer"></div>
+          </div>
+        </div>
+        <div class="skeleton-stats-row">
+          <div class="skeleton-stat shimmer"></div>
+          <div class="skeleton-stat shimmer"></div>
+          <div class="skeleton-stat shimmer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content skeleton -->
+    <div class="profile-content-grid" style="margin-top: 24px">
+      <div class="profile-main-column">
+        <!-- About skeleton -->
+        <div class="skeleton-card">
+          <div class="skeleton-line w-30 shimmer" style="height: 14px; margin-bottom: 16px"></div>
+          <div class="skeleton-line w-100 shimmer"></div>
+          <div class="skeleton-line w-100 shimmer"></div>
+          <div class="skeleton-line w-80 shimmer"></div>
+        </div>
+        <!-- Skills skeleton -->
+        <div class="skeleton-card">
+          <div class="skeleton-line w-30 shimmer" style="height: 14px; margin-bottom: 16px"></div>
+          <div class="skeleton-chips-row">
+            <div class="skeleton-chip shimmer"></div>
+            <div class="skeleton-chip shimmer"></div>
+            <div class="skeleton-chip shimmer"></div>
+            <div class="skeleton-chip shimmer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar skeleton -->
+      <div class="profile-sidebar-column">
+        <div class="skeleton-card">
+          <div class="skeleton-line w-40 shimmer" style="height: 28px; margin-bottom: 12px"></div>
+          <div class="skeleton-line w-60 shimmer"></div>
+          <div
+            class="skeleton-line w-100 shimmer"
+            style="height: 40px; border-radius: 10px; margin-top: 12px"
+          ></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

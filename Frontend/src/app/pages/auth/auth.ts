@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -40,12 +40,12 @@ export class AuthComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly locationService = inject(LocationService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // create reactive forms for login and signup
   readonly loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    remember: [false],
   });
 
   readonly signupForm = this.fb.group(
@@ -62,23 +62,24 @@ export class AuthComponent {
   protected hideSignupConfirm = true;
   protected loginLoading = false;
   protected signupLoading = false;
+  protected loginError = '';
+  protected signupError = '';
 
   protected onLoginSubmit(): void {
     if (this.loginForm.invalid) {
-      // Mark all fields as touched to show validation errors yaane fetna 3laya w dharna
       this.loginForm.markAllAsTouched();
       return;
     }
 
     this.loginLoading = true;
-    const { email, password, remember } = this.loginForm.value;
+    this.loginError = '';
+    const { email, password } = this.loginForm.value;
 
-    // Call the AuthService to perform login
     this.authService
       .login({
         email: email!,
         password: password!,
-        remember: remember || false,
+        remember: false,
       })
       .subscribe({
         next: (response) => {
@@ -89,22 +90,24 @@ export class AuthComponent {
         },
         error: (error) => {
           console.error('Login failed', error);
+          this.loginError =
+            error.error?.message || 'Login failed. Please check your credentials and try again.';
           this.loginLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
 
   protected onSignupSubmit(): void {
     if (this.signupForm.invalid) {
-      // mark all fields as touched to show validation errors
       this.signupForm.markAllAsTouched();
       return;
     }
 
     this.signupLoading = true;
+    this.signupError = '';
     const { email, password } = this.signupForm.value;
 
-    // Call the AuthService to perform signup
     this.authService
       .signup({
         email: email!,
@@ -114,18 +117,19 @@ export class AuthComponent {
         next: (response) => {
           console.log('Signup successful', response);
           this.signupLoading = false;
-          // Navigate to profile setup so user can fill out their inf
           this.locationService.detectCurrentLocation();
           this.router.navigate(['/setup-profile']);
         },
         error: (error) => {
           console.error('Signup failed', error);
+          this.signupError = error.error?.message || 'Signup failed. Please try again.';
           this.signupLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
 
-  // Toggle password visibility for login and signup forms
+  // Toggle password visibility
   protected togglePasswordVisibility(target: 'login' | 'signup' | 'signupConfirm'): void {
     switch (target) {
       case 'login':

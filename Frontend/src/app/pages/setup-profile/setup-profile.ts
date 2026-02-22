@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -26,6 +27,7 @@ import { LOCATION_OPTIONS } from '../../models/available-locations';
     MatInputModule,
     MatIconModule,
     MatChipsModule,
+    MatCheckboxModule,
     MatSnackBarModule,
     MatSelectModule,
   ],
@@ -58,6 +60,7 @@ export class SetupProfileComponent {
     location: ['', Validators.required],
     about_me: [''],
     hourly_rate: [null as number | null, [Validators.min(0)]],
+    available_today: [false],
   });
 
   // ── Skills chips ──────────────────────────────────────
@@ -138,6 +141,7 @@ export class SetupProfileComponent {
         location: formVal.location || undefined,
         about_me: formVal.about_me || undefined,
         hourly_rate: formVal.hourly_rate ?? undefined,
+        available_today: formVal.available_today ?? false,
         skills: this.skills.length ? this.skills : undefined,
         languages: this.languages.length ? this.languages : undefined,
       })
