@@ -4,7 +4,13 @@
   </div>
 
   <ng-container *ngFor="let msg of messages">
-    <div class="message-row" [class.sent]="isMine(msg)" [class.received]="!isMine(msg)">
+    <!-- ── Offer Card Message ── -->
+    <div
+      *ngIf="isOfferMessage(msg); else regularMessage"
+      class="message-row offer-row"
+      [class.sent]="isMine(msg)"
+      [class.received]="!isMine(msg)"
+    >
       <div *ngIf="!isMine(msg)" class="msg-avatar-col">
         <img
           *ngIf="otherUserAvatar; else placeholder"
@@ -16,11 +22,92 @@
           <div class="msg-avatar-placeholder"></div>
         </ng-template>
       </div>
-      <div class="bubble">
-        <p class="bubble-text">{{ msg.content }}</p>
-        <span class="bubble-time">{{ formatTime(msg.created_at) }}</span>
+
+      <div
+        class="offer-card"
+        [class.accepted]="msg.offer!.status === 'accepted'"
+        [class.declined]="msg.offer!.status === 'declined'"
+      >
+        <div class="offer-header">
+          <span class="offer-badge">📋 JOB OFFER</span>
+          <span
+            class="offer-status"
+            [class.status-pending]="msg.offer!.status === 'pending'"
+            [class.status-accepted]="msg.offer!.status === 'accepted'"
+            [class.status-declined]="msg.offer!.status === 'declined'"
+          >
+            {{ getOfferStatusLabel(msg.offer!.status) }}
+          </span>
+        </div>
+
+        <h4 class="offer-service">{{ msg.offer!.title }}</h4>
+
+        <div class="offer-rate-row">
+          <span class="offer-rate-label">Proposed rate</span>
+          <span class="offer-price"
+            >${{ msg.offer!.hourly_rate }}<span class="offer-price-unit">/hr</span></span
+          >
+        </div>
+
+        <!-- Accept / Decline buttons – only for recipient on pending offers -->
+        <div class="offer-actions" *ngIf="canRespondToOffer(msg)">
+          <button class="offer-btn offer-btn-accept" (click)="onAcceptOffer(msg.offer!.id)">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Accept
+          </button>
+          <button class="offer-btn offer-btn-decline" (click)="onDeclineOffer(msg.offer!.id)">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Decline
+          </button>
+        </div>
+
+        <span class="offer-time">{{ formatTime(msg.created_at) }}</span>
       </div>
     </div>
+
+    <!-- ── Regular Message ── -->
+    <ng-template #regularMessage>
+      <div class="message-row" [class.sent]="isMine(msg)" [class.received]="!isMine(msg)">
+        <div *ngIf="!isMine(msg)" class="msg-avatar-col">
+          <img
+            *ngIf="otherUserAvatar; else regPlaceholder"
+            [src]="otherUserAvatar"
+            class="msg-avatar"
+            alt="User avatar"
+          />
+          <ng-template #regPlaceholder>
+            <div class="msg-avatar-placeholder"></div>
+          </ng-template>
+        </div>
+        <div class="bubble">
+          <p class="bubble-text">{{ msg.content }}</p>
+          <span class="bubble-time">{{ formatTime(msg.created_at) }}</span>
+        </div>
+      </div>
+    </ng-template>
   </ng-container>
 
   <div class="empty-chat" *ngIf="messages.length === 0">

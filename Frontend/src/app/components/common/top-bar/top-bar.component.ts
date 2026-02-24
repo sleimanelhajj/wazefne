@@ -90,10 +90,7 @@ export class TopBarComponent implements OnInit {
     this.router.navigate(['/browse']);
   }
 
-  goToJobs(): void {
-    this.mobileMenuOpen = false;
-    this.router.navigate(['/jobs']);
-  }
+
 
   goToBookings(): void {
     this.mobileMenuOpen = false;

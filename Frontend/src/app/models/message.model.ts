@@ -22,6 +22,15 @@ export interface ChatMessage {
   sender_id: string;
   content: string;
   created_at: string;
+  offer_id?: number | null;
+  offer?: {
+    id: number;
+    title: string;
+    hourly_rate: number;
+    status: 'pending' | 'accepted' | 'declined';
+    sender_id: string;
+    recipient_id: string;
+  };
 }
 
 // ── Chat contact (derived from ConversationUser) ─────
@@ -31,4 +40,16 @@ export interface ChatContact {
   name: string;
   online: boolean;
   title: string;
+}
+
+// ── Offer (from REST API) ────────────────────────────
+export interface Offer {
+  id: number;
+  conversationId: number;
+  senderId: string;
+  recipientId: string;
+  title: string;
+  hourlyRate: number;
+  status: 'pending' | 'accepted' | 'declined';
+  createdAt: string;
 }

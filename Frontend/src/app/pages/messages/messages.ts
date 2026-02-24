@@ -5,9 +5,12 @@ import { ConversationListComponent } from '../../components/messages/conversatio
 import { ChatHeaderComponent } from '../../components/messages/chat-header/chat-header.component';
 import { ChatMessagesComponent } from '../../components/messages/chat-messages/chat-messages.component';
 import { MessageInputComponent } from '../../components/messages/message-input/message-input.component';
+import { CreateOfferModalComponent } from '../../components/messages/create-offer-modal/create-offer-modal.component';
 import { Conversation, ChatMessage, ChatContact } from '../../models/message.model';
 import { ChatService } from '../../services/chat.service';
 import { AuthService } from '../../services/auth.service';
+import { OfferService } from '../../services/offer.service';
+import { ProfileService } from '../../services/profile.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -20,6 +23,7 @@ import { Subscription } from 'rxjs';
     ChatHeaderComponent,
     ChatMessagesComponent,
     MessageInputComponent,
+    CreateOfferModalComponent,
   ],
   templateUrl: './messages.html',
   styleUrls: ['./messages.css'],
@@ -27,14 +31,20 @@ import { Subscription } from 'rxjs';
 export class MessagesComponent implements OnInit, OnDestroy {
   private readonly chatService = inject(ChatService);
   private readonly authService = inject(AuthService);
+  private readonly offerService = inject(OfferService);
+  private readonly profileService = inject(ProfileService);
   private readonly cdr = inject(ChangeDetectorRef);
-  private subs: Subscription[] = [];
+  private subscriptions: Subscription[] = [];
 
   conversations: Conversation[] = [];
   activeConversation: Conversation | null = null;
   messages: ChatMessage[] = [];
   currentUserId: string = '';
   loading = true;
+
+  // Offer modal state
+  showOfferModal = false;
+  recipientHourlyRate = 0;
 
   ngOnInit(): void {
     // Get current user ID
@@ -48,7 +58,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.loadConversations();
 
     // Listen for real-time messages
-    this.subs.push(
+    this.subscriptions.push(
       this.chatService.onNewMessage$.subscribe((msg) => {
         // Add to current messages if it belongs to the active conversation
         if (this.activeConversation && msg.conversation_id === this.activeConversation.id) {
@@ -62,10 +72,27 @@ export class MessagesComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }),
     );
+
+    // Listen for offer status updates (real-time)
+    this.subscriptions.push(
+      this.chatService.onOfferUpdated$.subscribe((data) => {
+        // Update the offer status on matching messages
+        this.messages = this.messages.map((m) => {
+          if (m.offer && m.offer.id === data.offerId) {
+            return {
+              ...m,
+              offer: { ...m.offer, status: data.status as 'pending' | 'accepted' | 'declined' },
+            };
+          }
+          return m;
+        });
+        this.cdr.detectChanges();
+      }),
+    );
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach((s) => s.unsubscribe());
+    this.subscriptions.forEach((s) => s.unsubscribe());
     this.chatService.disconnect();
   }
 
@@ -123,11 +150,80 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   onCreateOffer(): void {
-    console.log('Create offer clicked');
+    if (!this.activeConversation) return;
+
+    const otherUserId = this.activeConversation.otherUser.id;
+    this.profileService.getProfileById(otherUserId).subscribe({
+      next: (res) => {
+        this.recipientHourlyRate = res.user?.hourly_rate || 0;
+        this.showOfferModal = true;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to fetch recipient profile:', err);
+        // Still open modal with rate 0
+        this.recipientHourlyRate = 0;
+        this.showOfferModal = true;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  onSubmitOffer(data: { title: string; hourlyRate: number }): void {
+    if (!this.activeConversation) return;
+
+    this.offerService
+      .createOffer({
+        conversationId: this.activeConversation.id,
+        title: data.title,
+        hourlyRate: data.hourlyRate,
+      })
+      .subscribe({
+        next: () => {
+          this.showOfferModal = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to create offer:', err);
+          this.showOfferModal = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   onSchedule(): void {
     console.log('Schedule clicked');
+  }
+
+  onAcceptOffer(offerId: number): void {
+    this.offerService.updateOfferStatus(offerId, 'accepted').subscribe({
+      next: () => {
+        // Update locally immediately
+        this.messages = this.messages.map((m) => {
+          if (m.offer && m.offer.id === offerId) {
+            return { ...m, offer: { ...m.offer, status: 'accepted' as const } };
+          }
+          return m;
+        });
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to accept offer:', err),
+    });
+  }
+
+  onDeclineOffer(offerId: number): void {
+    this.offerService.updateOfferStatus(offerId, 'declined').subscribe({
+      next: () => {
+        this.messages = this.messages.map((m) => {
+          if (m.offer && m.offer.id === offerId) {
+            return { ...m, offer: { ...m.offer, status: 'declined' as const } };
+          }
+          return m;
+        });
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to decline offer:', err),
+    });
   }
 
   private updateConversationPreview(msg: ChatMessage): void {

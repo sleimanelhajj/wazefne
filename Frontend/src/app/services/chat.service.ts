@@ -19,6 +19,13 @@ export class ChatService {
   private typingSubject = new Subject<{ conversationId: number; userId: string }>();
   onTyping$ = this.typingSubject.asObservable();
 
+  private offerUpdatedSubject = new Subject<{
+    offerId: number;
+    status: string;
+    conversationId: number;
+  }>();
+  onOfferUpdated$ = this.offerUpdatedSubject.asObservable();
+
   // ── WebSocket lifecycle ──────────────────────────────
   connect(): void {
     if (this.socket?.connected) return;
@@ -46,6 +53,13 @@ export class ChatService {
     this.socket.on('disconnect', () => {
       console.log('Socket.IO disconnected');
     });
+
+    this.socket.on(
+      'offer_updated',
+      (data: { offerId: number; status: string; conversationId: number }) => {
+        this.offerUpdatedSubject.next(data);
+      },
+    );
 
     this.socket.on('connect_error', (err) => {
       console.error('Socket.IO connection error:', err.message);

@@ -100,14 +100,40 @@ export const getMessages = async (
     }
 
     const result = await pool.query(
-      `SELECT id, conversation_id, sender_id, content, created_at
-       FROM messages
-       WHERE conversation_id = $1
-       ORDER BY created_at ASC`,
+      `SELECT m.id, m.conversation_id, m.sender_id, m.content, m.created_at, m.offer_id,
+              o.title AS offer_title, o.hourly_rate AS offer_hourly_rate,
+              o.status AS offer_status, o.sender_id AS offer_sender_id,
+              o.recipient_id AS offer_recipient_id
+       FROM messages m
+       LEFT JOIN offers o ON o.id = m.offer_id
+       WHERE m.conversation_id = $1
+       ORDER BY m.created_at ASC`,
       [conversationId],
     );
 
-    res.json({ success: true, messages: result.rows });
+    const messages = result.rows.map((r: any) => {
+      const msg: any = {
+        id: r.id,
+        conversation_id: r.conversation_id,
+        sender_id: r.sender_id,
+        content: r.content,
+        created_at: r.created_at,
+        offer_id: r.offer_id || null,
+      };
+      if (r.offer_id) {
+        msg.offer = {
+          id: r.offer_id,
+          title: r.offer_title,
+          hourly_rate: Number(r.offer_hourly_rate),
+          status: r.offer_status,
+          sender_id: r.offer_sender_id,
+          recipient_id: r.offer_recipient_id,
+        };
+      }
+      return msg;
+    });
+
+    res.json({ success: true, messages });
   } catch (err) {
     next(err);
   }
