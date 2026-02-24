@@ -1,0 +1,99 @@
+<div class="modal-overlay" (click)="onBackdropClick($event)">
+  <div class="modal-card">
+    <!-- Close button -->
+    <button class="close-btn" (click)="close.emit()" title="Close">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-icon">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <polyline points="14,2 14,8 20,8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+      </div>
+      <h2 class="modal-title">Create Offer</h2>
+      <p class="modal-subtitle">
+        Send a job offer to <strong>{{ recipientName }}</strong>
+      </p>
+    </div>
+
+    <!-- Recipient info card -->
+    <div class="recipient-card">
+      <img
+        [src]="recipientAvatar || 'assets/icons/default-avatar.svg'"
+        [alt]="recipientName"
+        class="recipient-avatar"
+      />
+      <div class="recipient-info">
+        <span class="recipient-name">{{ recipientName }}</span>
+        <span class="recipient-rate">
+          Current rate: <strong>${{ recipientHourlyRate }}/hr</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-group">
+      <label for="jobTitle" class="form-label">Job Title</label>
+      <input
+        id="jobTitle"
+        type="text"
+        class="form-input"
+        placeholder="e.g. Build a React landing page"
+        [(ngModel)]="jobTitle"
+        maxlength="255"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="proposedRate" class="form-label">Proposed Hourly Rate</label>
+      <div class="rate-input-wrapper">
+        <span class="rate-prefix">$</span>
+        <input
+          id="proposedRate"
+          type="number"
+          class="form-input rate-input"
+          placeholder="0.00"
+          [(ngModel)]="proposedRate"
+          min="1"
+          step="0.50"
+        />
+        <span class="rate-suffix">/hr</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="modal-actions">
+      <button class="btn btn-cancel" (click)="close.emit()">Cancel</button>
+      <button class="btn btn-submit" [disabled]="!isValid || submitting" (click)="onSubmit()">
+        <span *ngIf="submitting" class="spinner"></span>
+        {{ submitting ? 'Sending...' : 'Send Offer' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,12 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ElementRef,
+  ViewChild,
+  AfterViewChecked,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatMessage } from '../../../models/message.model';
 
@@ -13,6 +21,8 @@ export class ChatMessagesComponent implements AfterViewChecked {
   @Input() messages: ChatMessage[] = [];
   @Input() currentUserId: string = '';
   @Input() otherUserAvatar: string = '';
+  @Output() acceptOffer = new EventEmitter<number>();
+  @Output() declineOffer = new EventEmitter<number>();
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   private shouldScroll = true;
@@ -32,6 +42,36 @@ export class ChatMessagesComponent implements AfterViewChecked {
 
   isMine(msg: ChatMessage): boolean {
     return msg.sender_id === this.currentUserId;
+  }
+
+  isOfferMessage(msg: ChatMessage): boolean {
+    return !!msg.offer_id && !!msg.offer;
+  }
+
+  /** Whether the current user is the recipient of this offer (can accept/decline) */
+  canRespondToOffer(msg: ChatMessage): boolean {
+    return (
+      !!msg.offer && msg.offer.status === 'pending' && msg.offer.recipient_id === this.currentUserId
+    );
+  }
+
+  getOfferStatusLabel(status: string): string {
+    switch (status) {
+      case 'accepted':
+        return 'Accepted';
+      case 'declined':
+        return 'Declined';
+      default:
+        return 'Pending';
+    }
+  }
+
+  onAcceptOffer(offerId: number) {
+    this.acceptOffer.emit(offerId);
+  }
+
+  onDeclineOffer(offerId: number) {
+    this.declineOffer.emit(offerId);
   }
 
   formatTime(dateStr: string): string {

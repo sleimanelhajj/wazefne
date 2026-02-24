@@ -14,6 +14,8 @@
         [messages]="messages"
         [currentUserId]="currentUserId"
         [otherUserAvatar]="activeContact?.avatar || 'assets/icons/default-avatar.svg'"
+        (acceptOffer)="onAcceptOffer($event)"
+        (declineOffer)="onDeclineOffer($event)"
       ></app-chat-messages>
       <app-message-input
         (messageSent)="onMessageSent($event)"
@@ -23,10 +25,20 @@
 
     <ng-template #noChat>
       <div class="no-chat-placeholder">
-        <div class="no-chat-icon">💬</div>
+        <div class="no-chat-icon"></div>
         <h3>Select a conversation</h3>
         <p>Choose a conversation from the left to start messaging.</p>
       </div>
     </ng-template>
   </div>
 </div>
+
+<!-- Create Offer Modal -->
+<app-create-offer-modal
+  *ngIf="showOfferModal"
+  [recipientName]="activeContact?.name || ''"
+  [recipientHourlyRate]="recipientHourlyRate"
+  [recipientAvatar]="activeContact?.avatar || ''"
+  (submitOffer)="onSubmitOffer($event)"
+  (close)="showOfferModal = false"
+></app-create-offer-modal>
