@@ -27,7 +27,7 @@ export interface ChatMessage {
     id: number;
     title: string;
     hourly_rate: number;
-    status: 'pending' | 'accepted' | 'declined';
+    status: 'pending' | 'accepted' | 'declined' | 'cancelled' | 'in_progress' | 'completed';
     sender_id: string;
     recipient_id: string;
   };
@@ -50,6 +50,6 @@ export interface Offer {
   recipientId: string;
   title: string;
   hourlyRate: number;
-  status: 'pending' | 'accepted' | 'declined';
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled' | 'in_progress' | 'completed';
   createdAt: string;
 }

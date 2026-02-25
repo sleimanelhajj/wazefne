@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Offer } from '../models/message.model';
+import { Booking } from '../models/bookings.model';
 
 @Injectable({ providedIn: 'root' })
 export class OfferService {
@@ -26,11 +27,22 @@ export class OfferService {
 
   updateOfferStatus(
     offerId: number,
-    status: 'accepted' | 'declined',
+    status: 'accepted' | 'declined' | 'in_progress' | 'completed',
   ): Observable<{ success: boolean; status: string }> {
     return this.http.patch<{ success: boolean; status: string }>(
       `${this.apiUrl}/${offerId}/status`,
       { status },
+    );
+  }
+
+  getMyBookings(): Observable<{ success: boolean; bookings: Booking[] }> {
+    return this.http.get<{ success: boolean; bookings: Booking[] }>(`${this.apiUrl}/my-bookings`);
+  }
+
+  cancelOffer(offerId: number): Observable<{ success: boolean; status: string }> {
+    return this.http.patch<{ success: boolean; status: string }>(
+      `${this.apiUrl}/${offerId}/cancel`,
+      {},
     );
   }
 }

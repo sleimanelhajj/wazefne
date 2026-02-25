@@ -2,18 +2,20 @@
   <div class="card-body">
     <div class="card-left">
       <div class="avatar-wrapper">
-        <img [src]="booking.avatar" [alt]="booking.name" class="avatar" />
-        <span class="avatar-rating" *ngIf="booking.rating">{{ booking.rating }}</span>
+        <img *ngIf="otherUserAvatar" [src]="otherUserAvatar" [alt]="otherUserName" class="avatar" />
+        <div *ngIf="!otherUserAvatar" class="avatar avatar-placeholder">
+          {{ otherUserName.charAt(0) }}
+        </div>
       </div>
       <div class="card-info">
         <div class="name-row">
-          <span class="name">{{ booking.name }}</span>
+          <span class="name">{{ otherUserName }}</span>
           <span class="status-badge" [ngClass]="getStatusClass()">
             <span class="status-dot"></span>
-            {{ booking.statusLabel }}
+            {{ statusLabel }}
           </span>
         </div>
-        <div class="service">{{ booking.service }}</div>
+        <div class="service">{{ booking.title }}</div>
         <div class="meta-row">
           <span class="meta-item">
             <svg
@@ -29,15 +31,7 @@
               <line x1="8" y1="2" x2="8" y2="6" />
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-            {{ booking.date }}
-          </span>
-          <span class="meta-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#2563eb">
-              <path
-                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-              />
-            </svg>
-            {{ booking.location }}
+            {{ formattedDate }}
           </span>
         </div>
       </div>
@@ -45,18 +39,35 @@
 
     <div class="card-right">
       <div class="price-block">
-        <span class="price-label">{{ booking.priceLabel }}</span>
-        <span class="price">{{ booking.price }}</span>
+        <span class="price-label">{{ priceLabel }}</span>
+        <span class="price">{{ price }}</span>
       </div>
       <div class="actions">
         <button
           *ngFor="let action of actions"
           class="action-btn"
           [ngClass]="'action-' + action.style"
+          (click)="onAction(action.action)"
         >
           {{ action.label }}
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Done confirmation modal -->
+<div class="modal-overlay" *ngIf="showDoneModal" (click)="cancelDone()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-icon">🎉</div>
+    <h3 class="modal-title">Mark as Done?</h3>
+    <p class="modal-text">
+      Are you sure you want to mark
+      <strong>"{{ booking.title }}"</strong> as completed? This will move it to your past bookings.
+    </p>
+    <div class="modal-actions">
+      <button class="action-btn action-outline" (click)="cancelDone()">Not Yet</button>
+      <button class="action-btn action-success" (click)="confirmDone()">Yes, Mark Done</button>
     </div>
   </div>
 </div>

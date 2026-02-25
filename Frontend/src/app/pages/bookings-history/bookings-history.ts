@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { BookingStatsCardsComponent } from '../../components/bookings-history/stats-cards/stats-cards.component';
 import { BookingTabsComponent } from '../../components/bookings-history/booking-tabs/booking-tabs.component';
 import { BookingCardComponent } from '../../components/bookings-history/booking-card/booking-card.component';
 import { BookingHelpBannerComponent } from '../../components/bookings-history/help-banner/help-banner.component';
 import { Booking, BookingStat, BookingTab } from '../../models/bookings.model';
+import { OfferService } from '../../services/offer.service';
+import { AuthService } from '../../services/auth.service';
+
 @Component({
   selector: 'app-bookings-history',
   standalone: true,
@@ -20,188 +24,78 @@ import { Booking, BookingStat, BookingTab } from '../../models/bookings.model';
   templateUrl: './bookings-history.html',
   styleUrls: ['./bookings-history.css'],
 })
-export class BookingsHistoryComponent {
-  directionToggle: 'booked-me' | 'i-booked' = 'i-booked';
+export class BookingsHistoryComponent implements OnInit {
+  private readonly offerService = inject(OfferService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  stats: BookingStat[] = [
-    {
-      icon: '📅',
-      iconBg: '#eff6ff',
-      label: 'Upcoming',
-      value: 3,
-    },
-    {
-      icon: '✅',
-      iconBg: '#f0fdf4',
-      label: 'Completed',
-      value: 12,
-    },
-    {
-      icon: '💰',
-      iconBg: '#faf5ff',
-      label: 'Total Spend',
-      value: '$1,240',
-    },
-  ];
+  directionToggle: 'booked-me' | 'i-booked' = 'i-booked';
+  activeStatusTab = 'active';
+  allBookings: Booking[] = [];
+  loading = true;
+  currentUserId = '';
 
   statusTabs: BookingTab[] = [
-    { key: 'active', label: 'Active', count: 3 },
+    { key: 'active', label: 'Active' },
     { key: 'past', label: 'Past' },
   ];
 
-  activeStatusTab = 'active';
+  get stats(): BookingStat[] {
+    const active = this.allBookings.filter(
+      (b) => b.status === 'pending' || b.status === 'accepted' || b.status === 'in_progress',
+    ).length;
+    const completed = this.allBookings.filter((b) => b.status === 'completed').length;
+    const totalSpend = this.allBookings
+      .filter((b) => b.status === 'completed')
+      .reduce((sum, b) => sum + b.hourlyRate, 0);
 
-  allBookings: Booking[] = [
-    {
-      id: 1,
-      avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
-      name: 'Fadi the Plumber',
-      rating: 4.9,
-      service: 'Emergency Pipe Repair',
-      status: 'in-progress',
-      statusLabel: 'In Progress',
-      date: 'Today, 10:00 AM',
-      location: 'Achrafieh, Beirut',
-      priceLabel: 'Total',
-      price: '$45.00',
-      progress: 65,
-      direction: 'i-booked',
-    },
-    {
-      id: 2,
-      avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
-      name: 'Sara (Event Butler)',
-      rating: 5.0,
-      service: 'Dinner Party Assistance',
-      status: 'confirmed',
-      statusLabel: 'Confirmed',
-      date: 'Nov 02, 7:00 PM',
-      location: 'Gemmayze, Beirut',
-      priceLabel: 'Estimated',
-      price: '$120.00',
-      direction: 'i-booked',
-    },
-    {
-      id: 3,
-      avatar: '',
-      name: 'Electrician Request',
-      service: 'Faulty wiring checkup',
-      status: 'pending',
-      statusLabel: 'Pending',
-      date: 'ASAP (Requested)',
-      location: 'Hamra, Beirut',
-      priceLabel: 'Budget',
-      price: '$30 – $50',
-      direction: 'i-booked',
-    },
-    {
-      id: 4,
-      avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
-      name: 'Ahmad K.',
-      rating: 4.7,
-      service: 'Home Deep Cleaning',
-      status: 'confirmed',
-      statusLabel: 'Confirmed',
-      date: 'Nov 05, 9:00 AM',
-      location: 'Verdun, Beirut',
-      priceLabel: 'Total',
-      price: '$80.00',
-      direction: 'booked-me',
-    },
-    {
-      id: 5,
-      avatar: 'https://randomuser.me/api/portraits/women/33.jpg',
-      name: 'Layla M.',
-      rating: 4.8,
-      service: 'Birthday Party Catering',
-      status: 'in-progress',
-      statusLabel: 'In Progress',
-      date: 'Today, 5:00 PM',
-      location: 'Jounieh',
-      priceLabel: 'Total',
-      price: '$200.00',
-      progress: 40,
-      direction: 'booked-me',
-    },
-    {
-      id: 6,
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      name: 'Hassan B.',
-      service: 'Private Chef Service',
-      status: 'completed',
-      statusLabel: 'Completed',
-      date: 'Oct 28, 7:00 PM',
-      location: 'Rabieh',
-      priceLabel: 'Total',
-      price: '$150.00',
-      direction: 'i-booked',
-    },
-    {
-      id: 7,
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      name: 'Hassan B.',
-      service: 'Private Chef Service',
-      status: 'completed',
-      statusLabel: 'Completed',
-      date: 'Oct 28, 7:00 PM',
-      location: 'Rabieh',
-      priceLabel: 'Total',
-      price: '$150.00',
-      direction: 'i-booked',
-    },
-    {
-      id: 8,
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      name: 'Hassan B.',
-      service: 'Private Chef Service',
-      status: 'completed',
-      statusLabel: 'Completed',
-      date: 'Oct 28, 7:00 PM',
-      location: 'Rabieh',
-      priceLabel: 'Total',
-      price: '$150.00',
-      direction: 'i-booked',
-    },
-    {
-      id: 9,
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      name: 'Hassan B.',
-      service: 'Private Chef Service',
-      status: 'completed',
-      statusLabel: 'Completed',
-      date: 'Oct 28, 7:00 PM',
-      location: 'Rabieh',
-      priceLabel: 'Total',
-      price: '$150.00',
-      direction: 'i-booked',
-    },
-    {
-      id: 10,
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      name: 'Hassan B.',
-      service: 'Private Chef Service',
-      status: 'completed',
-      statusLabel: 'Completed',
-      date: 'Oct 28, 7:00 PM',
-      location: 'Rabieh',
-      priceLabel: 'Total',
-      price: '$150.00',
-      direction: 'i-booked',
-    },
-    {
-      id: 11,
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      name: 'Hassan B.',
-      service: 'Private Chef Service',
-      status: 'completed',
-      statusLabel: 'Completed',
-      date: 'Oct 28, 7:00 PM',
-      location: 'Rabieh',
-      priceLabel: 'Total',
-      price: '$150.00',
-      direction: 'i-booked',
-    },
-  ];
+    return [
+      { icon: '📅', iconBg: '#eff6ff', label: 'Active', value: active },
+      { icon: '✅', iconBg: '#f0fdf4', label: 'Completed', value: completed },
+      { icon: '💰', iconBg: '#faf5ff', label: 'Total Earned', value: `$${totalSpend.toFixed(0)}` },
+    ];
+  }
+
+  ngOnInit(): void {
+    this.currentUserId = this.authService.getUserId() || '';
+    this.loadBookings();
+  }
+
+  loadBookings(): void {
+    this.loading = true;
+    this.offerService.getMyBookings().subscribe({
+      next: (res) => {
+        this.allBookings = res.bookings.map((b: any) => ({
+          ...b,
+          direction: b.senderId === this.currentUserId ? 'i-booked' : 'booked-me',
+        }));
+        this.updateTabCounts();
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load bookings:', err);
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private updateTabCounts(): void {
+    const dirBookings = this.allBookings.filter((b) => b.direction === this.directionToggle);
+    const activeCount = dirBookings.filter(
+      (b) => b.status === 'pending' || b.status === 'accepted' || b.status === 'in_progress',
+    ).length;
+    const pastCount = dirBookings.filter(
+      (b) => b.status === 'completed' || b.status === 'cancelled' || b.status === 'declined',
+    ).length;
+
+    this.statusTabs = [
+      { key: 'active', label: 'Active', count: activeCount },
+      { key: 'past', label: 'Past', count: pastCount },
+    ];
+  }
 
   get filteredBookings(): Booking[] {
     return this.allBookings.filter((b) => {
@@ -214,11 +108,9 @@ export class BookingsHistoryComponent {
   private matchesStatusTab(b: Booking): boolean {
     switch (this.activeStatusTab) {
       case 'active':
-        return b.status === 'in-progress' || b.status === 'confirmed' || b.status === 'pending';
+        return b.status === 'in_progress' || b.status === 'accepted' || b.status === 'pending';
       case 'past':
-        return b.status === 'completed';
-      case 'cancelled':
-        return b.status === 'cancelled';
+        return b.status === 'completed' || b.status === 'cancelled' || b.status === 'declined';
       default:
         return true;
     }
@@ -226,9 +118,59 @@ export class BookingsHistoryComponent {
 
   onDirectionChange(dir: 'booked-me' | 'i-booked'): void {
     this.directionToggle = dir;
+    this.updateTabCounts();
   }
 
   onStatusTabChange(key: string): void {
     this.activeStatusTab = key;
+  }
+
+  // ── Booking actions ──────────────────────────────────
+
+  onCancel(offerId: number): void {
+    this.offerService.cancelOffer(offerId).subscribe({
+      next: () => this.updateLocalStatus(offerId, 'cancelled'),
+      error: (err) => console.error('Cancel failed:', err),
+    });
+  }
+
+  onAccept(offerId: number): void {
+    this.offerService.updateOfferStatus(offerId, 'accepted').subscribe({
+      next: () => this.updateLocalStatus(offerId, 'accepted'),
+      error: (err) => console.error('Accept failed:', err),
+    });
+  }
+
+  onDecline(offerId: number): void {
+    this.offerService.updateOfferStatus(offerId, 'declined').subscribe({
+      next: () => this.updateLocalStatus(offerId, 'declined'),
+      error: (err) => console.error('Decline failed:', err),
+    });
+  }
+
+  onStartProgress(offerId: number): void {
+    this.offerService.updateOfferStatus(offerId, 'in_progress').subscribe({
+      next: () => this.updateLocalStatus(offerId, 'in_progress'),
+      error: (err) => console.error('Start progress failed:', err),
+    });
+  }
+
+  onMarkDone(offerId: number): void {
+    this.offerService.updateOfferStatus(offerId, 'completed').subscribe({
+      next: () => this.updateLocalStatus(offerId, 'completed'),
+      error: (err) => console.error('Mark done failed:', err),
+    });
+  }
+
+  onOpenChat(conversationId: number): void {
+    this.router.navigate(['/messages'], {
+      queryParams: { conversationId },
+    });
+  }
+
+  private updateLocalStatus(offerId: number, status: Booking['status']): void {
+    this.allBookings = this.allBookings.map((b) => (b.id === offerId ? { ...b, status } : b));
+    this.updateTabCounts();
+    this.cdr.detectChanges();
   }
 }

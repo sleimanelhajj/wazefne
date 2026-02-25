@@ -116,8 +116,10 @@ export const createOffer = async (
 
 /**
  * PATCH /api/offers/:id/status
- * Accept or decline an offer. Only the recipient can do this.
- * Body: { status: 'accepted' | 'declined' }
+ * Update an offer's status. Supports:
+ *   - accepted / declined  (recipient only, from 'pending')
+ *   - in_progress          (recipient only, from 'accepted')
+ *   - completed            (recipient only, from 'in_progress')
  */
 export const updateOfferStatus = async (
   req: AuthRequest,
@@ -129,17 +131,16 @@ export const updateOfferStatus = async (
     const offerId = req.params.id;
     const { status } = req.body;
 
-    if (!status || !["accepted", "declined"].includes(status)) {
-      res
-        .status(400)
-        .json({
-          success: false,
-          message: "Status must be 'accepted' or 'declined'",
-        });
+    const validStatuses = ["accepted", "declined", "in_progress", "completed"];
+    if (!status || !validStatuses.includes(status)) {
+      res.status(400).json({
+        success: false,
+        message: `Status must be one of: ${validStatuses.join(", ")}`,
+      });
       return;
     }
 
-    // Fetch the offer and verify the user is the recipient
+    // Fetch the offer
     const offerResult = await pool.query(
       `SELECT id, conversation_id, sender_id, recipient_id, title, hourly_rate, status
        FROM offers WHERE id = $1`,
@@ -153,23 +154,28 @@ export const updateOfferStatus = async (
 
     const offer = offerResult.rows[0];
 
+    // Only the recipient can perform these actions
     if (offer.recipient_id !== userId) {
-      res
-        .status(403)
-        .json({
-          success: false,
-          message: "Only the recipient can accept or decline",
-        });
+      res.status(403).json({
+        success: false,
+        message: "Only the recipient can update this offer",
+      });
       return;
     }
 
-    if (offer.status !== "pending") {
-      res
-        .status(400)
-        .json({
-          success: false,
-          message: "Offer has already been " + offer.status,
-        });
+    // Validate state transitions
+    const allowedTransitions: Record<string, string[]> = {
+      pending: ["accepted", "declined"],
+      accepted: ["in_progress"],
+      in_progress: ["completed"],
+    };
+
+    const allowed = allowedTransitions[offer.status] || [];
+    if (!allowed.includes(status)) {
+      res.status(400).json({
+        success: false,
+        message: `Cannot transition from '${offer.status}' to '${status}'`,
+      });
       return;
     }
 
@@ -180,8 +186,21 @@ export const updateOfferStatus = async (
     ]);
 
     // Insert a status change message
-    const emoji = status === "accepted" ? "✅" : "❌";
-    const messageContent = `${emoji} Offer "${offer.title}" has been ${status}`;
+    const emojiMap: Record<string, string> = {
+      accepted: "✅",
+      declined: "❌",
+      in_progress: "🔨",
+      completed: "🎉",
+    };
+    const labelMap: Record<string, string> = {
+      accepted: "accepted",
+      declined: "declined",
+      in_progress: "started (In Progress)",
+      completed: "completed",
+    };
+    const emoji = emojiMap[status] || "ℹ️";
+    const label = labelMap[status] || status;
+    const messageContent = `${emoji} Offer "${offer.title}" has been ${label}`;
 
     const msgResult = await pool.query(
       `INSERT INTO messages (conversation_id, sender_id, content)
@@ -204,7 +223,6 @@ export const updateOfferStatus = async (
       io.to(`user:${String(offer.sender_id)}`).emit("new_message", message);
       io.to(`user:${String(offer.recipient_id)}`).emit("new_message", message);
 
-      // Also emit an offer_updated event so the UI can update the card
       const offerUpdate = {
         offerId: offer.id,
         status,
@@ -223,6 +241,160 @@ export const updateOfferStatus = async (
     }
 
     res.json({ success: true, status });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * PATCH /api/offers/:id/cancel
+ * Cancel an offer. Only the sender can cancel, and only while 'pending'.
+ */
+export const cancelOffer = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.user!.id;
+    const offerId = req.params.id;
+
+    const offerResult = await pool.query(
+      `SELECT id, conversation_id, sender_id, recipient_id, title, status
+       FROM offers WHERE id = $1`,
+      [offerId],
+    );
+
+    if (offerResult.rows.length === 0) {
+      res.status(404).json({ success: false, message: "Offer not found" });
+      return;
+    }
+
+    const offer = offerResult.rows[0];
+
+    if (offer.sender_id !== userId) {
+      res.status(403).json({
+        success: false,
+        message: "Only the sender can cancel an offer",
+      });
+      return;
+    }
+
+    if (offer.status !== "pending") {
+      res.status(400).json({
+        success: false,
+        message: "Can only cancel pending offers",
+      });
+      return;
+    }
+
+    await pool.query(`UPDATE offers SET status = 'cancelled' WHERE id = $1`, [
+      offerId,
+    ]);
+
+    // Insert cancellation message
+    const messageContent = `🚫 Offer "${offer.title}" has been cancelled`;
+    const msgResult = await pool.query(
+      `INSERT INTO messages (conversation_id, sender_id, content)
+       VALUES ($1, $2, $3)
+       RETURNING id, conversation_id, sender_id, content, created_at`,
+      [offer.conversation_id, userId, messageContent],
+    );
+
+    await pool.query(
+      `UPDATE conversations SET updated_at = NOW() WHERE id = $1`,
+      [offer.conversation_id],
+    );
+
+    const message = msgResult.rows[0];
+
+    try {
+      const io = getIO();
+      io.to(`user:${String(offer.sender_id)}`).emit("new_message", message);
+      io.to(`user:${String(offer.recipient_id)}`).emit("new_message", message);
+
+      const offerUpdate = {
+        offerId: offer.id,
+        status: "cancelled",
+        conversationId: offer.conversation_id,
+      };
+      io.to(`user:${String(offer.sender_id)}`).emit(
+        "offer_updated",
+        offerUpdate,
+      );
+      io.to(`user:${String(offer.recipient_id)}`).emit(
+        "offer_updated",
+        offerUpdate,
+      );
+    } catch (socketErr) {
+      console.error("Socket emit error (non-fatal):", socketErr);
+    }
+
+    res.json({ success: true, status: "cancelled" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * GET /api/offers/my-bookings
+ * Returns all offers where the current user is sender or recipient,
+ * joined with user info for both sides.
+ */
+export const getMyBookings = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.user!.id;
+
+    const result = await pool.query(
+      `SELECT
+         o.id,
+         o.conversation_id,
+         o.sender_id,
+         o.recipient_id,
+         o.title,
+         o.hourly_rate,
+         o.status,
+         o.created_at,
+         s.first_name  AS sender_first_name,
+         s.last_name   AS sender_last_name,
+         s.profile_image AS sender_avatar,
+         r.first_name  AS recipient_first_name,
+         r.last_name   AS recipient_last_name,
+         r.profile_image AS recipient_avatar
+       FROM offers o
+       JOIN users s ON s.id = o.sender_id
+       JOIN users r ON r.id = o.recipient_id
+       WHERE o.sender_id = $1 OR o.recipient_id = $1
+       ORDER BY o.created_at DESC`,
+      [userId],
+    );
+
+    const bookings = result.rows.map((row: any) => ({
+      id: row.id,
+      conversationId: row.conversation_id,
+      senderId: row.sender_id,
+      recipientId: row.recipient_id,
+      title: row.title,
+      hourlyRate: Number(row.hourly_rate),
+      status: row.status,
+      createdAt: row.created_at,
+      sender: {
+        firstName: row.sender_first_name,
+        lastName: row.sender_last_name,
+        avatar: row.sender_avatar,
+      },
+      recipient: {
+        firstName: row.recipient_first_name,
+        lastName: row.recipient_last_name,
+        avatar: row.recipient_avatar,
+      },
+    }));
+
+    res.json({ success: true, bookings });
   } catch (err) {
     next(err);
   }
