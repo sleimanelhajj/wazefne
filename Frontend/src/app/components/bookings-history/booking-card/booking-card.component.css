@@ -39,18 +39,15 @@
   border: 2px solid #e5e7eb;
 }
 
-.avatar-rating {
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1e3a5f;
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: #ffffff;
-  font-size: 0.65rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 999px;
-  white-space: nowrap;
+  border: none;
 }
 
 .card-info {
@@ -90,11 +87,11 @@
   border-radius: 50%;
 }
 
-.status-in-progress {
+.status-in_progress {
   background: #eff6ff;
   color: #2563eb;
 }
-.status-in-progress .status-dot {
+.status-in_progress .status-dot {
   background: #2563eb;
 }
 
@@ -127,6 +124,14 @@
   color: #dc2626;
 }
 .status-cancelled .status-dot {
+  background: #dc2626;
+}
+
+.status-declined {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.status-declined .status-dot {
   background: #dc2626;
 }
 
@@ -188,7 +193,9 @@
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -222,22 +229,87 @@
   background: #fef2f2;
 }
 
-.progress-bar-wrapper {
-  margin-top: 16px;
+.action-success {
+  background: #16a34a;
+  color: #ffffff;
+  border: 1px solid #16a34a;
+}
+.action-success:hover {
+  background: #15803d;
 }
 
-.progress-bar {
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
+/* ── Done confirmation modal ────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
 }
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
-  border-radius: 999px;
-  transition: width 0.3s ease;
+.modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.2s ease;
+}
+
+.modal-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.modal-title {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.modal-text {
+  margin: 0 0 24px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-actions .action-btn {
+  padding: 10px 24px;
+  font-size: 0.88rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 640px) {

@@ -34,10 +34,16 @@
       (tabChange)="onStatusTabChange($event)"
     ></app-booking-tabs>
 
-    <div class="bookings-list">
+    <div class="bookings-list" *ngIf="!loading">
       <app-booking-card
         *ngFor="let booking of filteredBookings"
         [booking]="booking"
+        (cancel)="onCancel($event)"
+        (accept)="onAccept($event)"
+        (decline)="onDecline($event)"
+        (startProgress)="onStartProgress($event)"
+        (markDone)="onMarkDone($event)"
+        (openChat)="onOpenChat($event)"
       ></app-booking-card>
 
       <div class="empty-state" *ngIf="filteredBookings.length === 0">
@@ -45,14 +51,12 @@
       </div>
     </div>
 
-    <app-booking-help-banner></app-booking-help-banner>
-
-    <div class="load-more-wrapper">
-      <button class="load-more-btn">Load more bookings</button>
+    <div class="loading-state" *ngIf="loading">
+      <p>Loading bookings...</p>
     </div>
 
-    <footer class="page-footer">
-      &copy; 2023 Sta2jerne. All rights reserved.
-    </footer>
+    <app-booking-help-banner></app-booking-help-banner>
+
+    <footer class="page-footer">&copy; 2023 Sta2jerne. All rights reserved.</footer>
   </div>
 </div>

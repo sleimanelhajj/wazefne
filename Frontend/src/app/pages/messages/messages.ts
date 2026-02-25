@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { ConversationListComponent } from '../../components/messages/conversation-list/conversation-list.component';
 import { ChatHeaderComponent } from '../../components/messages/chat-header/chat-header.component';
@@ -33,6 +34,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly offerService = inject(OfferService);
   private readonly profileService = inject(ProfileService);
+  private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
   private subscriptions: Subscription[] = [];
 
@@ -103,6 +105,17 @@ export class MessagesComponent implements OnInit, OnDestroy {
         console.log('Conversations loaded:', res);
         this.conversations = res.conversations;
         this.loading = false;
+
+        // Auto-select conversation from query param (deep-link from bookings)
+        const qp = this.route.snapshot.queryParamMap;
+        const convId = qp.get('conversationId');
+        if (convId) {
+          const target = this.conversations.find((c) => c.id === Number(convId));
+          if (target) {
+            this.onConversationSelected(target);
+          }
+        }
+
         this.cdr.detectChanges();
       },
       error: (err) => {

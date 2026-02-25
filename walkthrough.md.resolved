@@ -1,0 +1,34 @@
+# Booking System Refactoring — Walkthrough
+
+## What Changed
+
+### Backend
+- **[008_update_offer_statuses.sql](file:///c:/Users/Sleiman/Desktop/staajerne/Backend/src/migrations/sql/008_update_offer_statuses.sql)** — Expanded status constraint to: `pending`, `accepted`, `declined`, `cancelled`, `in_progress`, `completed`
+- **[offers.controller.ts](file:///c:/Users/Sleiman/Desktop/staajerne/Backend/src/controllers/offers.controller.ts)** — Added [cancelOffer](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/services/offer.service.ts#42-48) (sender-only), state machine transitions in [updateOfferStatus](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/services/offer.service.ts#28-37), and [getMyBookings](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/services/offer.service.ts#38-41) with user info JOINs
+- **[offers.routes.ts](file:///c:/Users/Sleiman/Desktop/staajerne/Backend/src/routes/offers.routes.ts)** — Registered `PATCH /:id/cancel`, `GET /my-bookings`
+
+### Frontend
+- **[bookings.model.ts](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/models/bookings.model.ts)** — New [Booking](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/models/bookings.model.ts#7-21) shape matching the API with [BookingUser](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/models/bookings.model.ts#1-6) sub-interface
+- **[offer.service.ts](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/services/offer.service.ts)** — Added [getMyBookings()](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/services/offer.service.ts#38-41), [cancelOffer()](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/services/offer.service.ts#42-48)
+- **[booking-card](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/components/bookings-history/booking-card)** — Direction-aware actions, avatar placeholder, Done confirmation modal
+- **[bookings-history.ts](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/pages/bookings-history/bookings-history.ts)** — Real API data, dynamic stats, all action handlers with optimistic updates
+- **[messages.ts](file:///c:/Users/Sleiman/Desktop/staajerne/Frontend/src/app/pages/messages/messages.ts)** — Chat deep-linking via `?conversationId=` query param
+
+## Booking Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending: Offer created
+    Pending --> Confirmed: Recipient accepts
+    Pending --> Declined: Recipient declines
+    Pending --> Cancelled: Sender cancels
+    Confirmed --> InProgress: Recipient starts
+    InProgress --> Completed: Recipient marks done
+    Completed --> [*]
+```
+
+## Validation
+- ✅ User confirmed all functionality working
+- ✅ Cancel, accept, decline, start progress, done all update UI instantly
+- ✅ Message button opens correct chat conversation
+- ✅ Done confirmation modal works correctly
