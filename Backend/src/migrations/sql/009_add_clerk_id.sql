@@ -1,0 +1,2 @@
+-- Migration 009: No longer needed (clerk_id is now in 001_create_users.sql)
+-- This file is kept empty to avoid migration runner errors.

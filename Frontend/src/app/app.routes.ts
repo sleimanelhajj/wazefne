@@ -10,10 +10,11 @@ import { SetupProfileComponent } from './pages/setup-profile/setup-profile';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: AuthComponent },
+  { path: '', redirectTo: 'sign-in', pathMatch: 'full' },
+  { path: 'sign-in', component: AuthComponent },
+  { path: 'sign-up', component: AuthComponent },
   { path: 'home', component: HomeComponent },
-  { path: 'setup-profile', component: SetupProfileComponent, canActivate: [authGuard] },
+  { path: 'setup-profile', component: SetupProfileComponent },
   { path: 'test', component: HomeHeroComponent },
   { path: 'browse', component: BrowseComponent, canActivate: [authGuard] },
   { path: 'profile/:id', component: ProfilePageComponent, canActivate: [authGuard] },

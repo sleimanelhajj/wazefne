@@ -26,11 +26,18 @@ export class ChatService {
   }>();
   onOfferUpdated$ = this.offerUpdatedSubject.asObservable();
 
-  // ── WebSocket lifecycle ──────────────────────────────
-  connect(): void {
+  async connect(): Promise<void> {
     if (this.socket?.connected) return;
 
-    const token = localStorage.getItem('auth_token');
+    let token: string | null = null;
+    try {
+      const session = window.Clerk?.session;
+      if (session) {
+        token = await session.getToken();
+      }
+    } catch {
+      // No session available
+    }
     if (!token) return;
 
     this.socket = io(this.wsUrl, {
@@ -71,17 +78,13 @@ export class ChatService {
     this.socket = null;
   }
 
-  // ── Send message via WebSocket ───────────────────────
   sendMessage(conversationId: number, content: string): void {
     this.socket?.emit('send_message', { conversationId, content });
   }
-
-  // ── Typing indicator ────────────────────────────────
   emitTyping(conversationId: number): void {
     this.socket?.emit('typing', { conversationId });
   }
 
-  // ── REST endpoints ──────────────────────────────────
   getConversations(): Observable<{ success: boolean; conversations: Conversation[] }> {
     return this.http.get<{ success: boolean; conversations: Conversation[] }>(
       `${this.apiUrl}/conversations`,

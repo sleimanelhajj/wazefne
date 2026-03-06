@@ -1,4 +1,4 @@
-.login-container {
+.auth-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 100vh;
@@ -104,6 +104,7 @@
   font-weight: 500;
 }
 
+/* Right Panel */
 .right-panel {
   display: flex;
   justify-content: center;
@@ -116,193 +117,14 @@
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background: #ffffff;
-  border-radius: 32px;
-  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.2);
-  overflow: hidden;
-}
-
-.auth-tabs {
-  --mdc-secondary-navigation-tab-container-color: transparent;
-  --mdc-secondary-navigation-tab-indicator-active-indicator-color: #2d68ff;
-}
-
-.tab-body {
-  padding: 32px 40px 40px;
-}
-
-.tab-body h2 {
-  font-size: 1.75rem;
-  margin-bottom: 8px;
-}
-
-.tab-body .subtitle {
-  color: #64748b;
-  margin-bottom: 24px;
-}
-
-.social-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.social-row button {
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-  padding: 12px 20px;
-}
-
-.social-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #111827;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #94a3b8;
-  font-size: 0.85rem;
-  margin-bottom: 24px;
-}
-
-.divider mat-divider {
-  flex: 1;
-}
-
-.auth-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-}
-
-.error-banner {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 14px;
-  margin-bottom: 4px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  color: #dc2626;
-  font-size: 0.82rem;
-  font-weight: 500;
-  animation: slideDown 0.25s ease;
 }
 
-.dismiss-btn {
-  border: none;
-  background: none;
-  color: #dc2626;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 4px;
-  line-height: 1;
-  opacity: 0.7;
-  transition: opacity 0.15s;
-}
-
-.dismiss-btn:hover {
-  opacity: 1;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.full-width {
-  width: 100%;
-}
-
-.form-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-/* // TODO: look into this  */
-:host ::ng-deep .remember-checkbox {
-  --mdc-checkbox-selected-icon-color: #6366f1;
-  --mdc-checkbox-selected-hover-icon-color: #818cf8;
-  --mdc-checkbox-selected-pressed-icon-color: #4f46e5;
-  --mdc-checkbox-selected-focus-icon-color: #6366f1;
-  --mdc-checkbox-selected-checkmark-color: #ffffff;
-  --mdc-checkbox-unselected-icon-color: #cbd5e1;
-  --mdc-checkbox-unselected-hover-icon-color: #94a3b8;
-  --mdc-checkbox-unselected-pressed-icon-color: #64748b;
-}
-
-:host ::ng-deep .remember-checkbox .mdc-checkbox__background {
-  border-radius: 999px;
-}
-
-:host ::ng-deep .remember-checkbox .mdc-checkbox__ripple::before,
-:host ::ng-deep .remember-checkbox .mdc-checkbox__ripple::after {
-  border-radius: 999px;
-}
-
-.submit-btn {
-  padding: 12px 0;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.submit-btn:disabled {
-  opacity: 0.7;
-}
-
-.terms {
-  margin-top: 24px;
-  font-size: 0.85rem;
-  color: #94a3b8;
-  text-align: center;
-}
-
-.terms a {
-  color: #2d68ff;
-  text-decoration: none;
-}
-
-.terms a:hover {
-  text-decoration: underline;
-}
-
-.forgot-link {
-  color: #2d68ff;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.forgot-link:hover {
-  text-decoration: underline;
-}
-
-.tab-body.placeholder {
-  text-align: center;
-  color: #94a3b8;
-  padding: 48px;
+/* Mobile Logo - Hidden on desktop, shown on mobile */
+.mobile-logo {
+  display: none;
 }
 
 /* Responsive - laptop / smaller screens */
@@ -323,68 +145,19 @@
     height: 70px;
   }
 
-  .tab-body {
-    padding: 24px 32px 32px;
-  }
-
-  .tab-body h2 {
-    font-size: 1.4rem;
-    margin-bottom: 4px;
-  }
-
-  .tab-body .subtitle {
-    margin-bottom: 16px;
-  }
-
-  .social-row {
-    margin-bottom: 16px;
-  }
-
-  .social-row button {
-    padding: 8px 16px;
-  }
-
-  .social-icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  .divider {
-    margin-bottom: 16px;
-  }
-
-  .auth-form {
-    gap: 12px;
-  }
-
-  .submit-btn {
-    padding: 8px 0;
-  }
-
-  .terms {
-    margin-top: 16px;
-  }
-
   .right-panel {
     padding: 20px 16px;
   }
 
   .auth-card {
     border-radius: 24px;
+    padding: 24px;
   }
 }
 
 @media (max-height: 650px) {
-  .tab-body {
-    padding: 16px 24px 24px;
-  }
-
-  .auth-form {
-    gap: 8px;
-  }
-
-  .tab-body h2 {
-    font-size: 1.25rem;
+  .auth-card {
+    padding: 16px;
   }
 
   .hero-text h1 {
@@ -396,20 +169,15 @@
   }
 }
 
-/* Mobile Logo - Hidden on desktop, shown on mobile */
-.mobile-logo {
-  display: none;
-}
-
 /* Responsive - narrow widths */
 @media (max-width: 1024px) {
-  .login-container {
+  .auth-container {
     grid-template-columns: 2fr 3fr;
   }
 }
 
 @media (max-width: 768px) {
-  .login-container {
+  .auth-container {
     grid-template-columns: 1fr;
     height: auto;
     min-height: 100vh;
@@ -447,28 +215,6 @@
     border-radius: 20px;
     box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
   }
-
-  .tab-body {
-    padding: 24px 24px 32px;
-  }
-
-  .tab-body h2 {
-    font-size: 1.5rem;
-  }
-
-  .social-row {
-    flex-direction: column;
-  }
-
-  .social-row button {
-    width: 100%;
-  }
-
-  /* Improve touch targets */
-  .submit-btn {
-    min-height: 48px;
-    padding: 14px 0;
-  }
 }
 
 @media (max-width: 480px) {
@@ -486,34 +232,7 @@
 
   .auth-card {
     border-radius: 16px;
-  }
-
-  .tab-body {
-    padding: 20px 20px 28px;
-  }
-
-  .tab-body h2 {
-    font-size: 1.35rem;
-  }
-
-  .tab-body .subtitle {
-    font-size: 0.9rem;
-  }
-
-  .social-row button {
-    padding: 10px 16px;
-  }
-
-  .form-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .forgot-link {
-    align-self: flex-end;
-    width: 100%;
-    text-align: right;
+    padding: 20px;
   }
 }
 
@@ -522,15 +241,7 @@
     height: 50px;
   }
 
-  .tab-body {
-    padding: 16px 16px 24px;
-  }
-
-  .tab-body h2 {
-    font-size: 1.25rem;
-  }
-
-  .auth-form {
-    gap: 14px;
+  .auth-card {
+    padding: 16px;
   }
 }

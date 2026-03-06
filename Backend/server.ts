@@ -4,6 +4,7 @@ import cors from "cors";
 import path from "path";
 import http from "http";
 import swaggerUi from "swagger-ui-express";
+import { clerkMiddleware } from "@clerk/express";
 import pool from "./src/config/db";
 import routes from "./src/routes";
 import errorHandler from "./src/middleware/errorHandler";
@@ -15,27 +16,30 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
-// ── Middleware ──────────────────────────────────────────
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Static files (uploaded images) ─────────────────────
+// Clerk authentication
+app.use(clerkMiddleware());
+
+// Static files (uploaded images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ── Swagger ────────────────────────────────────────────
+// Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// ── Root redirect to Swagger ───────────────────────────
+// Root redirect to Swagger
 app.get("/", (_req, res) => res.redirect("/api-docs"));
 
-// ── Routes ─────────────────────────────────────────────
+// Routes
 app.use("/api", routes);
 
-// ── Error handling (must be last) ──────────────────────
+// Error handling
 app.use(errorHandler);
 
-// ── Start server & verify DB connection ────────────────
+// Start server & verify DB connection
 const start = async (): Promise<void> => {
   try {
     const client = await pool.connect();

@@ -1,147 +1,106 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, delay, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { LoginRequest, SignupRequest, AuthResponse } from '../models/auth.model';
+import { HttpClient } from '@angular/common/http';
+import { ClerkService } from 'ngx-clerk';
+import { Observable, BehaviorSubject, map, filter, switchMap, tap } from 'rxjs';
 import { LocationService } from './location.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly clerk = inject(ClerkService);
   private readonly router = inject(Router);
   private readonly locationService = inject(LocationService);
-  private readonly apiUrl = 'http://localhost:3000/api';
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly NAME_KEY = 'user_name';
+  private readonly http = inject(HttpClient);
+
   private readonly PROFILE_IMAGE_KEY = 'user_profile_image';
-  private readonly USER_ID_KEY = 'user_id';
 
-  /**
-   * Login user with email and password
-   */
-  login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials).pipe(
-      tap((res) => {
-        if (res.success && res.token) {
-          this.saveToken(res.token);
-          if (res.user?.id) {
-            localStorage.setItem(this.USER_ID_KEY, res.user.id);
+  // BehaviorSubject to allow components to reactively update when the image changes
+  private profileImageSubject = new BehaviorSubject<string | null>(this.getInitialProfileImage());
+  readonly profileImage$ = this.profileImageSubject.asObservable();
+
+  private _dbUserId: string | null = null;
+
+  constructor() {
+    // Whenever Clerk authenticates a user, fetch their backend Database ID and Profile Image.
+    // The auth interceptor will automatically attach the Clerk token.
+    this.clerk.user$
+      .pipe(
+        filter((user) => !!user),
+        switchMap(() => this.http.get<any>('http://localhost:3000/api/profile/me')),
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.user) {
+            this._dbUserId = response.user.id;
+            // Prefer the synced database image if available, else fallback to Clerk image
+            const dbImage = response.user.profile_image || window.Clerk?.user?.imageUrl;
+            if (dbImage) {
+              this.saveProfileImage(dbImage);
+            }
           }
-          if (res.user?.name) {
-            this.saveUserName(res.user.name);
-          } else if (res.user?.email) {
-            this.saveUserName(res.user.email);
-          }
-          if (res.user?.profileImage) {
-            this.saveProfileImage(res.user.profileImage);
-          }
-        }
-      }),
-    );
+        },
+        error: (err) => console.error('Failed to fetch DB user ID:', err),
+      });
   }
 
   /**
-   * Register new user
+   * Observable that emits true when user is signed in
    */
-  signup(credentials: SignupRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/signup`, credentials).pipe(
-      tap((res) => {
-        if (res.success && res.token) {
-          this.saveToken(res.token);
-          if (res.user?.id) {
-            localStorage.setItem(this.USER_ID_KEY, res.user.id);
-          }
-          if (res.user?.name) {
-            this.saveUserName(res.user.name);
-          } else if (res.user?.email) {
-            this.saveUserName(res.user.email);
-          }
-        }
-      }),
-    );
-  }
+  readonly isSignedIn$: Observable<boolean> = this.clerk.user$.pipe(map((user) => !!user));
 
-  /**
-   * Logout current user
-   */
-  logout(): void {
-    this.removeToken();
-    localStorage.removeItem(this.NAME_KEY);
-    localStorage.removeItem(this.USER_ID_KEY);
-    this.removeProfileImage();
-    this.locationService.clearLocation();
-    this.router.navigate(['/login']);
-  }
-
-  /**
-   * Check if user is authenticated
-   */
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return !!window.Clerk?.user;
   }
 
-  /**
-   * Get current user token from storage
-   */
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+  async getToken(): Promise<string | null> {
+    try {
+      const session = window.Clerk?.session;
+      if (!session) return null;
+      return await session.getToken();
+    } catch {
+      return null;
+    }
   }
 
-  /**
-   * Save token to storage
-   */
-  saveToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-  }
-
-  /**
-   * Remove token from storage
-   */
-  removeToken(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-  }
-
-  /**
-   * Save user display name to storage
-   */
-  saveUserName(name: string): void {
-    localStorage.setItem(this.NAME_KEY, name);
-  }
-
-  /**
-   * Get user display name from storage
-   */
   getUserName(): string {
-    return localStorage.getItem(this.NAME_KEY) || '';
+    const user = window.Clerk?.user;
+    if (!user) return '';
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
+    // Clerk manages names, but we can also check session/local storage if needed
+    return fullName || user.primaryEmailAddress?.emailAddress || '';
   }
 
-  /**
-   * Save user profile image to storage
-   */
-  saveProfileImage(imageUrl: string): void {
-    localStorage.setItem(this.PROFILE_IMAGE_KEY, imageUrl);
+  private getInitialProfileImage(): string | null {
+    const storedImage = sessionStorage.getItem(this.PROFILE_IMAGE_KEY);
+    if (storedImage) {
+      return storedImage;
+    }
+    return window.Clerk?.user?.imageUrl || null;
   }
 
-  /**
-   * Get user profile image from storage
-   */
   getProfileImage(): string | null {
-    return localStorage.getItem(this.PROFILE_IMAGE_KEY);
+    return this.profileImageSubject.value || window.Clerk?.user?.imageUrl || null;
   }
 
-  /**
-   * Remove profile image from storage
-   */
-  removeProfileImage(): void {
-    localStorage.removeItem(this.PROFILE_IMAGE_KEY);
-  }
-
-  /**
-   * Get the logged-in user's ID
-   */
   getUserId(): string | null {
-    return localStorage.getItem(this.USER_ID_KEY);
+    return this._dbUserId;
+  }
+
+  saveProfileImage(imageUrl: string): void {
+    if (imageUrl) {
+      sessionStorage.setItem(this.PROFILE_IMAGE_KEY, imageUrl);
+      this.profileImageSubject.next(imageUrl);
+    }
+  }
+
+  logout(): void {
+    this._dbUserId = null;
+    this.locationService.clearLocation();
+    sessionStorage.removeItem(this.PROFILE_IMAGE_KEY);
+    this.profileImageSubject.next(null);
+    window.Clerk?.signOut();
+    this.router.navigate(['/sign-in']);
   }
 }

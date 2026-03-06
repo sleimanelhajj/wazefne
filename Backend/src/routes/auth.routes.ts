@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { signup, login } from "../controllers/auth.controller";
+import { getMe } from "../controllers/auth.controller";
+import authenticate from "../middleware/auth";
 
 const router = Router();
 
@@ -7,86 +8,20 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Auth
- *   description: Authentication endpoints
+ *   description: Authentication endpoints (powered by Clerk)
  */
 
 /**
  * @swagger
- * /api/auth/signup:
- *   post:
- *     summary: Register a new user
+ * /api/auth/me:
+ *   get:
+ *     summary: Get current authenticated user info
  *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 minLength: 6
- *                 example: mypassword123
- *     responses:
- *       201:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 token:
- *                   type: string
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                     email:
- *                       type: string
- *       400:
- *         description: Missing required fields
- *       409:
- *         description: Email already in use
- */
-router.post("/signup", signup);
-
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Login with email and password
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: mypassword123
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Current user info
  *         content:
  *           application/json:
  *             schema:
@@ -95,8 +30,6 @@ router.post("/signup", signup);
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 token:
- *                   type: string
  *                 user:
  *                   type: object
  *                   properties:
@@ -104,13 +37,15 @@ router.post("/signup", signup);
  *                       type: string
  *                     email:
  *                       type: string
- *                     name:
+ *                     firstName:
  *                       type: string
- *       400:
- *         description: Missing required fields
+ *                     lastName:
+ *                       type: string
+ *                     profileImage:
+ *                       type: string
  *       401:
- *         description: Invalid credentials
+ *         description: Not authenticated
  */
-router.post("/login", login);
+router.get("/me", authenticate, getMe);
 
 export default router;
