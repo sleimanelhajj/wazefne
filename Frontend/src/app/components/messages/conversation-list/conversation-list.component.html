@@ -3,7 +3,24 @@
 
   <div class="conversations">
     <div class="empty-state" *ngIf="filteredConversations.length === 0">
-      <p>No conversations yet</p>
+      <div class="empty-icon-wrapper">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#cbd5e1"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <path d="M10 9h6" />
+          <path d="M10 13h4" />
+        </svg>
+      </div>
+      <h3 class="empty-state-title">No conversations</h3>
+      <p class="empty-state-text">When you connect with someone, your chats will appear here.</p>
     </div>
 
     <div

@@ -49,6 +49,39 @@
 .conversations {
   flex: 1;
   overflow-y: auto;
+  position: relative;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+  height: 100%;
+}
+
+.empty-icon-wrapper {
+  margin-bottom: 16px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 50%;
+  border: 1px solid #f1f5f9;
+}
+
+.empty-state-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 8px 0;
+}
+
+.empty-state-text {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .conversation-item {
