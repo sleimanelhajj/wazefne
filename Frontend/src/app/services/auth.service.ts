@@ -95,12 +95,14 @@ export class AuthService {
     }
   }
 
-  logout(): void {
+  async logout(): Promise<void> {
     this._dbUserId = null;
     this.locationService.clearLocation();
     sessionStorage.removeItem(this.PROFILE_IMAGE_KEY);
     this.profileImageSubject.next(null);
-    window.Clerk?.signOut();
+    if (window.Clerk) {
+      await window.Clerk.signOut();
+    }
     this.router.navigate(['/sign-in']);
   }
 }

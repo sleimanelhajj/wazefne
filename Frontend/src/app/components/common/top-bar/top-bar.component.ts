@@ -24,6 +24,7 @@ export class TopBarComponent implements OnInit, OnDestroy {
   dropdownOpen = false;
   mobileMenuOpen = false;
   userProfileImage: string | null = null;
+  isLoggingOut = false;
 
   constructor() {
     this.searchForm = this.fb.group({
@@ -67,9 +68,15 @@ export class TopBarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/my-profile']);
   }
 
-  logout(): void {
+  async logout(): Promise<void> {
     this.dropdownOpen = false;
-    this.authService.logout();
+    this.mobileMenuOpen = false;
+    this.isLoggingOut = true;
+    try {
+      await this.authService.logout();
+    } finally {
+      this.isLoggingOut = false;
+    }
   }
 
   goToLogin(): void {
