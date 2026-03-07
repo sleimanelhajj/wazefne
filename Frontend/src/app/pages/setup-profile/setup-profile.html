@@ -1,5 +1,11 @@
 <div class="setup-container">
-  <div class="setup-card">
+  <!-- Show spinner while verifying propagated session -->
+  <div class="spinner-container" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Setting up your account...</p>
+  </div>
+
+  <div class="setup-card" *ngIf="!isLoading">
     <div class="setup-header">
       <img src="assets/logo/logo.png" alt="Logo" class="setup-logo" />
       <h1>Complete Your Profile</h1>

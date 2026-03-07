@@ -10,6 +10,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
@@ -32,6 +33,7 @@ import { Subscription, filter, take } from 'rxjs';
     MatCheckboxModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './setup-profile.html',
   styleUrl: './setup-profile.css',
@@ -39,7 +41,6 @@ import { Subscription, filter, take } from 'rxjs';
 export class SetupProfileComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
-  private readonly authService = inject(AuthService);
   private readonly clerk = inject(ClerkService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -54,6 +55,7 @@ export class SetupProfileComponent implements OnInit, OnDestroy {
   languages: string[] = [];
   portfolioFiles: { file: File; preview: string; caption: string }[] = [];
   saving = false;
+  isLoading = true; // wait for clerk session to propagate
 
   readonly profileForm = this.fb.group({
     first_name: ['', Validators.required],
@@ -68,22 +70,64 @@ export class SetupProfileComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    // Wait for Clerk to emit user state, then either pre-fill or redirect
-    this.authSub = this.clerk.user$
-      .pipe(
-        filter((user) => user !== undefined),
-        take(1),
-      )
-      .subscribe((user) => {
-        if (!user) {
-          this.router.navigate(['/sign-in']);
-          return;
-        }
-        this.profileForm.patchValue({
-          first_name: user.firstName || '',
-          last_name: user.lastName || '',
+    console.log('[Setup Profile] ngOnInit');
+    this.isLoading = true;
+    this.waitForUser();
+  }
+
+  private async waitForUser(): Promise<void> {
+    try {
+      let clerk = (window as any).Clerk;
+      if (!clerk) {
+        await new Promise<void>((resolve) => {
+          const interval = setInterval(() => {
+            clerk = (window as any).Clerk;
+            if (clerk) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 50);
         });
+      }
+
+      await clerk.load();
+      console.log('[Setup Profile] Clerk loaded, polling for user...');
+
+      // Poll until user appears (up to 5 seconds)
+      const user = await new Promise<any>((resolve) => {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          const u = clerk.user;
+          console.log(`[Setup Profile] Poll attempt ${attempts}: clerk.user =`, u);
+          if (u) {
+            clearInterval(interval);
+            resolve(u);
+          }
+          if (attempts >= 50) {
+            // 50 * 100ms = 5s timeout
+            clearInterval(interval);
+            resolve(null);
+          }
+        }, 100);
       });
+
+      if (!user) {
+        console.warn('[Setup Profile] No user after 5s, redirecting');
+        this.router.navigate(['/sign-in']);
+        return;
+      }
+
+      this.profileForm.patchValue({
+        first_name: user.firstName || '',
+        last_name: user.lastName || '',
+      });
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('[Setup Profile] Error:', err);
+      this.router.navigate(['/sign-in']);
+    }
   }
 
   ngOnDestroy(): void {

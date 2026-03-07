@@ -27,9 +27,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
 async function getClerkToken(): Promise<string | null> {
   try {
-    const session = window.Clerk?.session;
-    if (!session) return null;
-    return await session.getToken();
+    const clerk = (window as any).Clerk;
+    if (!clerk) return null;
+
+    // Primary: use the active session
+    if (clerk.session) {
+      return await clerk.session.getToken();
+    }
+
+    // Fallback: for freshly created OAuth sessions, session may not be
+    // set on window.Clerk yet — grab it from the client's sessions list.
+    const sessions: any[] = clerk.client?.sessions ?? [];
+    if (sessions.length > 0) {
+      return await sessions[0].getToken();
+    }
+
+    return null;
   } catch {
     return null;
   }

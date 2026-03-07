@@ -17,12 +17,32 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+// 1. Explicitly configure CORS to allow the Authorization header from Angular
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Clerk authentication
-app.use(clerkMiddleware());
+// Quick sanity check to ensure dotenv loaded correctly from your root dir
+if (!process.env.CLERK_SECRET_KEY) {
+  console.error("⚠️ CLERK_SECRET_KEY is missing. Check your .env pathing.");
+}
+
+// 2. Configure Clerk to explicitly accept tokens issued for your Angular app
+app.use(
+  clerkMiddleware({
+    secretKey: process.env.CLERK_SECRET_KEY,
+    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    authorizedParties: ["http://localhost:4200"],
+  }),
+);
 
 // Static files (uploaded images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

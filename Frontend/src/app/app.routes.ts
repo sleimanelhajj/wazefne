@@ -9,11 +9,13 @@ import { MessagesComponent } from './pages/messages/messages';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
+import { SsoCallbackComponent } from './pages/sso-callback/sso-callback';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'sign-in', pathMatch: 'full' },
   { path: 'sign-in', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'sign-up', component: AuthComponent, canActivate: [guestGuard] },
+  { path: 'sso-callback', component: SsoCallbackComponent },
   { path: 'home', component: HomeComponent },
   { path: 'setup-profile', component: SetupProfileComponent },
   { path: 'test', component: HomeHeroComponent },
