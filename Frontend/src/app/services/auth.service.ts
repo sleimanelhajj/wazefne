@@ -67,9 +67,17 @@ export class AuthService {
   getUserName(): string {
     const user = window.Clerk?.user;
     if (!user) return '';
+
+    // Attempt to return the Clerk username first using any cast to bypass type definitions
+    if ((user as any).username) {
+      return (user as any).username;
+    }
+
+    // Fallback to primary email address formatting or full name if username is missing
     const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
-    // Clerk manages names, but we can also check session/local storage if needed
-    return fullName || user.primaryEmailAddress?.emailAddress || '';
+    const emailPrefix = user.primaryEmailAddress?.emailAddress?.split('@')[0];
+
+    return emailPrefix || fullName || 'User';
   }
 
   private getInitialProfileImage(): string | null {
