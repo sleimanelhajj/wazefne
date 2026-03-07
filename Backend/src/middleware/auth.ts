@@ -35,30 +35,12 @@ const authenticate = async (
       const lastName = clerkUser.lastName || null;
       const profileImage = clerkUser.imageUrl || null;
 
-      // Check if user exists by email (for migrating legacy users)
-      const existingUser = await pool.query(
-        "SELECT id, email, profile_image FROM users WHERE email = $1 ORDER BY created_at ASC LIMIT 1",
-        [email],
-      );
-
-      if (existingUser.rows.length > 0) {
-        // Link the oldest existing user with the new clerk_id
-        // Inherit the Clerk profile picture if they don't have one in DB
-        const updatedImage = existingUser.rows[0].profile_image || profileImage;
-
-        result = await pool.query(
-          `UPDATE users SET clerk_id = $1, profile_image = $2 WHERE id = $3 RETURNING id, email`,
-          [clerkId, updatedImage, existingUser.rows[0].id],
-        );
-      } else {
-        // Create brand new user
-        result = await pool.query(
-          `INSERT INTO users (clerk_id, email, first_name, last_name, profile_image)
+      result = await pool.query(
+        `INSERT INTO users (clerk_id, email, first_name, last_name, profile_image)
            VALUES ($1, $2, $3, $4, $5)
            RETURNING id, email`,
-          [clerkId, email, firstName, lastName, profileImage],
-        );
-      }
+        [clerkId, email, firstName, lastName, profileImage],
+      );
     }
 
     const user = result.rows[0];

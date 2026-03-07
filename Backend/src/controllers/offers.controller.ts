@@ -3,6 +3,35 @@ import pool from "../config/db";
 import { AuthRequest } from "../middleware/auth";
 import { getIO } from "../config/socket";
 
+const OFFER_STATE_MESSAGES: Record<string, { emoji: string; label: string }> = {
+  accepted: { emoji: "✅", label: "accepted" },
+  declined: { emoji: "❌", label: "declined" },
+  in_progress: { emoji: "🔨", label: "started (In Progress)" },
+  completed: { emoji: "🎉", label: "completed" },
+  cancelled: { emoji: "🚫", label: "cancelled" },
+};
+
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  pending: ["accepted", "declined"],
+  accepted: ["in_progress"],
+  in_progress: ["completed"],
+};
+
+const notifyParticipants = (
+  user1: string | number,
+  user2: string | number,
+  event: string,
+  payload: any,
+) => {
+  try {
+    const io = getIO();
+    io.to(`user:${String(user1)}`).emit(event, payload);
+    io.to(`user:${String(user2)}`).emit(event, payload);
+  } catch (err) {
+    console.error("Socket emit error (non-fatal):", err);
+  }
+};
+
 /**
  * POST /api/offers
  * Create an offer within a conversation.
@@ -17,10 +46,24 @@ export const createOffer = async (
     const userId = req.user!.id;
     const { conversationId, title, hourlyRate } = req.body;
 
-    if (!conversationId || !title?.trim() || !hourlyRate) {
+    if (
+      !conversationId ||
+      !title?.trim() ||
+      hourlyRate === undefined ||
+      hourlyRate === null
+    ) {
       res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
+      return;
+    }
+
+    const parsedRate = Number(hourlyRate);
+    if (isNaN(parsedRate) || parsedRate <= 0) {
+      res.status(400).json({
+        success: false,
+        message: "Hourly rate must be a valid positive number",
+      });
       return;
     }
 
@@ -88,13 +131,7 @@ export const createOffer = async (
     };
 
     // Emit the message via WebSocket to both users
-    try {
-      const io = getIO();
-      io.to(`user:${userId}`).emit("new_message", message);
-      io.to(`user:${String(recipientId)}`).emit("new_message", message);
-    } catch (socketErr) {
-      console.error("Socket emit error (non-fatal):", socketErr);
-    }
+    notifyParticipants(userId, recipientId, "new_message", message);
 
     res.json({
       success: true,
@@ -131,12 +168,8 @@ export const updateOfferStatus = async (
     const offerId = req.params.id;
     const { status } = req.body;
 
-    const validStatuses = ["accepted", "declined", "in_progress", "completed"];
-    if (!status || !validStatuses.includes(status)) {
-      res.status(400).json({
-        success: false,
-        message: `Status must be one of: ${validStatuses.join(", ")}`,
-      });
+    if (!status) {
+      res.status(400).json({ success: false, message: "Status is required" });
       return;
     }
 
@@ -164,13 +197,7 @@ export const updateOfferStatus = async (
     }
 
     // Validate state transitions
-    const allowedTransitions: Record<string, string[]> = {
-      pending: ["accepted", "declined"],
-      accepted: ["in_progress"],
-      in_progress: ["completed"],
-    };
-
-    const allowed = allowedTransitions[offer.status] || [];
+    const allowed = ALLOWED_TRANSITIONS[offer.status] || [];
     if (!allowed.includes(status)) {
       res.status(400).json({
         success: false,
@@ -186,21 +213,11 @@ export const updateOfferStatus = async (
     ]);
 
     // Insert a status change message
-    const emojiMap: Record<string, string> = {
-      accepted: "✅",
-      declined: "❌",
-      in_progress: "🔨",
-      completed: "🎉",
+    const stateMessage = OFFER_STATE_MESSAGES[status] || {
+      emoji: "ℹ️",
+      label: status,
     };
-    const labelMap: Record<string, string> = {
-      accepted: "accepted",
-      declined: "declined",
-      in_progress: "started (In Progress)",
-      completed: "completed",
-    };
-    const emoji = emojiMap[status] || "ℹ️";
-    const label = labelMap[status] || status;
-    const messageContent = `${emoji} Offer "${offer.title}" has been ${label}`;
+    const messageContent = `${stateMessage.emoji} Offer "${offer.title}" has been ${stateMessage.label}`;
 
     const msgResult = await pool.query(
       `INSERT INTO messages (conversation_id, sender_id, content)
@@ -218,27 +235,17 @@ export const updateOfferStatus = async (
     const message = msgResult.rows[0];
 
     // Emit via WebSocket
-    try {
-      const io = getIO();
-      io.to(`user:${String(offer.sender_id)}`).emit("new_message", message);
-      io.to(`user:${String(offer.recipient_id)}`).emit("new_message", message);
-
-      const offerUpdate = {
-        offerId: offer.id,
-        status,
-        conversationId: offer.conversation_id,
-      };
-      io.to(`user:${String(offer.sender_id)}`).emit(
-        "offer_updated",
-        offerUpdate,
-      );
-      io.to(`user:${String(offer.recipient_id)}`).emit(
-        "offer_updated",
-        offerUpdate,
-      );
-    } catch (socketErr) {
-      console.error("Socket emit error (non-fatal):", socketErr);
-    }
+    notifyParticipants(
+      offer.sender_id,
+      offer.recipient_id,
+      "new_message",
+      message,
+    );
+    notifyParticipants(offer.sender_id, offer.recipient_id, "offer_updated", {
+      offerId: offer.id,
+      status,
+      conversationId: offer.conversation_id,
+    });
 
     res.json({ success: true, status });
   } catch (err) {
@@ -293,7 +300,8 @@ export const cancelOffer = async (
     ]);
 
     // Insert cancellation message
-    const messageContent = `🚫 Offer "${offer.title}" has been cancelled`;
+    const { emoji, label } = OFFER_STATE_MESSAGES.cancelled;
+    const messageContent = `${emoji} Offer "${offer.title}" has been ${label}`;
     const msgResult = await pool.query(
       `INSERT INTO messages (conversation_id, sender_id, content)
        VALUES ($1, $2, $3)
@@ -308,27 +316,18 @@ export const cancelOffer = async (
 
     const message = msgResult.rows[0];
 
-    try {
-      const io = getIO();
-      io.to(`user:${String(offer.sender_id)}`).emit("new_message", message);
-      io.to(`user:${String(offer.recipient_id)}`).emit("new_message", message);
-
-      const offerUpdate = {
-        offerId: offer.id,
-        status: "cancelled",
-        conversationId: offer.conversation_id,
-      };
-      io.to(`user:${String(offer.sender_id)}`).emit(
-        "offer_updated",
-        offerUpdate,
-      );
-      io.to(`user:${String(offer.recipient_id)}`).emit(
-        "offer_updated",
-        offerUpdate,
-      );
-    } catch (socketErr) {
-      console.error("Socket emit error (non-fatal):", socketErr);
-    }
+    // Emit via WebSocket
+    notifyParticipants(
+      offer.sender_id,
+      offer.recipient_id,
+      "new_message",
+      message,
+    );
+    notifyParticipants(offer.sender_id, offer.recipient_id, "offer_updated", {
+      offerId: offer.id,
+      status: "cancelled",
+      conversationId: offer.conversation_id,
+    });
 
     res.json({ success: true, status: "cancelled" });
   } catch (err) {

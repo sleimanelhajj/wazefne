@@ -16,6 +16,88 @@ export const upload = multer({
   },
 });
 
+const fetchFullProfile = async (id: string | number) => {
+  const userResult = await pool.query(
+    `SELECT id, email, first_name, last_name, title,
+            offer_description, location, about_me,
+            hourly_rate, profile_image, cover_image, category,
+            available_today, rating, review_count, verified,
+            created_at
+     FROM users WHERE id = $1`,
+    [id],
+  );
+
+  if (userResult.rows.length === 0) return null;
+
+  const user = userResult.rows[0];
+
+  const skillsResult = await pool.query(
+    `SELECT s.name FROM skills s
+     JOIN user_skills us ON us.skill_id = s.id
+     WHERE us.user_id = $1 ORDER BY s.name`,
+    [id],
+  );
+
+  const langsResult = await pool.query(
+    `SELECT l.name FROM languages l
+     JOIN user_languages ul ON ul.language_id = l.id
+     WHERE ul.user_id = $1 ORDER BY l.name`,
+    [id],
+  );
+
+  const portfolioResult = await pool.query(
+    `SELECT image_url, caption, sort_order
+     FROM portfolio_images WHERE user_id = $1
+     ORDER BY sort_order`,
+    [id],
+  );
+
+  // Fetch reviews for this user
+  const reviewsResult = await pool.query(
+    `SELECT 
+      r.id,
+      r.reviewer_id,
+      r.reviewed_user_id,
+      r.rating,
+      r.comment,
+      r.created_at,
+      r.updated_at,
+      u.first_name,
+      u.last_name,
+      u.profile_image
+     FROM reviews r
+     JOIN users u ON u.id = r.reviewer_id
+     WHERE r.reviewed_user_id = $1
+     ORDER BY r.created_at DESC`,
+    [id],
+  );
+
+  const reviews = reviewsResult.rows.map((row: any) => ({
+    id: row.id,
+    reviewerId: row.reviewer_id,
+    reviewedUserId: row.reviewed_user_id,
+    rating: row.rating,
+    comment: row.comment,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    reviewer: {
+      firstName: row.first_name,
+      lastName: row.last_name,
+      profileImage: row.profile_image,
+    },
+  }));
+
+  return {
+    ...user,
+    name:
+      [user.first_name, user.last_name].filter(Boolean).join(" ") || undefined,
+    skills: skillsResult.rows.map((r: { name: string }) => r.name),
+    languages: langsResult.rows.map((r: { name: string }) => r.name),
+    portfolio: portfolioResult.rows,
+    reviews,
+  };
+};
+
 /**
  * PUT /api/profile/update-profile
  * Updates the authenticated user's profile information.
@@ -48,142 +130,172 @@ export const updateProfile = async (
       portfolio, // { image_url: string; caption?: string }[]
     } = req.body;
 
-    // ── 1. Update core user columns ──────────────────────
-    const userResult = await pool.query(
-      `UPDATE users
-       SET first_name       = COALESCE($1,  first_name),
-           last_name        = COALESCE($2,  last_name),
-           title            = COALESCE($3,  title),
-           offer_description= COALESCE($4,  offer_description),
-           location         = COALESCE($5,  location),
-           about_me         = COALESCE($6,  about_me),
-           hourly_rate      = COALESCE($7,  hourly_rate),
-           profile_image    = COALESCE($8,  profile_image),
-           category         = COALESCE($9,  category),
-           available_today  = COALESCE($10, available_today),
-           updated_at       = NOW()
-       WHERE id = $11
-       RETURNING id, email, first_name, last_name, title,
-                 offer_description, location, about_me,
-                 hourly_rate, profile_image, category,
-                 available_today, rating, review_count, verified`,
-      [
-        first_name,
-        last_name,
-        title,
-        offer_description,
-        location,
-        about_me,
-        hourly_rate,
-        profile_image,
-        category,
-        available_today,
-        userId,
-      ],
-    );
+    const client = await pool.connect();
 
-    if (userResult.rows.length === 0) {
-      res.status(404).json({ success: false, message: "User not found" });
-      return;
-    }
+    try {
+      await client.query("BEGIN");
 
-    const user = userResult.rows[0];
+      // ── 1. Update core user columns ──────────────────────
+      const userResult = await client.query(
+        `UPDATE users
+         SET first_name       = COALESCE($1,  first_name),
+             last_name        = COALESCE($2,  last_name),
+             title            = COALESCE($3,  title),
+             offer_description= COALESCE($4,  offer_description),
+             location         = COALESCE($5,  location),
+             about_me         = COALESCE($6,  about_me),
+             hourly_rate      = COALESCE($7,  hourly_rate),
+             profile_image    = COALESCE($8,  profile_image),
+             category         = COALESCE($9,  category),
+             available_today  = COALESCE($10, available_today),
+             updated_at       = NOW()
+         WHERE id = $11
+         RETURNING id, email, first_name, last_name, title,
+                   offer_description, location, about_me,
+                   hourly_rate, profile_image, category,
+                   available_today, rating, review_count, verified`,
+        [
+          first_name,
+          last_name,
+          title,
+          offer_description,
+          location,
+          about_me,
+          hourly_rate,
+          profile_image,
+          category,
+          available_today,
+          userId,
+        ],
+      );
 
-    // ── 2. Sync skills ───────────────────────────────────
-    if (Array.isArray(skills)) {
-      // Remove old associations
-      await pool.query("DELETE FROM user_skills WHERE user_id = $1", [userId]);
-
-      for (const skillName of skills) {
-        // Upsert skill
-        const skillRes = await pool.query(
-          `INSERT INTO skills (name) VALUES ($1)
-           ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
-           RETURNING id`,
-          [skillName],
-        );
-        const skillId = skillRes.rows[0].id;
-        await pool.query(
-          "INSERT INTO user_skills (user_id, skill_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
-          [userId, skillId],
-        );
+      if (userResult.rows.length === 0) {
+        await client.query("ROLLBACK");
+        client.release();
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
       }
-    }
 
-    // ── 3. Sync languages ────────────────────────────────
-    if (Array.isArray(languages)) {
-      await pool.query("DELETE FROM user_languages WHERE user_id = $1", [
-        userId,
-      ]);
+      const user = userResult.rows[0];
 
-      for (const langName of languages) {
-        const langRes = await pool.query(
-          `INSERT INTO languages (name) VALUES ($1)
-           ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
-           RETURNING id`,
-          [langName],
-        );
-        const langId = langRes.rows[0].id;
-        await pool.query(
-          "INSERT INTO user_languages (user_id, language_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
-          [userId, langId],
-        );
+      // ── 2. Sync skills ───────────────────────────────────
+      if (Array.isArray(skills)) {
+        await client.query("DELETE FROM user_skills WHERE user_id = $1", [
+          userId,
+        ]);
+
+        if (skills.length > 0) {
+          const insertedSkills = await client.query(
+            `INSERT INTO skills (name) 
+             SELECT unnest($1::text[]) 
+             ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name 
+             RETURNING id`,
+            [skills],
+          );
+
+          if (insertedSkills.rows.length > 0) {
+            const skillIds = insertedSkills.rows.map((r) => r.id);
+            await client.query(
+              `INSERT INTO user_skills (user_id, skill_id) 
+               SELECT $1, unnest($2::int[]) 
+               ON CONFLICT DO NOTHING`,
+              [userId, skillIds],
+            );
+          }
+        }
       }
-    }
 
-    // ── 4. Sync portfolio images ─────────────────────────
-    if (Array.isArray(portfolio)) {
-      await pool.query("DELETE FROM portfolio_images WHERE user_id = $1", [
-        userId,
-      ]);
+      // ── 3. Sync languages ────────────────────────────────
+      if (Array.isArray(languages)) {
+        await client.query("DELETE FROM user_languages WHERE user_id = $1", [
+          userId,
+        ]);
 
-      for (let i = 0; i < portfolio.length; i++) {
-        const img = portfolio[i];
-        await pool.query(
-          `INSERT INTO portfolio_images (user_id, image_url, caption, sort_order)
-           VALUES ($1, $2, $3, $4)`,
-          [userId, img.image_url, img.caption || null, i],
-        );
+        if (languages.length > 0) {
+          const insertedLangs = await client.query(
+            `INSERT INTO languages (name) 
+             SELECT unnest($1::text[]) 
+             ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name 
+             RETURNING id`,
+            [languages],
+          );
+
+          if (insertedLangs.rows.length > 0) {
+            const langIds = insertedLangs.rows.map((r) => r.id);
+            await client.query(
+              `INSERT INTO user_languages (user_id, language_id) 
+               SELECT $1, unnest($2::int[]) 
+               ON CONFLICT DO NOTHING`,
+              [userId, langIds],
+            );
+          }
+        }
       }
-    }
 
-    // ── 5. Fetch updated relations for response ──────────
-    const skillsResult = await pool.query(
-      `SELECT s.name FROM skills s
+      // ── 4. Sync portfolio images ─────────────────────────
+      if (Array.isArray(portfolio)) {
+        await client.query("DELETE FROM portfolio_images WHERE user_id = $1", [
+          userId,
+        ]);
+
+        if (portfolio.length > 0) {
+          const portfolioImages = portfolio.map((img) => img.image_url);
+          const portfolioCaptions = portfolio.map((img) => img.caption || null);
+          const portfolioOrders = portfolio.map((_, i) => i);
+
+          await client.query(
+            `INSERT INTO portfolio_images (user_id, image_url, caption, sort_order)
+             SELECT $1, unnest($2::text[]), unnest($3::text[]), unnest($4::int[])`,
+            [userId, portfolioImages, portfolioCaptions, portfolioOrders],
+          );
+        }
+      }
+
+      await client.query("COMMIT");
+      client.release();
+
+      // ── 5. Fetch updated relations for response ──────────
+      const skillsResult = await pool.query(
+        `SELECT s.name FROM skills s
        JOIN user_skills us ON us.skill_id = s.id
        WHERE us.user_id = $1
        ORDER BY s.name`,
-      [userId],
-    );
+        [userId],
+      );
 
-    const langsResult = await pool.query(
-      `SELECT l.name FROM languages l
+      const langsResult = await pool.query(
+        `SELECT l.name FROM languages l
        JOIN user_languages ul ON ul.language_id = l.id
        WHERE ul.user_id = $1
        ORDER BY l.name`,
-      [userId],
-    );
+        [userId],
+      );
 
-    const portfolioResult = await pool.query(
-      `SELECT image_url, caption, sort_order
+      const portfolioResult = await pool.query(
+        `SELECT image_url, caption, sort_order
        FROM portfolio_images
        WHERE user_id = $1
        ORDER BY sort_order`,
-      [userId],
-    );
+        [userId],
+      );
 
-    res.json({
-      success: true,
-      user: {
-        ...user,
-        name:
-          [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-          undefined,
-        skills: skillsResult.rows.map((r: { name: string }) => r.name),
-        languages: langsResult.rows.map((r: { name: string }) => r.name),
-        portfolio: portfolioResult.rows,
-      },
-    });
+      res.json({
+        success: true,
+        user: {
+          ...user,
+          name:
+            [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+            undefined,
+          skills: skillsResult.rows.map((r: { name: string }) => r.name),
+          languages: langsResult.rows.map((r: { name: string }) => r.name),
+          portfolio: portfolioResult.rows,
+        },
+      });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      client.release();
+      throw err;
+    }
   } catch (err) {
     next(err);
   }
@@ -205,91 +317,16 @@ export const getMyProfile = async (
       return;
     }
 
-    const userResult = await pool.query(
-      `SELECT id, email, first_name, last_name, title,
-              offer_description, location, about_me,
-              hourly_rate, profile_image, cover_image, category,
-              available_today, rating, review_count, verified,
-              created_at
-       FROM users WHERE id = $1`,
-      [userId],
-    );
+    const fullProfile = await fetchFullProfile(userId);
 
-    if (userResult.rows.length === 0) {
+    if (!fullProfile) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
     }
 
-    const user = userResult.rows[0];
-
-    const skillsResult = await pool.query(
-      `SELECT s.name FROM skills s
-       JOIN user_skills us ON us.skill_id = s.id
-       WHERE us.user_id = $1 ORDER BY s.name`,
-      [userId],
-    );
-
-    const langsResult = await pool.query(
-      `SELECT l.name FROM languages l
-       JOIN user_languages ul ON ul.language_id = l.id
-       WHERE ul.user_id = $1 ORDER BY l.name`,
-      [userId],
-    );
-
-    const portfolioResult = await pool.query(
-      `SELECT image_url, caption, sort_order
-       FROM portfolio_images WHERE user_id = $1
-       ORDER BY sort_order`,
-      [userId],
-    );
-
-    // Fetch reviews for this user
-    const reviewsResult = await pool.query(
-      `SELECT 
-        r.id,
-        r.reviewer_id,
-        r.reviewed_user_id,
-        r.rating,
-        r.comment,
-        r.created_at,
-        r.updated_at,
-        u.first_name,
-        u.last_name,
-        u.profile_image
-       FROM reviews r
-       JOIN users u ON u.id = r.reviewer_id
-       WHERE r.reviewed_user_id = $1
-       ORDER BY r.created_at DESC`,
-      [userId],
-    );
-
-    const reviews = reviewsResult.rows.map((row: any) => ({
-      id: row.id,
-      reviewerId: row.reviewer_id,
-      reviewedUserId: row.reviewed_user_id,
-      rating: row.rating,
-      comment: row.comment,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      reviewer: {
-        firstName: row.first_name,
-        lastName: row.last_name,
-        profileImage: row.profile_image,
-      },
-    }));
-
     res.json({
       success: true,
-      user: {
-        ...user,
-        name:
-          [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-          undefined,
-        skills: skillsResult.rows.map((r: { name: string }) => r.name),
-        languages: langsResult.rows.map((r: { name: string }) => r.name),
-        portfolio: portfolioResult.rows,
-        reviews,
-      },
+      user: fullProfile,
     });
   } catch (err) {
     next(err);
@@ -306,93 +343,18 @@ export const getProfileById = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
-    const userResult = await pool.query(
-      `SELECT id, email, first_name, last_name, title,
-              offer_description, location, about_me,
-              hourly_rate, profile_image, cover_image, category,
-              available_today, rating, review_count, verified,
-              created_at
-       FROM users WHERE id = $1`,
-      [id],
-    );
+    const fullProfile = await fetchFullProfile(id);
 
-    if (userResult.rows.length === 0) {
+    if (!fullProfile) {
       res.status(404).json({ success: false, message: "User not found" });
       return;
     }
 
-    const user = userResult.rows[0];
-
-    const skillsResult = await pool.query(
-      `SELECT s.name FROM skills s
-       JOIN user_skills us ON us.skill_id = s.id
-       WHERE us.user_id = $1 ORDER BY s.name`,
-      [id],
-    );
-
-    const langsResult = await pool.query(
-      `SELECT l.name FROM languages l
-       JOIN user_languages ul ON ul.language_id = l.id
-       WHERE ul.user_id = $1 ORDER BY l.name`,
-      [id],
-    );
-
-    const portfolioResult = await pool.query(
-      `SELECT image_url, caption, sort_order
-       FROM portfolio_images WHERE user_id = $1
-       ORDER BY sort_order`,
-      [id],
-    );
-
-    // Fetch reviews for this user
-    const reviewsResult = await pool.query(
-      `SELECT 
-        r.id,
-        r.reviewer_id,
-        r.reviewed_user_id,
-        r.rating,
-        r.comment,
-        r.created_at,
-        r.updated_at,
-        u.first_name,
-        u.last_name,
-        u.profile_image
-       FROM reviews r
-       JOIN users u ON u.id = r.reviewer_id
-       WHERE r.reviewed_user_id = $1
-       ORDER BY r.created_at DESC`,
-      [id],
-    );
-
-    const reviews = reviewsResult.rows.map((row: any) => ({
-      id: row.id,
-      reviewerId: row.reviewer_id,
-      reviewedUserId: row.reviewed_user_id,
-      rating: row.rating,
-      comment: row.comment,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      reviewer: {
-        firstName: row.first_name,
-        lastName: row.last_name,
-        profileImage: row.profile_image,
-      },
-    }));
-
     res.json({
       success: true,
-      user: {
-        ...user,
-        name:
-          [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-          undefined,
-        skills: skillsResult.rows.map((r: { name: string }) => r.name),
-        languages: langsResult.rows.map((r: { name: string }) => r.name),
-        portfolio: portfolioResult.rows,
-        reviews,
-      },
+      user: fullProfile,
     });
   } catch (err) {
     next(err);

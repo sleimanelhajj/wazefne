@@ -29,10 +29,11 @@ export const createReview = async (
       return;
     }
 
-    if (rating < 1 || rating > 5) {
+    const parsedRating = parseInt(rating, 10);
+    if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
       res.status(400).json({
         success: false,
-        message: "Rating must be between 1 and 5",
+        message: "Rating must be an integer between 1 and 5",
       });
       return;
     }
@@ -42,20 +43,6 @@ export const createReview = async (
       res.status(400).json({
         success: false,
         message: "You cannot review yourself",
-      });
-      return;
-    }
-
-    // Check if reviewer (authenticated user) exists
-    const reviewerCheck = await pool.query(
-      "SELECT id FROM users WHERE id = $1",
-      [reviewerId],
-    );
-
-    if (reviewerCheck.rows.length === 0) {
-      res.status(400).json({
-        success: false,
-        message: "Your user account was not found. Please log in again.",
       });
       return;
     }
@@ -83,7 +70,7 @@ export const createReview = async (
          comment = EXCLUDED.comment,
          updated_at = NOW()
        RETURNING id, reviewer_id, reviewed_user_id, rating, comment, created_at, updated_at`,
-      [reviewerId, reviewed_user_id, rating, comment || null],
+      [reviewerId, reviewed_user_id, parsedRating, comment || null],
     );
 
     const review = result.rows[0];
@@ -116,6 +103,19 @@ export const getReviewsByUserId = async (
 ): Promise<void> => {
   try {
     const { userId } = req.params;
+
+    // Check if user exists
+    const userCheck = await pool.query("SELECT id FROM users WHERE id = $1", [
+      userId,
+    ]);
+
+    if (userCheck.rows.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
 
     const result = await pool.query(
       `SELECT 
