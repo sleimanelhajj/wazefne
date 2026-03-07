@@ -8,11 +8,12 @@ import { BookingsHistoryComponent } from './pages/bookings-history/bookings-hist
 import { MessagesComponent } from './pages/messages/messages';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile';
 import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'sign-in', pathMatch: 'full' },
-  { path: 'sign-in', component: AuthComponent },
-  { path: 'sign-up', component: AuthComponent },
+  { path: 'sign-in', component: AuthComponent, canActivate: [guestGuard] },
+  { path: 'sign-up', component: AuthComponent, canActivate: [guestGuard] },
   { path: 'home', component: HomeComponent },
   { path: 'setup-profile', component: SetupProfileComponent },
   { path: 'test', component: HomeHeroComponent },

@@ -28,23 +28,98 @@
 
   <!-- Right Side -->
   <div class="right-panel">
-    <!-- Mobile-only logo -->
     <div class="mobile-logo">
       <img src="assets/logo/logo.png" alt="Wazefne" />
     </div>
 
     <div class="auth-card">
-      @if (isSignUp) {
-        <clerk-sign-up [props]="{ signInUrl: '/sign-in', fallbackRedirectUrl: '/setup-profile' }" />
-      } @else {
-        <clerk-sign-in
-          [props]="{
-            signUpUrl: '/sign-up',
-            fallbackRedirectUrl: '/browse',
-            signUpFallbackRedirectUrl: '/setup-profile',
-          }"
-        />
+      <div class="auth-header">
+        <h2>{{ isSignUp ? 'Create Account' : 'Welcome Back' }}</h2>
+        <p class="auth-subtitle">
+          {{
+            isSignUp
+              ? 'Join thousands of professionals across Lebanon'
+              : 'Sign in to continue to Wazefne'
+          }}
+        </p>
+      </div>
+
+      <!-- Error Message -->
+      @if (error) {
+        <div class="error-banner">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error }}</span>
+        </div>
       }
+
+      <form class="auth-form" (ngSubmit)="onSubmit()">
+        <!-- Name Fields (Sign Up Only) -->
+        @if (isSignUp) {
+          <div class="name-row">
+            <mat-form-field appearance="outline">
+              <mat-label>First Name</mat-label>
+              <input matInput [(ngModel)]="firstName" name="firstName" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Last Name</mat-label>
+              <input matInput [(ngModel)]="lastName" name="lastName" />
+            </mat-form-field>
+          </div>
+        }
+
+        <!-- Email -->
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [(ngModel)]="email" name="email" required id="auth-email" />
+          <mat-icon matPrefix>mail_outline</mat-icon>
+        </mat-form-field>
+
+        <!-- Password -->
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password"
+            name="password"
+            required
+            id="auth-password"
+          />
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="showPassword = !showPassword"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Submit -->
+        <button
+          mat-flat-button
+          class="submit-btn"
+          type="submit"
+          [disabled]="isLoading"
+          id="auth-submit"
+        >
+          @if (isLoading) {
+            <mat-spinner diameter="20" color="accent"></mat-spinner>
+          } @else {
+            {{ isSignUp ? 'Create Account' : 'Sign In' }}
+          }
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <span>{{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}</span>
+        <a class="toggle-link" (click)="toggleMode()">
+          {{ isSignUp ? 'Sign In' : 'Sign Up' }}
+        </a>
+      </div>
     </div>
   </div>
 </div>

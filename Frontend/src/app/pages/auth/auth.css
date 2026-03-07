@@ -119,7 +119,122 @@
   max-width: 420px;
   display: flex;
   flex-direction: column;
+}
+
+/* Auth Header */
+.auth-header {
+  margin-bottom: 28px;
+}
+
+.auth-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0d1b2a;
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* Error Banner */
+.error-banner {
+  display: flex;
   align-items: center;
+  gap: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  animation: slideDown 0.25s ease-out;
+}
+
+.error-banner mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.auth-form mat-form-field {
+  width: 100%;
+}
+
+/* Submit Button */
+.submit-btn {
+  margin-top: 8px;
+  height: 48px;
+  border-radius: 10px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #1a3a5c, #2563eb) !important;
+  color: white !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+.submit-btn:hover:not([disabled]) {
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+  transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+}
+
+.submit-btn mat-spinner {
+  display: inline-block;
+}
+
+/* Footer */
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.toggle-link {
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: color 0.15s;
+}
+
+.toggle-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
 }
 
 /* Mobile Logo - Hidden on desktop, shown on mobile */
@@ -233,6 +348,11 @@
   .auth-card {
     border-radius: 16px;
     padding: 20px;
+  }
+
+  .name-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 }
 
