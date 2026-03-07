@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-top-bar',
@@ -25,6 +26,10 @@ export class TopBarComponent implements OnInit, OnDestroy {
   mobileMenuOpen = false;
   userProfileImage: string | null = null;
   isLoggingOut = false;
+  isLoggedIn = false;
+
+  private readonly cdr = inject(ChangeDetectorRef);
+  private authSub?: Subscription;
 
   constructor() {
     this.searchForm = this.fb.group({
@@ -40,15 +45,19 @@ export class TopBarComponent implements OnInit, OnDestroy {
     // Reactively update the profile image when it changes
     this.imgSub = this.authService.profileImage$.subscribe((img) => {
       this.userProfileImage = img;
+      this.cdr.detectChanges();
+    });
+
+    // Reactively update logged-in status
+    this.authSub = this.authService.isSignedIn$.subscribe((signedIn) => {
+      this.isLoggedIn = signedIn;
+      this.cdr.detectChanges();
     });
   }
 
   ngOnDestroy(): void {
     this.imgSub?.unsubscribe();
-  }
-
-  get isLoggedIn(): boolean {
-    return this.authService.isAuthenticated();
+    this.authSub?.unsubscribe();
   }
 
   get userName(): string {
