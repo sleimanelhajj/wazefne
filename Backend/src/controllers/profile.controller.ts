@@ -3,6 +3,7 @@ import { AuthRequest } from "../middleware/auth";
 import pool from "../config/db";
 import multer from "multer";
 import path from "path";
+import { supabase } from "../config/supabase";
 
 // ── Multer configuration (memory storage for base64 conversion) ──
 export const upload = multer({
@@ -397,9 +398,31 @@ export const uploadPortfolio = async (
     }[] = [];
 
     for (const file of files) {
-      // Convert buffer to base64 data URL
-      const base64 = file.buffer.toString("base64");
-      const dataUrl = `data:${file.mimetype};base64,${base64}`;
+      const fileName = `portfolio/${userId}_${Date.now()}_${Math.round(
+        Math.random() * 1000,
+      )}${path.extname(file.originalname)}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("user_uploads")
+        .upload(fileName, file.buffer, {
+          contentType: file.mimetype,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        res.status(500).json({
+          success: false,
+          message: "Error uploading one or more files to storage",
+          error: uploadError.message,
+        });
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("user_uploads")
+        .getPublicUrl(fileName);
+
+      const dataUrl = publicUrlData.publicUrl;
 
       await pool.query(
         `INSERT INTO portfolio_images (user_id, image_url, caption, sort_order)
