@@ -1,4 +1,11 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Output,
+  EventEmitter,
+  CUSTOM_ELEMENTS_SCHEMA,
+  HostListener,
+} from '@angular/core';
+import 'emoji-picker-element';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,6 +15,7 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   templateUrl: './message-input.component.html',
   styleUrls: ['./message-input.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class MessageInputComponent {
   @Output() messageSent = new EventEmitter<string>();
@@ -33,5 +41,29 @@ export class MessageInputComponent {
 
   onCreateOffer() {
     this.createOffer.emit();
+  }
+
+  // --- Emoji Picker Logic ---
+  showEmojiPicker = false;
+
+  toggleEmojiPicker(event: Event) {
+    event.stopPropagation();
+    this.showEmojiPicker = !this.showEmojiPicker;
+  }
+
+  onEmojiSelect(event: any) {
+    if (event.detail && event.detail.unicode) {
+      this.messageText += event.detail.unicode;
+    }
+  }
+
+  @HostListener('document:click')
+  clickout() {
+    this.closeEmojiPicker();
+  }
+
+  // Close picker if user clicks outside
+  closeEmojiPicker() {
+    this.showEmojiPicker = false;
   }
 }
