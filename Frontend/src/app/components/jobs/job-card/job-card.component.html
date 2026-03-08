@@ -1,0 +1,36 @@
+<div class="job-card">
+  <div class="job-header">
+    <div class="client-info">
+      <img
+        [src]="job.client_avatar || 'assets/icons/profile.svg'"
+        [alt]="job.client_first_name"
+        class="client-avatar"
+      />
+      <div>
+        <h4>{{ job.client_first_name }} {{ job.client_last_name }}</h4>
+        <span class="job-time">{{ timeAgo }}</span>
+      </div>
+    </div>
+    <div class="job-budget" *ngIf="job.budget">
+      <span class="budget-label">Est. Budget</span>
+      <span class="budget-amount">${{ job.budget }}</span>
+    </div>
+  </div>
+
+  <div class="job-content">
+    <h3 class="job-title">{{ job.title }}</h3>
+    <p class="job-description">{{ job.description }}</p>
+
+    <div class="job-tags">
+      <span class="tag category">{{ job.category }}</span>
+      <span class="tag location">
+        <img src="assets/icons/location.svg" alt="location" class="tag-icon" />
+        {{ job.location }}
+      </span>
+    </div>
+  </div>
+
+  <div class="job-footer">
+    <button class="bid-btn" (click)="onBidClick()">Submit a Proposal</button>
+  </div>
+</div>

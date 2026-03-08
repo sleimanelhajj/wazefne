@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { Conversation, ChatMessage } from '../models/message.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/api/messages';
-  private readonly wsUrl = 'http://localhost:3000';
+  private readonly apiUrl = `${environment.apiUrl}/api/messages`;
+  private readonly wsUrl = environment.wsUrl;
 
   private socket: Socket | null = null;
 

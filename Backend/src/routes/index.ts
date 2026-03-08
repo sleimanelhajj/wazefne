@@ -4,6 +4,7 @@ import usersRoutes from "./users.routes";
 import reviewsRoutes from "./reviews.routes";
 import messageRoutes from "./messages.routes";
 import offerRoutes from "./offers.routes";
+import jobsRoutes from "./jobs.routes";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use("/users", usersRoutes);
 router.use("/reviews", reviewsRoutes);
 router.use("/messages", messageRoutes);
 router.use("/offers", offerRoutes);
+router.use("/jobs", jobsRoutes);
 
 export default router;

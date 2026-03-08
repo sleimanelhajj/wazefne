@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { ClerkService } from 'ngx-clerk';
 import { Observable, BehaviorSubject, map, filter, switchMap, tap } from 'rxjs';
 import { LocationService } from './location.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
 
   private readonly PROFILE_IMAGE_KEY = 'user_profile_image';
+  readonly isSignedIn$: Observable<boolean> = this.clerk.user$.pipe(map((user) => !!user));
 
   // BehaviorSubject to allow components to reactively update when the image changes
   private profileImageSubject = new BehaviorSubject<string | null>(this.getInitialProfileImage());
@@ -28,7 +30,7 @@ export class AuthService {
     this.clerk.user$
       .pipe(
         filter((user) => !!user),
-        switchMap(() => this.http.get<any>('http://localhost:3000/api/profile/me')),
+        switchMap(() => this.http.get<any>(`${environment.apiUrl}/api/profile/me`)),
       )
       .subscribe({
         next: (response) => {
@@ -44,11 +46,6 @@ export class AuthService {
         error: (err) => console.error('Failed to fetch DB user ID:', err),
       });
   }
-
-  /**
-   * Observable that emits true when user is signed in
-   */
-  readonly isSignedIn$: Observable<boolean> = this.clerk.user$.pipe(map((user) => !!user));
 
   isAuthenticated(): boolean {
     return !!window.Clerk?.user;

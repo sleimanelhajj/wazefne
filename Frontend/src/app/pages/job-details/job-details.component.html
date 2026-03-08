@@ -1,0 +1,105 @@
+<app-top-bar></app-top-bar>
+
+<div class="job-details-page">
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading job details...</p>
+  </div>
+
+  <div class="error-state" *ngIf="errorMsg">
+    <p>{{ errorMsg }}</p>
+    <a routerLink="/jobs" class="back-link">← Back to Jobs</a>
+  </div>
+
+  <div class="details-container" *ngIf="!loading && job">
+    <a routerLink="/jobs" class="back-link">← Back to Jobs</a>
+
+    <div class="job-header-card">
+      <div class="client-banner">
+        <img
+          [src]="job.client_avatar || 'assets/icons/profile.svg'"
+          alt="Client Avatar"
+          class="client-avatar"
+        />
+        <div class="client-info">
+          <h3>{{ job.client_first_name }} {{ job.client_last_name }}</h3>
+          <span class="posted-time">Posted {{ getTimeAgo(job.created_at) }}</span>
+        </div>
+      </div>
+
+      <h1 class="job-title">{{ job.title }}</h1>
+
+      <div class="job-tags">
+        <span class="tag category">{{ job.category }}</span>
+        <span class="tag location">
+          <img src="assets/icons/location.svg" alt="Location" /> {{ job.location }}
+        </span>
+        <span class="tag budget" *ngIf="job.budget">
+          <img src="assets/icons/price-range.svg" alt="Budget" /> ${{ job.budget }} Est.
+        </span>
+      </div>
+    </div>
+
+    <div class="layout-grid">
+      <!-- Main Content -->
+      <main class="main-column">
+        <section class="description-section">
+          <h2>Job Description</h2>
+          <p class="description-text">{{ job.description }}</p>
+        </section>
+
+        <!-- Bids Section (Only visible to Job Owner) -->
+        <section class="bids-section" *ngIf="isJobOwner">
+          <h2>Proposals Received ({{ bids.length }})</h2>
+
+          <div class="no-bids" *ngIf="bids.length === 0">No one has submitted a proposal yet.</div>
+
+          <div class="bids-list" *ngIf="bids.length > 0">
+            <div class="bid-card" *ngFor="let bid of bids">
+              <div class="bidder-info">
+                <img
+                  [src]="bid.freelancer_avatar || 'assets/icons/profile.svg'"
+                  class="bidder-avatar"
+                />
+                <div class="bidder-meta">
+                  <h4>{{ bid.freelancer_first_name }} {{ bid.freelancer_last_name }}</h4>
+                  <span class="bidder-title">{{ bid.freelancer_title || 'Freelancer' }}</span>
+                </div>
+                <div class="bid-rate">
+                  <span class="rate-label">Proposed</span>
+                  <span class="rate-amount">${{ bid.proposed_rate }}<small>/hr</small></span>
+                </div>
+              </div>
+              <p class="bid-proposal">{{ bid.proposal }}</p>
+              <div class="bid-actions">
+                <button class="chat-btn">Message</button>
+                <button class="accept-btn">Accept</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Sidebar Actions -->
+      <aside class="sidebar-column">
+        <div class="action-card">
+          <h3>Interested in this job?</h3>
+          <p>
+            Submit a proposal with your estimated hourly rate and let the client know why you're a
+            great fit.
+          </p>
+          <button class="primary-btn submit-proposal" (click)="openBidModal()">
+            Submit Proposal
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<app-bid-modal
+  *ngIf="showBidModal && job"
+  [jobId]="job.id"
+  (closeModal)="closeBidModal()"
+  (bidSubmitted)="onBidSubmitted($event)"
+></app-bid-modal>

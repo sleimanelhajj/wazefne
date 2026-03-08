@@ -1,0 +1,77 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <h2>Submit Your Proposal</h2>
+      <button class="close-btn" (click)="close()">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <div class="error-banner" *ngIf="errorMsg">
+        {{ errorMsg }}
+      </div>
+
+      <div class="info-alert">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span
+          >Your proposal will be sent directly to the client. Make sure to highlight why you are the
+          best fit!</span
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Your Proposed Rate ($/hr) <span class="required">*</span></label>
+        <div class="rate-input-container">
+          <span class="currency-symbol">$</span>
+          <input
+            type="number"
+            [(ngModel)]="proposed_rate"
+            placeholder="0.00"
+            min="0"
+            [disabled]="isSubmitting"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Cover Letter / Proposal <span class="required">*</span></label>
+        <textarea
+          [(ngModel)]="proposal"
+          placeholder="Hi! I saw your post and I'd love to help..."
+          rows="6"
+          [disabled]="isSubmitting"
+        ></textarea>
+      </div>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="cancel-btn" (click)="close()" [disabled]="isSubmitting">Cancel</button>
+      <button class="submit-btn" (click)="submitBid()" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting">Send Proposal</span>
+        <span *ngIf="isSubmitting" class="spinner"></span>
+      </button>
+    </footer>
+  </div>
+</div>

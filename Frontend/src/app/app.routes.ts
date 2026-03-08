@@ -6,6 +6,8 @@ import { HomeHeroComponent } from './components/home/hero/hero.component';
 import { ProfilePageComponent } from './pages/profile/profile';
 import { BookingsHistoryComponent } from './pages/bookings-history/bookings-history';
 import { MessagesComponent } from './pages/messages/messages';
+import { JobsComponent } from './pages/jobs/jobs.component';
+import { JobDetailsComponent } from './pages/job-details/job-details.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
@@ -29,5 +31,7 @@ export const routes: Routes = [
   },
   { path: 'bookings', component: BookingsHistoryComponent, canActivate: [authGuard] },
   { path: 'messages', component: MessagesComponent, canActivate: [authGuard] },
+  { path: 'jobs', component: JobsComponent, canActivate: [authGuard] },
+  { path: 'jobs/:id', component: JobDetailsComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'home' },
 ];

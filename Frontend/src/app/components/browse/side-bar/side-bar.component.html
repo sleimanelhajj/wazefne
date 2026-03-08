@@ -5,15 +5,17 @@
       <h3>Location</h3>
     </header>
     <div class="card-body">
-      <select
-        class="category-dropdown"
-        [(ngModel)]="selectedLocation"
-        (change)="selectLocation(selectedLocation)"
-      >
-        <option *ngFor="let loc of locationOptions" [value]="loc.value">
-          {{ loc.label }}
-        </option>
-      </select>
+      <mat-form-field appearance="outline" class="full-width-field">
+        <mat-label>All Locations</mat-label>
+        <mat-select
+          [(ngModel)]="selectedLocation"
+          (selectionChange)="selectLocation(selectedLocation)"
+        >
+          <mat-option *ngFor="let loc of locationOptions" [value]="loc.value">
+            {{ loc.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
   </section>
 
@@ -23,16 +25,18 @@
       <h3>Category</h3>
     </header>
     <div class="card-body">
-      <select
-        class="category-dropdown"
-        [(ngModel)]="selectedCategory"
-        (change)="selectCategory(selectedCategory)"
-      >
-        <option value="">All Categories</option>
-        <option *ngFor="let category of categories" [value]="category.label">
-          {{ category.label }} ({{ category.count }})
-        </option>
-      </select>
+      <mat-form-field appearance="outline" class="full-width-field">
+        <mat-label>All Categories</mat-label>
+        <mat-select
+          [(ngModel)]="selectedCategory"
+          (selectionChange)="selectCategory(selectedCategory)"
+        >
+          <mat-option value="">All Categories</mat-option>
+          <mat-option *ngFor="let category of categories" [value]="category.label">
+            {{ category.label }} ({{ category.count }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
   </section>
 

@@ -1,0 +1,78 @@
+<app-top-bar></app-top-bar>
+
+<div class="jobs-page">
+  <!-- Header Section -->
+  <header class="page-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1>Job Opportunities</h1>
+        <p>Browse open requests from clients, or post what you need done.</p>
+      </div>
+      <div class="header-actions" *ngIf="userType === 'client'">
+        <button class="primary-btn" (click)="openPostModal()">
+          <img src="assets/icons/plus.svg" alt="Add" />
+          Post a Job
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar">
+      <div class="filter-card">
+        <h3>Category</h3>
+        <mat-form-field appearance="outline" class="full-width-field">
+          <mat-label>All Categories</mat-label>
+          <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Categories</mat-option>
+            <mat-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="filter-card">
+        <h3>Location</h3>
+        <mat-form-field appearance="outline" class="full-width-field">
+          <mat-label>All Locations</mat-label>
+          <mat-select [(ngModel)]="selectedLocation" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Locations</mat-option>
+            <mat-option *ngFor="let loc of locations" [value]="loc">{{ loc }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </aside>
+
+    <!-- Jobs List Grid -->
+    <main class="jobs-grid">
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Finding opportunities...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!loading && jobs.length === 0">
+        <img src="assets/icons/empty.svg" alt="No Jobs" />
+        <h3>No jobs found</h3>
+        <p>Check back later or try adjusting your filters.</p>
+        <button class="secondary-btn" *ngIf="userType === 'client'" (click)="openPostModal()">
+          Be the first to post!
+        </button>
+      </div>
+
+      <!-- Job Cards -->
+      <div class="jobs-wrapper" *ngIf="!loading && jobs.length > 0">
+        <app-job-card *ngFor="let job of jobs" [job]="job"></app-job-card>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modals -->
+<app-post-job-modal
+  *ngIf="showPostModal"
+  (closeModal)="closePostModal()"
+  (jobCreated)="onJobPosted($event)"
+></app-post-job-modal>
