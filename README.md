@@ -12,7 +12,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Angular-19-DD0031?logoy=angular&logoColor=white" alt="Angular 19"/>
   <img src="https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white" alt="Express 5"/>
-  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 16"/>
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white" alt="Supabase"/>
+  <img src="https://img.shields.io/badge/Clerk-6C47FF?logo=clerk&logoColor=white" alt="Clerk Auth"/>
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5"/>
   <img src="https://img.shields.io/badge/Socket.IO-Realtime-010101?logo=socket.io&logoColor=white" alt="Socket.IO"/>
 </p>
@@ -27,10 +28,12 @@ Finding reliable professionals in Lebanon shouldn't be a hassle. Whether you nee
 
 ## 🔥 Awesome Features
 
-- 🔐 **Secure Auth** — JWT token-based authentication with encrypted passwords.
+- 🔐 **Secure Auth powered by Clerk** — Seamless sign-in, OAuth (Google/GitHub), and complete user management via Clerk.
 - 🎨 **Rich Profiles** — Show off your skills, upload a portfolio gallery, and set up a custom banner!
 - 📍 **Smart Locations** — Auto-detects your nearest city! Filter by 90+ Lebanese locations across all 5 regions.
 - 💬 **Live Chat!** — Real-time instant messaging powered by our custom Socket.IO integration.
+- 🤝 **Reverse Marketplace** — Clients can post jobs and let freelancers submit bids and proposals.
+- ⚡ **Urgent Hiring** — Find available freelancers ready to work _today_ in your area.
 - ⭐ **Reviews & Ratings** — Leave feedback for freelancers. Star ratings are aggregated automatically!
 - 📱 **Mobile-First UX** — Slide-in drawers, floating filter buttons, and a polished Angular Material UI that looks amazing on any screen size.
 
@@ -51,8 +54,8 @@ Finding reliable professionals in Lebanon shouldn't be a hassle. Whether you nee
 | ------------- | ---------------------------------------- |
 | **Frontend**  | Angular 19, Angular Material, TypeScript |
 | **Backend**   | Express 5, Node.js, TypeScript           |
-| **Database**  | PostgreSQL                               |
-| **Auth**      | JWT (jsonwebtoken), bcrypt               |
+| **Database**  | PostgreSQL (Hosted on **Supabase**)      |
+| **Auth**      | **Clerk** (JWT, OAuth, User Management)  |
 | **Real-time** | Socket.IO (WebSockets)                   |
 | **API Docs**  | Swagger (swagger-jsdoc + swagger-ui)     |
 | **Uploads**   | Multer (memory storage → base64)         |
@@ -67,7 +70,7 @@ wazefne/
 │   ├── server.ts              # Express & Socket.IO entry point
 │   └── src/
 │       ├── config/            # DB connection, migrations, Swagger, Socket.IO
-│       ├── controllers/       # Auth, Profile, Users, Reviews, Messages
+│       ├── controllers/       # Auth, Profile, Users, Reviews, Messages, Jobs
 │       ├── middleware/        # JWT auth, error handling
 │       ├── migrations/sql/    # SQL schemas + awesome seed data! 🪴
 │       └── routes/            # API definitions
@@ -79,7 +82,8 @@ wazefne/
 │       │   ├── common/        # Top-bar, footer
 │       │   ├── home/          # Hero section
 │       │   ├── profile/       # Banner, reviews, portfolio
-│       │   └── messages/      # The live chat engine (bubbles, lists, inputs)
+│       │   ├── messages/      # The live chat engine (bubbles, lists, inputs)
+│       │   └── jobs/          # Reverse marketplace features (post job, bidding)
 │       ├── pages/             # Route-level components
 │       ├── services/          # REST & WebSocket communication layers
 │       ├── models/            # Type-safe data structures
@@ -107,11 +111,11 @@ cd Backend
 npm install
 ```
 
-Create your `.env` file (Make sure your PostgreSQL is running!):
+Create your `.env` file (Make sure you have your Supabase connection string and Clerk keys!):
 
 ```env
-DATABASE_URL=postgresql://<user>:<password>@localhost:5432/wazefne
-JWT_SECRET=super-secret-wazefne-key
+DATABASE_URL=postgresql://<user>:<password>@<supabase-host>:5432/postgres
+CLERK_SECRET_KEY=sk_test_...
 PORT=3000
 ```
 
@@ -130,6 +134,19 @@ In a new terminal:
 ```bash
 cd Frontend
 npm install
+```
+
+Create your frontend environment file (`Frontend/src/environments/environment.ts`):
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: "http://localhost:3000",
+  clerkPublishableKey: "pk_test_...",
+};
+```
+
+```bash
 ng serve
 ```
 
