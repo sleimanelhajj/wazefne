@@ -69,12 +69,26 @@
       <div class="input-row">
         <label>
           <span>$</span>
-          <input type="number" [(ngModel)]="priceMin" (change)="clampPrices()" />
+          <input
+            type="number"
+            [min]="priceFloor"
+            [max]="priceCeiling"
+            [(ngModel)]="priceMin"
+            (change)="clampPrices()"
+            (keypress)="preventNegative($event)"
+          />
         </label>
         <span class="dash"></span>
         <label>
           <span>$</span>
-          <input type="number" [(ngModel)]="priceMax" (change)="clampPrices()" />
+          <input
+            type="number"
+            [min]="priceFloor"
+            [max]="priceCeiling"
+            [(ngModel)]="priceMax"
+            (change)="clampPrices()"
+            (keypress)="preventNegative($event)"
+          />
         </label>
       </div>
     </div>

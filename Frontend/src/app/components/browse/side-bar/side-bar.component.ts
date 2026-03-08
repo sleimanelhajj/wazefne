@@ -121,6 +121,12 @@ export class SideBarComponent implements OnInit, OnChanges, OnDestroy {
     this.emitFilters();
   }
 
+  preventNegative(event: KeyboardEvent): void {
+    if (event.key === '-' || event.key === 'e' || event.key === '+') {
+      event.preventDefault();
+    }
+  }
+
   setRating(value: number): void {
     this.selectedRating = this.selectedRating === value ? 0 : value;
     this.emitFilters();

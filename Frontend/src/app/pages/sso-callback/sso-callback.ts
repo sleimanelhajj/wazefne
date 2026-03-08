@@ -37,26 +37,21 @@ export class SsoCallbackComponent implements OnInit {
 
       const signInAttempt = clerk.client?.signIn;
 
-      // If the user signed in with Google but doesn't have an account yet
       if (signInAttempt?.firstFactorVerification?.status === 'transferable') {
         const signUpAttempt = await clerk.client.signUp.create({ transfer: true });
 
         if (signUpAttempt.status === 'complete') {
-          // Success! They are fully registered.
           await clerk.setActive({ session: signUpAttempt.createdSessionId });
           this.router.navigate(['/setup-profile']);
           return;
         }
 
         if (signUpAttempt.status === 'missing_requirements') {
-          // DANGER: The dashboard requires something Google didn't provide (like a Username).
-          // We MUST send them to the sign-up page to fill out the missing fields.
           this.router.navigate(['/sign-up']);
           return;
         }
       }
 
-      // Standard redirect handling for normal log ins
       await clerk.handleRedirectCallback({
         afterSignInUrl: '/browse',
         afterSignUpUrl: '/setup-profile',
