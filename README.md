@@ -116,6 +116,8 @@ Create your `.env` file (Make sure you have your Supabase connection string and 
 ```env
 DATABASE_URL=postgresql://<user>:<password>@<supabase-host>:5432/postgres
 CLERK_SECRET_KEY=sk_test_...
+GEMINI_API_KEY=AIza...
+GEMINI_MODEL=gemini-2.0-flash
 PORT=3000
 ```
 
@@ -151,6 +153,24 @@ npm run dev:sync
 ```
 
 You can override the dump file path with `DB_SYNC_FILE` in `Backend/.env`.
+
+### CV analyzer API (Node + Gemini)
+
+The backend now includes CV analysis endpoints:
+
+- `POST /api/cv/analyze` (multipart form-data)
+  - file field: `cv` (`.pdf` or `.docx`)
+  - optional fields: `targetRole`, `jobDescription`
+- `GET /api/cv/my-analyses?limit=10`
+
+The analyzer processes CVs in Node (PDF sent directly to Gemini, DOCX parsed with `mammoth`), then returns:
+
+- `overallScore` out of 100
+- section scores
+- strengths
+- issues
+- actionable suggestions
+- improved bullet examples
 
 ### 2. Frontend Setup
 

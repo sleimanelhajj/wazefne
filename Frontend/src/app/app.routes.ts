@@ -12,6 +12,7 @@ import { SetupProfileComponent } from './pages/setup-profile/setup-profile';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
 import { SsoCallbackComponent } from './pages/sso-callback/sso-callback';
+import { CvAnalyzerPageComponent } from './pages/cv-analyzer/cv-analyzer';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'sign-in', pathMatch: 'full' },
@@ -33,5 +34,6 @@ export const routes: Routes = [
   { path: 'messages', component: MessagesComponent, canActivate: [authGuard] },
   { path: 'jobs', component: JobsComponent, canActivate: [authGuard] },
   { path: 'jobs/:id', component: JobDetailsComponent, canActivate: [authGuard] },
+  { path: 'cv-analyzer', component: CvAnalyzerPageComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'home' },
 ];
