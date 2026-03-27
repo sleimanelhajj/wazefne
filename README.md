@@ -127,6 +127,31 @@ npm run dev
 
 _(Pro-tip: The database tables and dummy users populate automatically on the first start! Check out the interactive API Docs at [http://localhost:3000/api-docs](http://localhost:3000/api-docs))_
 
+### Sync local database between two laptops
+
+If both machines run different local PostgreSQL instances, you can export/import data with the backend helper scripts:
+
+```bash
+cd Backend
+npm run db:dump
+```
+
+This creates `Backend/db/latest.sql`. Move or sync that file to your other laptop, then run:
+
+```bash
+cd Backend
+npm run db:restore
+```
+
+If you want restore to happen before backend startup on that machine:
+
+```bash
+cd Backend
+npm run dev:sync
+```
+
+You can override the dump file path with `DB_SYNC_FILE` in `Backend/.env`.
+
 ### 2. Frontend Setup
 
 In a new terminal:

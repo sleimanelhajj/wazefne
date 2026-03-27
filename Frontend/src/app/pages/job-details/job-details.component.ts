@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { JobService } from '../../services/job.service';
 import { Job, JobBid } from '../../models/job.model';
 import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { BidModalComponent } from '../../components/jobs/bid-modal/bid-modal.component';
+import { ChatService } from '../../services/chat.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-job-details',
@@ -19,19 +21,21 @@ export class JobDetailsComponent implements OnInit {
   loading = true;
   errorMsg = '';
   showBidModal = false;
-
-  // Ideally fetched from Auth/User service to determine actions
   currentUserId = '';
+  canManageBids = false;
+  actingBidId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private jobService: JobService,
+    private chatService: ChatService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    // For now, let's pretend we have a way to get the current user ID
-    // We will assume `userType` checks can govern the UI, but we'll fetch bids anyway and handle 403s
+    this.currentUserId = this.authService.getUserId() || '';
     this.route.paramMap.subscribe((params) => {
       const jobId = Number(params.get('id'));
       if (jobId) {
@@ -52,11 +56,13 @@ export class JobDetailsComponent implements OnInit {
           this.fetchBids(id);
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load job', err);
         this.errorMsg = 'Failed to load job details.';
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -66,13 +72,18 @@ export class JobDetailsComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.bids = res.bids;
+          this.canManageBids = true;
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        // 403 Forbidden is expected if the user isn't the job owner
-        if (err.status !== 403) {
+        if (err.status === 403) {
+          this.canManageBids = false;
+          this.bids = [];
+        } else {
           console.error('Failed to load bids', err);
         }
+        this.cdr.detectChanges();
       },
     });
   }
@@ -87,14 +98,73 @@ export class JobDetailsComponent implements OnInit {
 
   onBidSubmitted(bid: JobBid): void {
     this.closeBidModal();
-    // Show success toast or feedback here
-    alert('Bid submitted successfully!');
+    if (this.job?.id) {
+      this.fetchBids(this.job.id);
+    }
   }
 
   get isJobOwner(): boolean {
-    // Needs actual auth logic; for now, we rely on the backend 403 to restrict bids data
-    // Usually: return this.currentUserId === this.job?.client_id;
-    return this.bids.length > 0;
+    return this.canManageBids;
+  }
+
+  onAcceptBid(bid: JobBid): void {
+    if (!this.job || bid.status !== 'pending') return;
+    this.actingBidId = bid.id;
+    this.jobService.updateBidStatus(this.job.id, bid.id, 'accepted').subscribe({
+      next: (res) => {
+        this.bids = this.bids.map((b) => {
+          if (b.id === bid.id) return { ...b, status: 'accepted' as const };
+          if (b.status === 'pending') return { ...b, status: 'rejected' as const };
+          return b;
+        });
+        this.actingBidId = null;
+        if (res.conversationId) {
+          this.router.navigate(['/messages'], { queryParams: { conversationId: res.conversationId } });
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to accept bid', err);
+        this.actingBidId = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  onRejectBid(bid: JobBid): void {
+    if (!this.job || bid.status !== 'pending') return;
+    this.actingBidId = bid.id;
+    this.jobService.updateBidStatus(this.job.id, bid.id, 'rejected').subscribe({
+      next: () => {
+        this.bids = this.bids.map((b) => (b.id === bid.id ? { ...b, status: 'rejected' as const } : b));
+        this.actingBidId = null;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to reject bid', err);
+        this.actingBidId = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  onMessageBidder(bid: JobBid): void {
+    this.chatService.createConversation(bid.freelancer_id).subscribe({
+      next: (res) => {
+        this.router.navigate(['/messages'], { queryParams: { conversationId: res.conversation.id } });
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to open conversation', err);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  getBidStatusLabel(status: JobBid['status']): string {
+    if (status === 'accepted') return 'Accepted';
+    if (status === 'rejected') return 'Rejected';
+    return 'Pending';
   }
 
   getTimeAgo(dateInput: Date | string | undefined): string {

@@ -14,6 +14,9 @@ export interface Job {
   client_first_name?: string;
   client_last_name?: string;
   client_avatar?: string;
+  is_owner?: boolean;
+  offers_count?: number;
+  pending_offers_count?: number;
 }
 
 export interface JobBid {

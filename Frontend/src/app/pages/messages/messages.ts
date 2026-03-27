@@ -83,7 +83,16 @@ export class MessagesComponent implements OnInit, OnDestroy {
           if (m.offer && m.offer.id === data.offerId) {
             return {
               ...m,
-              offer: { ...m.offer, status: data.status as 'pending' | 'accepted' | 'declined' },
+              offer: {
+                ...m.offer,
+                status: data.status as
+                  | 'pending'
+                  | 'accepted'
+                  | 'declined'
+                  | 'cancelled'
+                  | 'in_progress'
+                  | 'completed',
+              },
             };
           }
           return m;

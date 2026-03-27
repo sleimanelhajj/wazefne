@@ -28,6 +28,13 @@ export class JobService {
   }
 
   /**
+   * Fetch jobs posted by the current user with offers counters
+   */
+  getMyPostedJobs(): Observable<{ success: boolean; jobs: Job[] }> {
+    return this.http.get<{ success: boolean; jobs: Job[] }>(`${this.apiUrl}/my-posts`);
+  }
+
+  /**
    * Fetch a single job by its ID
    */
   getJobById(jobId: number): Observable<{ success: boolean; job: Job }> {
@@ -64,6 +71,17 @@ export class JobService {
     return this.http.post<{ success: boolean; bid: JobBid }>(
       `${this.apiUrl}/${jobId}/bids`,
       bidData,
+    );
+  }
+
+  updateBidStatus(
+    jobId: number,
+    bidId: number,
+    status: 'accepted' | 'rejected',
+  ): Observable<{ success: boolean; status: string; conversationId?: number | null }> {
+    return this.http.patch<{ success: boolean; status: string; conversationId?: number | null }>(
+      `${this.apiUrl}/${jobId}/bids/${bidId}/status`,
+      { status },
     );
   }
 }

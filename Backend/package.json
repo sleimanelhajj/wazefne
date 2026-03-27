@@ -5,8 +5,12 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
+    "postbuild": "xcopy src\\migrations\\sql dist\\src\\migrations\\sql /E /I /Y",
     "start": "node dist/server.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "dev:sync": "npm run db:restore && nodemon",
+    "db:dump": "node scripts/db-dump.cjs",
+    "db:restore": "node scripts/db-restore.cjs"
   },
   "keywords": [],
   "author": "",

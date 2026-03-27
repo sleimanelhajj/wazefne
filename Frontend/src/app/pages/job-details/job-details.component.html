@@ -64,6 +64,14 @@
                 <div class="bidder-meta">
                   <h4>{{ bid.freelancer_first_name }} {{ bid.freelancer_last_name }}</h4>
                   <span class="bidder-title">{{ bid.freelancer_title || 'Freelancer' }}</span>
+                  <span
+                    class="bid-status"
+                    [class.pending]="bid.status === 'pending'"
+                    [class.accepted]="bid.status === 'accepted'"
+                    [class.rejected]="bid.status === 'rejected'"
+                  >
+                    {{ getBidStatusLabel(bid.status) }}
+                  </span>
                 </div>
                 <div class="bid-rate">
                   <span class="rate-label">Proposed</span>
@@ -72,8 +80,21 @@
               </div>
               <p class="bid-proposal">{{ bid.proposal }}</p>
               <div class="bid-actions">
-                <button class="chat-btn">Message</button>
-                <button class="accept-btn">Accept</button>
+                <button class="chat-btn" (click)="onMessageBidder(bid)">Message</button>
+                <button
+                  class="decline-btn"
+                  (click)="onRejectBid(bid)"
+                  [disabled]="bid.status !== 'pending' || actingBidId === bid.id"
+                >
+                  Decline
+                </button>
+                <button
+                  class="accept-btn"
+                  (click)="onAcceptBid(bid)"
+                  [disabled]="bid.status !== 'pending' || actingBidId === bid.id"
+                >
+                  {{ actingBidId === bid.id ? 'Working...' : 'Accept' }}
+                </button>
               </div>
             </div>
           </div>

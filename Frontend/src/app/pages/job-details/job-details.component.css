@@ -257,6 +257,31 @@
   color: #64748b;
 }
 
+.bid-status {
+  display: inline-flex;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bid-status.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.bid-status.accepted {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.bid-status.rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 .bid-rate {
   margin-left: auto;
   text-align: right;
@@ -298,6 +323,7 @@
 }
 
 .chat-btn,
+.decline-btn,
 .accept-btn {
   padding: 8px 16px;
   border-radius: 6px;
@@ -318,14 +344,30 @@
   color: #0f172a;
 }
 
+.decline-btn {
+  background: white;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.decline-btn:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
 .accept-btn {
   background: #10b981;
   border: none;
   color: white;
 }
 
-.accept-btn:hover {
+.accept-btn:hover:not(:disabled) {
   background: #059669;
+}
+
+.decline-btn:disabled,
+.accept-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

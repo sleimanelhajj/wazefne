@@ -68,7 +68,8 @@ export class BookingsHistoryComponent implements OnInit {
       next: (res) => {
         this.allBookings = res.bookings.map((b: any) => ({
           ...b,
-          direction: b.senderId === this.currentUserId ? 'i-booked' : 'booked-me',
+          direction:
+            b.direction || (b.senderId === this.currentUserId ? 'i-booked' : 'booked-me'),
         }));
         this.updateTabCounts();
         this.loading = false;

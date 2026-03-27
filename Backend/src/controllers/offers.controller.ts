@@ -17,6 +17,17 @@ const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   in_progress: ["completed"],
 };
 
+const JOB_TITLE_PREFIX = "Job:";
+
+const extractBookedJobTitle = (title: string): string | null => {
+  if (!title || !title.startsWith(JOB_TITLE_PREFIX)) {
+    return null;
+  }
+
+  const parsed = title.slice(JOB_TITLE_PREFIX.length).trim();
+  return parsed.length > 0 ? parsed : null;
+};
+
 const notifyParticipants = (
   user1: string | number,
   user2: string | number,
@@ -212,6 +223,40 @@ export const updateOfferStatus = async (
       offerId,
     ]);
 
+    // Keep jobs page cards in sync for bookings created from job bid acceptance.
+    // Those offers are stored as: title = "Job: <job title>", sender=client, recipient=freelancer.
+    const bookedJobTitle =
+      (status === "in_progress" || status === "completed") &&
+      typeof offer.title === "string"
+        ? extractBookedJobTitle(offer.title)
+        : null;
+
+    if (bookedJobTitle) {
+      await pool.query(
+        `UPDATE jobs j
+         SET status = $1, updated_at = NOW()
+         FROM job_bids b
+         WHERE b.job_id = j.id
+           AND b.status = 'accepted'
+           AND b.freelancer_id = $2
+           AND j.client_id = $3
+           AND j.title = $4
+           AND b.proposed_rate = $5
+           AND (
+             ($1 = 'in_progress' AND j.status IN ('open', 'in_progress'))
+             OR
+             ($1 = 'completed' AND j.status = 'in_progress')
+           )`,
+        [
+          status,
+          offer.recipient_id,
+          offer.sender_id,
+          bookedJobTitle,
+          offer.hourly_rate,
+        ],
+      );
+    }
+
     // Insert a status change message
     const stateMessage = OFFER_STATE_MESSAGES[status] || {
       emoji: "ℹ️",
@@ -381,6 +426,7 @@ export const getMyBookings = async (
       hourlyRate: Number(row.hourly_rate),
       status: row.status,
       createdAt: row.created_at,
+      direction: row.sender_id === userId ? "i-booked" : "booked-me",
       sender: {
         firstName: row.sender_first_name,
         lastName: row.sender_last_name,

@@ -14,8 +14,6 @@
         [messages]="messages"
         [currentUserId]="currentUserId"
         [otherUserAvatar]="activeContact?.avatar || 'assets/icons/default-avatar.svg'"
-        (acceptOffer)="onAcceptOffer($event)"
-        (declineOffer)="onDeclineOffer($event)"
       ></app-chat-messages>
       <app-message-input
         (messageSent)="onMessageSent($event)"

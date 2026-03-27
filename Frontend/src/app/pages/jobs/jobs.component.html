@@ -1,25 +1,45 @@
 <app-top-bar></app-top-bar>
 
 <div class="jobs-page">
-  <!-- Header Section -->
   <header class="page-header">
     <div class="header-content">
       <div class="header-text">
-        <h1>Job Opportunities</h1>
-        <p>Browse open requests from clients, or post what you need done.</p>
+        <h1>{{ activeSection === 'browse' ? 'Job Opportunities' : 'My Job Offers' }}</h1>
+        <p>
+          {{
+            activeSection === 'browse'
+              ? 'Browse open requests from clients, or post what you need done.'
+              : 'View your posted jobs and check who submitted offers.'
+          }}
+        </p>
       </div>
       <div class="header-actions" *ngIf="userType === 'client'">
         <button class="primary-btn" (click)="openPostModal()">
-          <img src="assets/icons/plus.svg" alt="Add" />
+          <span class="plus-icon">+</span>
           Post a Job
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <div class="main-content">
-    <!-- Filters Sidebar -->
+  <div class="section-switch">
+    <button
+      class="switch-btn"
+      [class.active]="activeSection === 'browse'"
+      (click)="setSection('browse')"
+    >
+      Browse Jobs
+    </button>
+    <button
+      class="switch-btn"
+      [class.active]="activeSection === 'offers'"
+      (click)="setSection('offers')"
+    >
+      My Job Offers
+    </button>
+  </div>
+
+  <div *ngIf="activeSection === 'browse'" class="main-content">
     <aside class="filters-sidebar">
       <div class="filter-card">
         <h3>Category</h3>
@@ -44,29 +64,67 @@
       </div>
     </aside>
 
-    <!-- Jobs List Grid -->
     <main class="jobs-grid">
-      <!-- Loading State -->
       <div class="loading-state" *ngIf="loading">
         <div class="spinner"></div>
         <p>Finding opportunities...</p>
       </div>
 
-      <!-- Empty State -->
       <div class="empty-state" *ngIf="!loading && jobs.length === 0">
         <img src="assets/icons/empty.svg" alt="No Jobs" />
         <h3>No jobs found</h3>
         <p>Check back later or try adjusting your filters.</p>
-        <button class="secondary-btn" *ngIf="userType === 'client'" (click)="openPostModal()">
-          Be the first to post!
-        </button>
       </div>
 
-      <!-- Job Cards -->
       <div class="jobs-wrapper" *ngIf="!loading && jobs.length > 0">
-        <app-job-card *ngFor="let job of jobs" [job]="job"></app-job-card>
+        <app-job-card *ngFor="let job of jobs" [job]="job" (bidClick)="openBidModal($event)"></app-job-card>
       </div>
     </main>
+  </div>
+
+  <div *ngIf="activeSection === 'offers'" class="offers-content">
+    <div class="loading-state" *ngIf="loadingMyJobs">
+      <div class="spinner"></div>
+      <p>Loading your posted jobs...</p>
+    </div>
+
+    <div class="empty-state" *ngIf="!loadingMyJobs && myPostedJobs.length === 0">
+      <img src="assets/icons/empty.svg" alt="No Posted Jobs" />
+      <h3>No posted jobs yet</h3>
+      <p>Post a job to start receiving offers from freelancers.</p>
+      <button class="secondary-btn" (click)="openPostModal()">Post Your First Job</button>
+    </div>
+
+    <div class="posted-jobs-list" *ngIf="!loadingMyJobs && myPostedJobs.length > 0">
+      <article class="posted-job-card" *ngFor="let job of myPostedJobs">
+        <div class="posted-job-top">
+          <div>
+            <h3 class="posted-job-title">{{ job.title }}</h3>
+            <p class="posted-job-meta">
+              {{ job.category }} • {{ job.location }} • Posted {{ job.created_at | date: 'mediumDate' }}
+            </p>
+          </div>
+          <span class="status-pill">{{ getStatusLabel(job.status) }}</span>
+        </div>
+
+        <div class="offers-summary">
+          <div class="summary-item">
+            <span class="summary-label">Total Offers</span>
+            <span class="summary-value">{{ job.offers_count || 0 }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Pending</span>
+            <span class="summary-value pending">{{ job.pending_offers_count || 0 }}</span>
+          </div>
+        </div>
+
+        <div class="posted-job-actions">
+          <button class="primary-btn view-offers-btn" (click)="openJobOffers(job.id)">
+            View Details & Offers
+          </button>
+        </div>
+      </article>
+    </div>
   </div>
 </div>
 
@@ -76,3 +134,10 @@
   (closeModal)="closePostModal()"
   (jobCreated)="onJobPosted($event)"
 ></app-post-job-modal>
+
+<app-bid-modal
+  *ngIf="showBidModal && selectedJobId !== null"
+  [jobId]="selectedJobId"
+  (closeModal)="closeBidModal()"
+  (bidSubmitted)="onBidSubmitted($event)"
+></app-bid-modal>
