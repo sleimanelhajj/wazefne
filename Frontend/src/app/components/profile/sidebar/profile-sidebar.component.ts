@@ -3,11 +3,12 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
 import { ChatService } from '../../../services/chat.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-profile-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule],
   templateUrl: './profile-sidebar.component.html',
   styleUrls: ['./profile-sidebar.component.css'],
 })
@@ -21,6 +22,7 @@ export class ProfileSidebarComponent {
   @Input() availableToday = false;
   @Input() userId: string | number = 0;
   @Output() profileUpdated = new EventEmitter<void>();
+  @Output() viewFavorites = new EventEmitter<void>();
 
   toggling = false;
   startingChat = false;

@@ -13,7 +13,14 @@
       <h3 class="user-name">
         {{ fullName }}
       </h3>
-      <button type="button" class="favorite-button" aria-label="Add to favorites">
+      <button
+        type="button"
+        class="favorite-button"
+        [class.active]="user.isFavorited"
+        [attr.aria-pressed]="!!user.isFavorited"
+        [attr.aria-label]="user.isFavorited ? 'Remove from favorites' : 'Add to favorites'"
+        (click)="onToggleFavorite($event)"
+      >
         <img src="assets/icons/heart.svg" alt="Favorite" />
       </button>
     </div>

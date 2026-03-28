@@ -11,6 +11,8 @@ import { TopBarComponent } from '../../components/common/top-bar/top-bar.compone
 import { ProfileService } from '../../services/profile.service';
 import { UserProfile } from '../../models/profile.model';
 import { AuthService } from '../../services/auth.service';
+import { MatDialog } from '@angular/material/dialog';
+import { FavoriteUsersDialogComponent } from '../../components/profile/favorites-dialog/favorite-users-dialog.component';
 
 @Component({
   selector: 'app-profile-page',
@@ -33,6 +35,7 @@ export class ProfilePageComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly authService = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
 
   user: UserProfile | null = null;
   isOwner = false;
@@ -72,5 +75,14 @@ export class ProfilePageComponent implements OnInit {
 
   onProfileUpdated(): void {
     this.loadProfile(); // Refresh profile data to show new profile picture
+  }
+
+  openFavoritesModal(): void {
+    if (!this.isOwner) return;
+    this.dialog.open(FavoriteUsersDialogComponent, {
+      width: 'min(980px, 95vw)',
+      maxHeight: '90vh',
+      autoFocus: false,
+    });
   }
 }

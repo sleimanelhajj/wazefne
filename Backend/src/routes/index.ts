@@ -6,6 +6,7 @@ import messageRoutes from "./messages.routes";
 import offerRoutes from "./offers.routes";
 import jobsRoutes from "./jobs.routes";
 import cvRoutes from "./cv.routes";
+import favoritesRoutes from "./favorites.routes";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/messages", messageRoutes);
 router.use("/offers", offerRoutes);
 router.use("/jobs", jobsRoutes);
 router.use("/cv", cvRoutes);
+router.use("/favorites", favoritesRoutes);
 
 export default router;

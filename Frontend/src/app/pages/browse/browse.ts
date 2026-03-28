@@ -6,7 +6,8 @@ import { UserCardComponent } from '../../components/browse/user-card/user-card.c
 import { User } from '../../models/user-card.model';
 import { ProfileService } from '../../services/profile.service';
 import { FilterService } from '../../services/filter.service';
-import { Subscription } from 'rxjs';
+import { FavoritesService } from '../../services/favorites.service';
+import { Observable, Subscription } from 'rxjs';
 import { FilterCriteria } from '../../models/filter-criteria.model';
 @Component({
   selector: 'app-browse',
@@ -18,6 +19,7 @@ import { FilterCriteria } from '../../models/filter-criteria.model';
 export class BrowseComponent implements OnInit, OnDestroy {
   private readonly profileService = inject(ProfileService);
   private readonly filterService = inject(FilterService);
+  private readonly favoritesService = inject(FavoritesService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   allUsers: User[] = [];
@@ -78,5 +80,26 @@ export class BrowseComponent implements OnInit, OnDestroy {
     } else {
       document.body.style.overflow = '';
     }
+  }
+
+  onFavoriteToggle(event: { userId: string; makeFavorite: boolean }): void {
+    const request$: Observable<unknown> = event.makeFavorite
+      ? this.favoritesService.addFavoriteUser(event.userId)
+      : this.favoritesService.removeFavoriteUser(event.userId);
+
+    request$.subscribe({
+      next: () => {
+        this.patchFavoriteState(event.userId, event.makeFavorite);
+        this.cdr.markForCheck();
+      },
+      error: (err: unknown) => {
+        console.error('Failed to update favorite state:', err);
+      },
+    });
+  }
+
+  private patchFavoriteState(userId: string, isFavorited: boolean): void {
+    this.allUsers = this.allUsers.map((u) => (u.id === userId ? { ...u, isFavorited } : u));
+    this.users = this.users.map((u) => (u.id === userId ? { ...u, isFavorited } : u));
   }
 }
