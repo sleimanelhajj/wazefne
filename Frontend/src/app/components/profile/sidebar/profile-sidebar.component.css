@@ -125,6 +125,10 @@
   color: #16a34a;
 }
 
+.favorites-button {
+  margin-top: 10px;
+}
+
 .toggle {
   position: relative;
   width: 44px;

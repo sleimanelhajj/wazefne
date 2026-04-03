@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { Subscription } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-top-bar',
@@ -11,17 +13,23 @@ import { AuthService } from '../../../services/auth.service';
   imports: [CommonModule, ReactiveFormsModule, RouterLink, RouterLinkActive],
   standalone: true,
 })
-export class TopBarComponent implements OnInit {
+export class TopBarComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private imgSub?: Subscription;
 
   @Input() showSearch = true;
 
   searchForm: FormGroup;
   dropdownOpen = false;
-  profileImage: string | null = null;
   mobileMenuOpen = false;
+  userProfileImage: string | null = null;
+  isLoggingOut = false;
+  isLoggedIn = false;
+
+  private readonly cdr = inject(ChangeDetectorRef);
+  private authSub?: Subscription;
 
   constructor() {
     this.searchForm = this.fb.group({
@@ -33,19 +41,27 @@ export class TopBarComponent implements OnInit {
     this.searchForm.valueChanges.subscribe((value) => {
       console.log('Search form value changed:', value);
     });
-    console.log(this.authService.getProfileImage());
+
+    // Reactively update the profile image when it changes
+    this.imgSub = this.authService.profileImage$.subscribe((img) => {
+      this.userProfileImage = img;
+      this.cdr.detectChanges();
+    });
+
+    // Reactively update logged-in status
+    this.authSub = this.authService.isSignedIn$.subscribe((signedIn) => {
+      this.isLoggedIn = signedIn;
+      this.cdr.detectChanges();
+    });
   }
 
-  get isLoggedIn(): boolean {
-    return this.authService.isAuthenticated();
+  ngOnDestroy(): void {
+    this.imgSub?.unsubscribe();
+    this.authSub?.unsubscribe();
   }
 
   get userName(): string {
     return this.authService.getUserName() || 'User';
-  }
-
-  get userProfileImage(): string | null {
-    return this.authService.getProfileImage();
   }
 
   toggleDropdown(): void {
@@ -61,13 +77,19 @@ export class TopBarComponent implements OnInit {
     this.router.navigate(['/my-profile']);
   }
 
-  logout(): void {
+  async logout(): Promise<void> {
     this.dropdownOpen = false;
-    this.authService.logout();
+    this.mobileMenuOpen = false;
+    this.isLoggingOut = true;
+    try {
+      await this.authService.logout();
+    } finally {
+      this.isLoggingOut = false;
+    }
   }
 
   goToLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/sign-in']);
   }
 
   onSubmit(): void {
@@ -77,7 +99,7 @@ export class TopBarComponent implements OnInit {
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     if (this.mobileMenuOpen) {
-      this.dropdownOpen = false; // Close profile dropdown when opening mobile menu
+      this.dropdownOpen = false;
     }
   }
 
@@ -89,8 +111,6 @@ export class TopBarComponent implements OnInit {
     this.mobileMenuOpen = false;
     this.router.navigate(['/browse']);
   }
-
-
 
   goToBookings(): void {
     this.mobileMenuOpen = false;

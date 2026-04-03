@@ -7,10 +7,13 @@ import {
   inject,
   ViewChild,
   ElementRef,
+  OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { UserProfile } from '../../../models/profile.model';
 import { ProfileService } from '../../../services/profile.service';
 import { AuthService } from '../../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile-banner',
@@ -19,7 +22,7 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './profile-banner.component.html',
   styleUrls: ['./profile-banner.component.css'],
 })
-export class ProfileBannerComponent {
+export class ProfileBannerComponent implements OnInit, OnDestroy {
   @Input() user: UserProfile | null = null;
   @Input() isOwner = false;
   @Output() profileUpdated = new EventEmitter<void>();
@@ -28,6 +31,7 @@ export class ProfileBannerComponent {
 
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
+  private authImgSub?: Subscription;
 
   readonly defaultCover =
     'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80';
@@ -36,8 +40,30 @@ export class ProfileBannerComponent {
   uploadingCover = false;
   errorMessage = '';
 
+  // Local synced image for the owner
+  ownerStoredImage: string | null = null;
+
+  ngOnInit() {
+    this.authImgSub = this.authService.profileImage$.subscribe((img) => {
+      this.ownerStoredImage = img;
+    });
+  }
+
+  ngOnDestroy() {
+    this.authImgSub?.unsubscribe();
+  }
+
   get coverImageSrc(): string {
     return this.user?.cover_image || this.defaultCover;
+  }
+
+  get avatarImageSrc(): string {
+    // If owner, prefer the locally synced image for instant updates.
+    // Otherwise rely on the database's profile_image or the default.
+    if (this.isOwner && this.ownerStoredImage) {
+      return this.ownerStoredImage;
+    }
+    return this.user?.profile_image || 'assets/icons/profile.svg';
   }
 
   // ── Profile picture upload ──
@@ -79,9 +105,9 @@ export class ProfileBannerComponent {
     this.profileService.uploadProfilePicture(formData).subscribe({
       next: (response) => {
         if (response.success && response.user?.profileImage) {
-          // Update local storage
+          // Update local storage and the observable
           this.authService.saveProfileImage(response.user.profileImage);
-          // Emit event to refresh profile
+          // Emit event to refresh profile data if needed
           this.profileUpdated.emit();
         }
         this.uploading = false;

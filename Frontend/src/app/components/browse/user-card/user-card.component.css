@@ -118,6 +118,15 @@
   border-color: #cbd5e1;
 }
 
+.favorite-button.active {
+  background: #ffe4e6;
+  border-color: #fda4af;
+}
+
+.favorite-button.active img {
+  filter: invert(30%) sepia(89%) saturate(2708%) hue-rotate(327deg) brightness(93%) contrast(95%);
+}
+
 .favorite-button img {
   width: 18px;
   height: 18px;

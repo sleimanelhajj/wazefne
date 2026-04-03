@@ -4,6 +4,7 @@ import cors from "cors";
 import path from "path";
 import http from "http";
 import swaggerUi from "swagger-ui-express";
+import { clerkMiddleware } from "@clerk/express";
 import pool from "./src/config/db";
 import routes from "./src/routes";
 import errorHandler from "./src/middleware/errorHandler";
@@ -15,27 +16,50 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
-// ── Middleware ──────────────────────────────────────────
-app.use(cors());
+// Middleware
+// 1. Explicitly configure CORS to allow the Authorization header from Angular
+app.use(
+  cors({
+    origin: "http://localhost:4200",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Static files (uploaded images) ─────────────────────
+// Quick sanity check to ensure dotenv loaded correctly from your root dir
+if (!process.env.CLERK_SECRET_KEY) {
+  console.error("⚠️ CLERK_SECRET_KEY is missing. Check your .env pathing.");
+}
+
+// 2. Configure Clerk to explicitly accept tokens issued for your Angular app
+app.use(
+  clerkMiddleware({
+    secretKey: process.env.CLERK_SECRET_KEY,
+    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    authorizedParties: ["http://localhost:4200"],
+  }),
+);
+
+// Static files (uploaded images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ── Swagger ────────────────────────────────────────────
+// Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// ── Root redirect to Swagger ───────────────────────────
+// Root redirect to Swagger
 app.get("/", (_req, res) => res.redirect("/api-docs"));
 
-// ── Routes ─────────────────────────────────────────────
+// Routes
 app.use("/api", routes);
 
-// ── Error handling (must be last) ──────────────────────
+// Error handling
 app.use(errorHandler);
 
-// ── Start server & verify DB connection ────────────────
+// Start server & verify DB connection
 const start = async (): Promise<void> => {
   try {
     const client = await pool.connect();

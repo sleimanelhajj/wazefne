@@ -28,6 +28,15 @@
       <p class="availability-hint available" *ngIf="availableToday">
         You are visible to clients browsing for talent.
       </p>
+
+      <button
+        mat-stroked-button
+        type="button"
+        class="full-width favorites-button"
+        (click)="viewFavorites.emit()"
+      >
+        View Saved Freelancers
+      </button>
     </div>
 
     <button

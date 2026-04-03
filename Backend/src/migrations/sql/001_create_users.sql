@@ -1,15 +1,15 @@
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_id          VARCHAR(255) UNIQUE,
   email             VARCHAR(255) NOT NULL UNIQUE,
-  password_hash     VARCHAR(255) NOT NULL,
   first_name        VARCHAR(100),
   last_name         VARCHAR(100),
   profile_image     TEXT,
   title             VARCHAR(255),
-  offer_description TEXT,              -- what they offer
-  location          VARCHAR(255),      -- city / country
-  about_me          TEXT,              -- about me bio
+  offer_description TEXT,
+  location          VARCHAR(255),
+  about_me          TEXT,
   hourly_rate       NUMERIC(10,2),
   rating            NUMERIC(2,1) DEFAULT 0,
   review_count      INTEGER DEFAULT 0,
@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
   created_at        TIMESTAMP DEFAULT NOW(),
   updated_at        TIMESTAMP DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_clerk_id ON users (clerk_id);
 
 -- Skills table (many-to-many)
 CREATE TABLE IF NOT EXISTS skills (

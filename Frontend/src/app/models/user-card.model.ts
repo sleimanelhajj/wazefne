@@ -12,4 +12,6 @@ export interface User {
   category: string;
   availableToday: boolean;
   location: string;
+  isFavorited?: boolean;
+  favoritedAt?: string;
 }

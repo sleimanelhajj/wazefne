@@ -1,6 +1,6 @@
 <div class="user-card">
   <div class="card-image">
-    <img [src]="user.profileImage" [alt]="fullName" />
+    <img [src]="user.profileImage || 'assets/icons/profile.svg'" [alt]="fullName" />
     <div class="rating-badge">
       <img src="assets/icons/star.svg" alt="rating" />
       <span class="rating-value">{{ user.rating }}</span>
@@ -13,7 +13,14 @@
       <h3 class="user-name">
         {{ fullName }}
       </h3>
-      <button type="button" class="favorite-button" aria-label="Add to favorites">
+      <button
+        type="button"
+        class="favorite-button"
+        [class.active]="user.isFavorited"
+        [attr.aria-pressed]="!!user.isFavorited"
+        [attr.aria-label]="user.isFavorited ? 'Remove from favorites' : 'Add to favorites'"
+        (click)="onToggleFavorite($event)"
+      >
         <img src="assets/icons/heart.svg" alt="Favorite" />
       </button>
     </div>
@@ -28,7 +35,9 @@
         <span class="price-label">Starting from</span>
         <span class="price-value">${{ user.hourlyRate }}<span class="price-unit">/hr</span></span>
       </div>
-      <button type="button" class="view-profile-button" (click)="viewProfile()">View Profile</button>
+      <button type="button" class="view-profile-button" (click)="viewProfile()">
+        View Profile
+      </button>
     </div>
   </div>
 </div>

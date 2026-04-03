@@ -1,8 +1,6 @@
 import {
   Component,
   Input,
-  Output,
-  EventEmitter,
   ElementRef,
   ViewChild,
   AfterViewChecked,
@@ -21,8 +19,6 @@ export class ChatMessagesComponent implements AfterViewChecked {
   @Input() messages: ChatMessage[] = [];
   @Input() currentUserId: string = '';
   @Input() otherUserAvatar: string = '';
-  @Output() acceptOffer = new EventEmitter<number>();
-  @Output() declineOffer = new EventEmitter<number>();
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   private shouldScroll = true;
@@ -48,30 +44,21 @@ export class ChatMessagesComponent implements AfterViewChecked {
     return !!msg.offer_id && !!msg.offer;
   }
 
-  /** Whether the current user is the recipient of this offer (can accept/decline) */
-  canRespondToOffer(msg: ChatMessage): boolean {
-    return (
-      !!msg.offer && msg.offer.status === 'pending' && msg.offer.recipient_id === this.currentUserId
-    );
-  }
-
   getOfferStatusLabel(status: string): string {
     switch (status) {
       case 'accepted':
         return 'Accepted';
       case 'declined':
         return 'Declined';
+      case 'in_progress':
+        return 'In Progress';
+      case 'completed':
+        return 'Completed';
+      case 'cancelled':
+        return 'Cancelled';
       default:
         return 'Pending';
     }
-  }
-
-  onAcceptOffer(offerId: number) {
-    this.acceptOffer.emit(offerId);
-  }
-
-  onDeclineOffer(offerId: number) {
-    this.declineOffer.emit(offerId);
   }
 
   formatTime(dateStr: string): string {

@@ -1,0 +1,243 @@
+<app-top-bar [showSearch]="true"></app-top-bar>
+
+<div class="cv-page">
+  <header class="page-header">
+    <h1>CV Analyzer</h1>
+    <p>Upload a CV, get AI feedback instantly, and review your previous analyses anytime.</p>
+  </header>
+
+  <mat-tab-group
+    class="cv-tabs"
+    [selectedIndex]="selectedTabIndex"
+    (selectedIndexChange)="onTabIndexChange($event)"
+  >
+    <mat-tab label="Analyze CV">
+      <div class="tab-content">
+        <div class="analyze-grid">
+          <mat-card class="panel-card form-panel">
+            <h2>Analyze New CV</h2>
+            <p class="panel-subtitle">
+              Upload a fresh CV, optionally add a target role, and let the analyzer score it for
+              clarity, impact, and ATS readiness.
+            </p>
+
+            <div class="file-field">
+              <label class="field-label" for="cvFileInput">CV File (PDF or DOCX)</label>
+              <div class="file-row">
+                <mat-form-field appearance="outline" class="full-width file-name-field">
+                  <mat-label>Selected File</mat-label>
+                  <input
+                    matInput
+                    [value]="selectedFile?.name || ''"
+                    placeholder="Choose a CV file"
+                    readonly
+                  />
+                </mat-form-field>
+
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="browse-btn"
+                  (click)="cvFileInput.click()"
+                >
+                  Browse
+                </button>
+              </div>
+
+              <input
+                #cvFileInput
+                id="cvFileInput"
+                type="file"
+                class="visually-hidden"
+                accept=".pdf,.docx,application/pdf"
+                (change)="onFilePicked($event)"
+              />
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Target Role (Optional)</mat-label>
+              <input
+                matInput
+                [(ngModel)]="targetRole"
+                placeholder="e.g. Frontend Developer, Project Manager"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Job Description (Optional)</mat-label>
+              <textarea
+                matInput
+                rows="5"
+                [(ngModel)]="jobDescription"
+                placeholder="Paste a job description to score against it."
+              ></textarea>
+            </mat-form-field>
+
+            <div class="action-row">
+              <button
+                mat-flat-button
+                color="primary"
+                class="primary-action"
+                [disabled]="analyzing || !selectedFile"
+                (click)="analyzeCv()"
+              >
+                <span *ngIf="!analyzing">Analyze CV</span>
+                <span *ngIf="analyzing" class="btn-loading">
+                  <mat-spinner diameter="18"></mat-spinner>
+                  Analyzing...
+                </span>
+              </button>
+
+              <button
+                mat-stroked-button
+                type="button"
+                class="secondary-action"
+                [disabled]="historyLoading || history.length === 0"
+                (click)="switchToHistoryTab()"
+              >
+                View Previous
+              </button>
+            </div>
+
+            <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+          </mat-card>
+
+          <mat-card class="panel-card latest-panel">
+            <div class="panel-head">
+              <div>
+                <h2>Most Recent Analysis</h2>
+                <p class="panel-subtitle">Your latest feedback snapshot with strengths, gaps, and rewrite suggestions.</p>
+              </div>
+              <span class="score-badge" *ngIf="latestAnalysis">{{ latestAnalysis.overallScore }}/100</span>
+            </div>
+
+            <p class="muted" *ngIf="!latestAnalysis">Run an analysis to see detailed output here.</p>
+
+            <ng-container *ngIf="latestAnalysis as current">
+              <p class="meta-line">
+                {{ current.originalFilename }} &bull; {{ current.createdAt | date: 'medium' }}
+              </p>
+              <p class="summary">{{ current.analysis.summary }}</p>
+
+              <div class="detail-grid">
+                <div class="detail-card">
+                  <h3>Section Scores</h3>
+                  <ul>
+                    <li>Structure: {{ current.analysis.sectionScores.structure }}</li>
+                    <li>Impact: {{ current.analysis.sectionScores.impact }}</li>
+                    <li>Skills Alignment: {{ current.analysis.sectionScores.skillsAlignment }}</li>
+                    <li>ATS Readability: {{ current.analysis.sectionScores.atsReadability }}</li>
+                    <li>Clarity: {{ current.analysis.sectionScores.clarity }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card">
+                  <h3>Strengths</h3>
+                  <ul>
+                    <li *ngFor="let item of current.analysis.strengths">{{ item }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card">
+                  <h3>Issues</h3>
+                  <ul>
+                    <li *ngFor="let item of current.analysis.issues">{{ item }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card">
+                  <h3>Suggestions</h3>
+                  <ul>
+                    <li *ngFor="let item of current.analysis.suggestions">{{ item }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card full-width">
+                  <h3>Improved Bullet Examples</h3>
+                  <ul *ngIf="current.analysis.improvedBullets.length > 0; else noLatestBullets">
+                    <li *ngFor="let bullet of current.analysis.improvedBullets">{{ bullet }}</li>
+                  </ul>
+                  <ng-template #noLatestBullets>
+                    <p class="muted">No bullet rewrites were returned for this analysis.</p>
+                  </ng-template>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Previous Analyses">
+      <div class="tab-content">
+        <mat-card class="panel-card history-panel">
+          <h2>Previous Analyses</h2>
+          <p class="panel-subtitle">
+            Reopen older CV reviews, compare scores, and inspect the full suggestions whenever you
+            want.
+          </p>
+
+          <p class="muted" *ngIf="historyLoading">Loading history...</p>
+          <p class="muted" *ngIf="!historyLoading && history.length === 0">No analyses yet.</p>
+
+          <mat-accordion *ngIf="!historyLoading && history.length > 0" class="history-accordion">
+            <mat-expansion-panel *ngFor="let item of history" class="history-item">
+              <mat-expansion-panel-header>
+                <mat-panel-title>{{ item.originalFilename }}</mat-panel-title>
+                <mat-panel-description>
+                  {{ item.createdAt | date: 'short' }} &bull; {{ item.overallScore }}/100
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <p class="summary">{{ item.analysis.summary }}</p>
+
+              <div class="detail-grid">
+                <div class="detail-card">
+                  <h3>Section Scores</h3>
+                  <ul>
+                    <li>Structure: {{ item.analysis.sectionScores.structure }}</li>
+                    <li>Impact: {{ item.analysis.sectionScores.impact }}</li>
+                    <li>Skills Alignment: {{ item.analysis.sectionScores.skillsAlignment }}</li>
+                    <li>ATS Readability: {{ item.analysis.sectionScores.atsReadability }}</li>
+                    <li>Clarity: {{ item.analysis.sectionScores.clarity }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card">
+                  <h3>Strengths</h3>
+                  <ul>
+                    <li *ngFor="let strength of item.analysis.strengths">{{ strength }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card">
+                  <h3>Issues</h3>
+                  <ul>
+                    <li *ngFor="let issue of item.analysis.issues">{{ issue }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card">
+                  <h3>Suggestions</h3>
+                  <ul>
+                    <li *ngFor="let suggestion of item.analysis.suggestions">{{ suggestion }}</li>
+                  </ul>
+                </div>
+
+                <div class="detail-card full-width">
+                  <h3>Improved Bullet Examples</h3>
+                  <ul *ngIf="item.analysis.improvedBullets.length > 0; else noHistoryBullets">
+                    <li *ngFor="let bullet of item.analysis.improvedBullets">{{ bullet }}</li>
+                  </ul>
+                  <ng-template #noHistoryBullets>
+                    <p class="muted">No bullet rewrites were returned for this analysis.</p>
+                  </ng-template>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

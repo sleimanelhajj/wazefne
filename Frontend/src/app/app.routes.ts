@@ -6,14 +6,21 @@ import { HomeHeroComponent } from './components/home/hero/hero.component';
 import { ProfilePageComponent } from './pages/profile/profile';
 import { BookingsHistoryComponent } from './pages/bookings-history/bookings-history';
 import { MessagesComponent } from './pages/messages/messages';
+import { JobsComponent } from './pages/jobs/jobs.component';
+import { JobDetailsComponent } from './pages/job-details/job-details.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile';
 import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
+import { SsoCallbackComponent } from './pages/sso-callback/sso-callback';
+import { CvAnalyzerPageComponent } from './pages/cv-analyzer/cv-analyzer';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: AuthComponent },
+  { path: '', redirectTo: 'sign-in', pathMatch: 'full' },
+  { path: 'sign-in', component: AuthComponent, canActivate: [guestGuard] },
+  { path: 'sign-up', component: AuthComponent, canActivate: [guestGuard] },
+  { path: 'sso-callback', component: SsoCallbackComponent },
   { path: 'home', component: HomeComponent },
-  { path: 'setup-profile', component: SetupProfileComponent, canActivate: [authGuard] },
+  { path: 'setup-profile', component: SetupProfileComponent },
   { path: 'test', component: HomeHeroComponent },
   { path: 'browse', component: BrowseComponent, canActivate: [authGuard] },
   { path: 'profile/:id', component: ProfilePageComponent, canActivate: [authGuard] },
@@ -25,5 +32,8 @@ export const routes: Routes = [
   },
   { path: 'bookings', component: BookingsHistoryComponent, canActivate: [authGuard] },
   { path: 'messages', component: MessagesComponent, canActivate: [authGuard] },
+  { path: 'jobs', component: JobsComponent, canActivate: [authGuard] },
+  { path: 'jobs/:id', component: JobDetailsComponent, canActivate: [authGuard] },
+  { path: 'cv-analyzer', component: CvAnalyzerPageComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'home' },
 ];

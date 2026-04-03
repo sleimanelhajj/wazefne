@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UpdateProfileRequest, ProfileResponse } from '../models/profile.model';
 import { User } from '../models/user-card.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProfileService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/api';
+  private readonly apiUrl = `${environment.apiUrl}/api`;
 
   /**
    * Get all users for browsing

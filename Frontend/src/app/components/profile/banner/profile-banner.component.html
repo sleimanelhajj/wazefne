@@ -42,11 +42,7 @@
   <div class="banner-body">
     <div class="banner-info-row">
       <div class="avatar-wrapper">
-        <img
-          [src]="user?.profile_image || 'assets/icons/profile.svg'"
-          [alt]="user?.name || 'Profile'"
-          class="avatar-img"
-        />
+        <img [src]="avatarImageSrc" [alt]="user?.name || 'Profile'" class="avatar-img" />
         <!-- Upload overlay only for owner -->
         <button
           *ngIf="isOwner"

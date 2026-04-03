@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.favorites-content {
+  min-height: 220px;
+  max-height: 70vh;
+  overflow: auto;
+  padding-top: 8px;
+}
+
+.state {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  color: #475569;
+}
+
+.state.error {
+  color: #b91c1c;
+}
+
+.state p {
+  margin: 0;
+  max-width: 420px;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  padding: 4px 0;
+}

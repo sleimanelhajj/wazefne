@@ -59,6 +59,6 @@ const router = Router();
  *                       availableToday:
  *                         type: boolean
  */
-router.get("/", getUsers, authenticate);
+router.get("/", authenticate, getUsers);
 
 export default router;

@@ -16,10 +16,13 @@ import { LocationService } from '../../../services/location.service';
 import { User } from '../../../models/user-card.model';
 import { LOCATION_OPTIONS } from '../../../models/available-locations';
 
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 @Component({
   selector: 'app-side-bar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './side-bar.component.html',
   styleUrls: ['./side-bar.component.css'],
 })
@@ -119,6 +122,12 @@ export class SideBarComponent implements OnInit, OnChanges, OnDestroy {
     this.priceMin = Math.max(this.priceFloor, Math.min(this.priceMin, this.priceCeiling));
     this.priceMax = Math.max(this.priceMin, Math.min(this.priceMax, this.priceCeiling));
     this.emitFilters();
+  }
+
+  preventNegative(event: KeyboardEvent): void {
+    if (event.key === '-' || event.key === 'e' || event.key === '+') {
+      event.preventDefault();
+    }
   }
 
   setRating(value: number): void {

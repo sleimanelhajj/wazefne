@@ -1,27 +1,49 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { HttpInterceptorFn, HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { from, switchMap } from 'rxjs';
+
 /**
  * Auth HTTP interceptor.
  *
- * This interceptor runs on every outgoing HttpClient request. It retrieves the current access token
- * from AuthService and, when available, clones the request to automatically attach an
- * `Authorization: Bearer <token>` header before forwarding it. This centralizes authentication
- * header handling so individual API calls don’t need to manually set auth headers.
+ * Retrieves the current Clerk session token and attaches it as a
+ * Bearer token on every outgoing HTTP request. Clerk session tokens
+ * are short-lived JWTs that the backend verifies via @clerk/express.
  */
-
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const token = authService.getToken();
-
-  if (token) {
-    const cloned = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return next(cloned);
-  }
-
-  return next(req);
+  // Get the Clerk session token asynchronously
+  return from(getClerkToken()).pipe(
+    switchMap((token) => {
+      if (token) {
+        const cloned = req.clone({
+          setHeaders: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return next(cloned);
+      }
+      return next(req);
+    }),
+  );
 };
+
+async function getClerkToken(): Promise<string | null> {
+  try {
+    const clerk = (window as any).Clerk;
+    if (!clerk) return null;
+
+    // Primary: use the active session
+    if (clerk.session) {
+      return await clerk.session.getToken();
+    }
+
+    // Fallback: for freshly created OAuth sessions, session may not be
+    // set on window.Clerk yet — grab it from the client's sessions list.
+    const sessions: any[] = clerk.client?.sessions ?? [];
+    if (sessions.length > 0) {
+      return await sessions[0].getToken();
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}

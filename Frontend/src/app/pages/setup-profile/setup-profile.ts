@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,11 +10,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
+import { ClerkService } from 'ngx-clerk';
 import { categoryOptions } from '../../components/browse/side-bar/category-data';
 import { LOCATION_OPTIONS } from '../../models/available-locations';
+import { Subscription, filter, take } from 'rxjs';
 @Component({
   selector: 'app-setup-profile',
   standalone: true,
@@ -30,17 +33,19 @@ import { LOCATION_OPTIONS } from '../../models/available-locations';
     MatCheckboxModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './setup-profile.html',
   styleUrl: './setup-profile.css',
 })
-export class SetupProfileComponent {
+export class SetupProfileComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
-  private readonly authService = inject(AuthService);
+  private readonly clerk = inject(ClerkService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
+  private authSub?: Subscription;
 
   readonly separatorKeyCodes = [ENTER, COMMA] as const;
   readonly categoryOptions = categoryOptions;
@@ -50,6 +55,7 @@ export class SetupProfileComponent {
   languages: string[] = [];
   portfolioFiles: { file: File; preview: string; caption: string }[] = [];
   saving = false;
+  isLoading = true; // wait for clerk session to propagate
 
   readonly profileForm = this.fb.group({
     first_name: ['', Validators.required],
@@ -63,7 +69,71 @@ export class SetupProfileComponent {
     available_today: [false],
   });
 
-  // ── Skills chips ──────────────────────────────────────
+  ngOnInit(): void {
+    console.log('[Setup Profile] ngOnInit');
+    this.isLoading = true;
+    this.waitForUser();
+  }
+
+  private async waitForUser(): Promise<void> {
+    try {
+      let clerk = (window as any).Clerk;
+      if (!clerk) {
+        await new Promise<void>((resolve) => {
+          const interval = setInterval(() => {
+            clerk = (window as any).Clerk;
+            if (clerk) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 50);
+        });
+      }
+
+      await clerk.load();
+      console.log('[Setup Profile] Clerk loaded, polling for user...');
+
+      // Poll until user appears (up to 5 seconds)
+      const user = await new Promise<any>((resolve) => {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          const u = clerk.user;
+          console.log(`[Setup Profile] Poll attempt ${attempts}: clerk.user =`, u);
+          if (u) {
+            clearInterval(interval);
+            resolve(u);
+          }
+          if (attempts >= 50) {
+            // 50 * 100ms = 5s timeout
+            clearInterval(interval);
+            resolve(null);
+          }
+        }, 100);
+      });
+
+      if (!user) {
+        console.warn('[Setup Profile] No user after 5s, redirecting');
+        this.router.navigate(['/sign-in']);
+        return;
+      }
+
+      this.profileForm.patchValue({
+        first_name: user.firstName || '',
+        last_name: user.lastName || '',
+      });
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('[Setup Profile] Error:', err);
+      this.router.navigate(['/sign-in']);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.authSub?.unsubscribe();
+  }
+
   addSkill(event: any): void {
     const value = (event.value || '').trim();
     if (value && !this.skills.includes(value)) {
@@ -78,7 +148,6 @@ export class SetupProfileComponent {
     this.skills = this.skills.filter((s) => s !== skill);
   }
 
-  // ── Language chips ────────────────────────────────────
   addLanguage(event: any): void {
     const value = (event.value || '').trim();
     if (value && !this.languages.includes(value)) {
@@ -93,7 +162,6 @@ export class SetupProfileComponent {
     this.languages = this.languages.filter((l) => l !== lang);
   }
 
-  // ── Portfolio file upload ─────────────────────────────
   onFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
@@ -120,7 +188,6 @@ export class SetupProfileComponent {
     this.portfolioFiles.splice(index, 1);
   }
 
-  // ── Submit ────────────────────────────────────────────
   onSubmit(): void {
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
@@ -147,11 +214,6 @@ export class SetupProfileComponent {
       })
       .subscribe({
         next: () => {
-          // Update stored display name
-          const fullName = [formVal.first_name, formVal.last_name].filter(Boolean).join(' ');
-          if (fullName) {
-            this.authService.saveUserName(fullName);
-          }
           // If portfolio files, upload them
           if (this.portfolioFiles.length > 0) {
             const formData = new FormData();

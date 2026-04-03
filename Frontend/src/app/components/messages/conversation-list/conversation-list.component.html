@@ -1,17 +1,26 @@
 <div class="conversation-list">
   <h2 class="list-title">Messages</h2>
 
-  <div class="search-box">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
-      <circle cx="11" cy="11" r="8" />
-      <path d="M21 21l-4.35-4.35" />
-    </svg>
-    <input type="text" placeholder="Search messages" [(ngModel)]="searchQuery" />
-  </div>
-
   <div class="conversations">
     <div class="empty-state" *ngIf="filteredConversations.length === 0">
-      <p>No conversations yet</p>
+      <div class="empty-icon-wrapper">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#cbd5e1"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <path d="M10 9h6" />
+          <path d="M10 13h4" />
+        </svg>
+      </div>
+      <h3 class="empty-state-title">No conversations</h3>
+      <p class="empty-state-text">When you connect with someone, your chats will appear here.</p>
     </div>
 
     <div
@@ -32,9 +41,7 @@
         <div class="conv-top">
           <span class="conv-name">
             {{ conv.otherUser.firstName }} {{ conv.otherUser.lastName }}
-            <span class="conv-role" *ngIf="conv.otherUser.title">({{ conv.otherUser.title }})</span>
           </span>
-          <span class="conv-time">{{ getTimeLabel(conv.lastMessageTime) }}</span>
         </div>
         <p class="conv-preview">{{ conv.lastMessage || 'No messages yet' }}</p>
       </div>

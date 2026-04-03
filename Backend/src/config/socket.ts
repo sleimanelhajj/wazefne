@@ -1,9 +1,7 @@
 import { Server as HttpServer } from "http";
 import { Server, Socket } from "socket.io";
-import jwt from "jsonwebtoken";
+import { verifyToken } from "@clerk/express";
 import pool from "./db";
-
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
 // Map userId -> Set of socket IDs (a user can have multiple tabs)
 const onlineUsers = new Map<string, Set<string>>();
@@ -18,25 +16,38 @@ export function initSocket(httpServer: HttpServer): Server {
     },
   });
 
-  // ── Auth middleware ─────────────────────────────────────
-  io.use((socket, next) => {
+  // Auth middleware (Clerk token verification)
+  io.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
     if (!token) return next(new Error("No token"));
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as {
-        id: string;
-        email: string;
-      };
-      (socket as any).userId = decoded.id;
+      const decoded = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!,
+      });
+
+      const clerkId = decoded.sub;
+      if (!clerkId) return next(new Error("Invalid token: no sub"));
+
+      // Look up internal DB user ID by clerk_id
+      const result = await pool.query(
+        "SELECT id FROM users WHERE clerk_id = $1",
+        [clerkId],
+      );
+
+      if (result.rows.length === 0) {
+        return next(new Error("User not found"));
+      }
+
+      (socket as any).userId = result.rows[0].id;
       next();
-    } catch {
+    } catch (err) {
       next(new Error("Invalid token"));
     }
   });
 
-  // ── Connection handler ─────────────────────────────────
-  io.on("connection", (socket: Socket) => {
+    // connection handler
+    io.on("connection", (socket: Socket) => {
     const userId = (socket as any).userId as string;
     console.log(`Socket connected: user ${userId} (${socket.id})`);
 
@@ -49,7 +60,7 @@ export function initSocket(httpServer: HttpServer): Server {
     // Join a room named after the user ID for easy targeting
     socket.join(`user:${userId}`);
 
-    // ── Send message ───────────────────────────────────
+    // send message handler
     socket.on(
       "send_message",
       async (data: { conversationId: number; content: string }) => {
@@ -98,7 +109,7 @@ export function initSocket(httpServer: HttpServer): Server {
       },
     );
 
-    // ── Typing indicator ───────────────────────────────
+    // typing indicator handler
     socket.on("typing", async (data: { conversationId: number }) => {
       try {
         const convResult = await pool.query(
@@ -122,7 +133,7 @@ export function initSocket(httpServer: HttpServer): Server {
       }
     });
 
-    // ── Disconnect ─────────────────────────────────────
+    // disconnect handler
     socket.on("disconnect", () => {
       console.log(`Socket disconnected: user ${userId} (${socket.id})`);
       const sockets = onlineUsers.get(userId);
