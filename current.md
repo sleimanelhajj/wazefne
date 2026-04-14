@@ -1,35 +1,40 @@
-# Current Feature: Favorites (Saved Freelancers)
+# Edit Profile Feature — Progress
 
 ## Goal
-Implement saved freelancers so a logged-in user can:
-- Favorite/unfavorite users from browse cards (heart button).
-- Open a Favorites section from profile page.
-- View favorited users inside a scrollable Angular Material modal.
+Add an "Edit Profile" modal/dialog for profile owners to edit their info in one place.
 
-## Execution Plan
-- [x] Add backend DB support (`user_favorites` migration).
-- [x] Add backend API routes/controllers for favorites list/add/remove.
-- [x] Include `isFavorited` in browse users API for authenticated user.
-- [x] Add frontend favorites service for API calls.
-- [x] Wire browse card heart button to add/remove favorites.
-- [x] Add profile sidebar action to open favorites modal.
-- [x] Build scrollable Angular Material favorites modal with user cards.
-- [x] Verify backend TypeScript build passes.
-- [x] Verify frontend build passes (development config).
+## Backend — Already Ready
+- `PUT /api/profile/update-profile` exists and handles:
+  - first_name, last_name, title, location, about_me, offer_description
+  - hourly_rate, category
+  - skills[] (clear + re-insert)
+  - languages[] (clear + re-insert)
+- `ProfileService.updateProfile(data: UpdateProfileRequest)` in the frontend already wraps this
 
-## Verification Checklist
-- [ ] Heart toggle persists after page refresh.
-- [ ] Favorites modal opens from profile page.
-- [ ] Modal lists only favorited users.
-- [ ] Unfavorite from modal updates list immediately.
-- [ ] No regression in browse/profile navigation.
+## Files to Create
+- [x] `Frontend/src/app/components/profile/edit-profile-dialog/edit-profile-dialog.component.ts`
+- [x] `Frontend/src/app/components/profile/edit-profile-dialog/edit-profile-dialog.component.html`
+- [x] `Frontend/src/app/components/profile/edit-profile-dialog/edit-profile-dialog.component.css`
 
-## Build Notes
-- `Backend`: `npm run build` passes.
-- `Frontend`: `ng build --configuration development` passes.
-- `Frontend`: production `npm run build` still fails due existing bundle budget limits unrelated to this feature.
+## Files to Modify
+- [x] `profile-sidebar.component.ts` — add `@Output() editProfile`
+- [x] `profile-sidebar.component.html` — add Edit Profile button (owner only)
+- [x] `profile.ts` — import dialog, add `openEditProfileModal()`
+- [x] `profile.html` — bind `(editProfile)` on sidebar
 
-## Notes
-- Keep Angular Material usage where it reduces custom UI work (dialog/buttons/spinner).
-- This file will be updated for each future feature cycle.
-- Scope for this cycle: saved freelancers (user cards). Saved jobs can be added in the next cycle.
+## Dialog Sections
+1. Basic — First Name, Last Name, Location
+2. Professional — Title, Category (select from categoryOptions), Hourly Rate, Offer Description
+3. About Me — long textarea
+4. Skills — tag input (Enter/comma to add, × to remove)
+5. Languages — tag input (Enter/comma to add, × to remove)
+
+## Design Decisions
+- Uses Angular Material (mat-form-field, mat-select, mat-button, mat-icon, mat-spinner)
+- Consistent with app design (white cards, border-radius 14-16px, blue primary)
+- Opened via MatDialog from the profile page (same pattern as FavoriteUsersDialogComponent)
+- On save success → dialogRef.close(true) → profile page calls loadProfile() to refresh
+- On cancel → dialogRef.close(false)
+- "Edit Profile" button placed in profile sidebar, owner-only
+
+## Status: COMPLETE

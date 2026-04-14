@@ -8,6 +8,19 @@
       </div>
     </div>
 
+    <!-- Edit Profile button (owner only) -->
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="full-width edit-profile-btn"
+      *ngIf="isOwner"
+      (click)="editProfile.emit()"
+    >
+      <mat-icon>edit</mat-icon>
+      Edit Profile
+    </button>
+
     <!-- Availability toggle (owner only) -->
     <div class="availability-section" *ngIf="isOwner">
       <div class="availability-row">
