@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BookingStat } from '../../../models/bookings.model';
 
 @Component({
@@ -11,4 +12,10 @@ import { BookingStat } from '../../../models/bookings.model';
 })
 export class BookingStatsCardsComponent {
   @Input() stats: BookingStat[] = [];
+
+  constructor(private sanitizer: DomSanitizer) {}
+
+  safeIcon(icon: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(icon);
+  }
 }

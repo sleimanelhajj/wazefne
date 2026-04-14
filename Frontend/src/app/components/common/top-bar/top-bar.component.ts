@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { FilterService } from '../../../services/filter.service';
 import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
@@ -16,10 +18,15 @@ import { ChangeDetectorRef } from '@angular/core';
 export class TopBarComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly filterService = inject(FilterService);
   private readonly router = inject(Router);
-  private imgSub?: Subscription;
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  @Input() showSearch = true;
+  private imgSub?: Subscription;
+  private authSub?: Subscription;
+  private searchSub?: Subscription;
+
+  @Input() showSearch = false;
 
   searchForm: FormGroup;
   dropdownOpen = false;
@@ -28,9 +35,6 @@ export class TopBarComponent implements OnInit, OnDestroy {
   isLoggingOut = false;
   isLoggedIn = false;
 
-  private readonly cdr = inject(ChangeDetectorRef);
-  private authSub?: Subscription;
-
   constructor() {
     this.searchForm = this.fb.group({
       search: [''],
@@ -38,17 +42,20 @@ export class TopBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.searchForm.valueChanges.subscribe((value) => {
-      console.log('Search form value changed:', value);
-    });
+    if (this.showSearch) {
+      this.searchSub = this.searchForm.get('search')!.valueChanges.pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+      ).subscribe((query: string) => {
+        this.filterService.updateFilters({ searchQuery: query?.trim() ?? '' });
+      });
+    }
 
-    // Reactively update the profile image when it changes
     this.imgSub = this.authService.profileImage$.subscribe((img) => {
       this.userProfileImage = img;
       this.cdr.detectChanges();
     });
 
-    // Reactively update logged-in status
     this.authSub = this.authService.isSignedIn$.subscribe((signedIn) => {
       this.isLoggedIn = signedIn;
       this.cdr.detectChanges();
@@ -58,10 +65,24 @@ export class TopBarComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.imgSub?.unsubscribe();
     this.authSub?.unsubscribe();
+    this.searchSub?.unsubscribe();
   }
 
   get userName(): string {
     return this.authService.getUserName() || 'User';
+  }
+
+  get searchValue(): string {
+    return this.searchForm.get('search')?.value ?? '';
+  }
+
+  clearSearch(): void {
+    this.searchForm.get('search')?.setValue('');
+  }
+
+  onSubmit(): void {
+    const query = this.searchValue.trim();
+    this.filterService.updateFilters({ searchQuery: query });
   }
 
   toggleDropdown(): void {
@@ -90,10 +111,6 @@ export class TopBarComponent implements OnInit, OnDestroy {
 
   goToLogin(): void {
     this.router.navigate(['/sign-in']);
-  }
-
-  onSubmit(): void {
-    console.log('Search:', this.searchForm.value);
   }
 
   toggleMobileMenu(): void {

@@ -1,15 +1,24 @@
 .booking-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
+  border-left: 4px solid #e2e8f0;
   border-radius: 14px;
-  padding: 20px 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.15s ease;
+  padding: 18px 20px 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.15s ease, border-left-color 0.15s ease;
 }
 
 .booking-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
+
+/* Status accent colours on the left border */
+.booking-card:has(.status-pending)    { border-left-color: #f59e0b; }
+.booking-card:has(.status-confirmed)  { border-left-color: #16a34a; }
+.booking-card:has(.status-in_progress){ border-left-color: #2563eb; }
+.booking-card:has(.status-completed)  { border-left-color: #16a34a; }
+.booking-card:has(.status-cancelled)  { border-left-color: #dc2626; }
+.booking-card:has(.status-declined)   { border-left-color: #dc2626; }
 
 .card-body {
   display: flex;

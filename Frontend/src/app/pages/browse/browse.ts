@@ -9,6 +9,7 @@ import { FilterService } from '../../services/filter.service';
 import { FavoritesService } from '../../services/favorites.service';
 import { Observable, Subscription } from 'rxjs';
 import { FilterCriteria } from '../../models/filter-criteria.model';
+
 @Component({
   selector: 'app-browse',
   templateUrl: './browse.html',
@@ -26,17 +27,19 @@ export class BrowseComponent implements OnInit, OnDestroy {
   users: User[] = [];
   loading = true;
   mobileFiltersOpen = false;
+  activeSearch = '';
   private filterSubscription?: Subscription;
 
   ngOnInit(): void {
-    // Fetch users from backend
+    // Clear any search carried over from a previous visit
+    this.filterService.updateFilters({ searchQuery: '' });
+
     this.profileService.getUsers().subscribe({
       next: (res) => {
         if (res.success) {
           this.allUsers = res.users;
         }
         this.loading = false;
-        // Apply current filters once data arrives
         this.applyFilters(this.filterService.getCurrentFilters());
         this.cdr.markForCheck();
       },
@@ -46,9 +49,10 @@ export class BrowseComponent implements OnInit, OnDestroy {
       },
     });
 
-    // React to filter changes
     this.filterSubscription = this.filterService.filters$.subscribe((filters) => {
+      this.activeSearch = filters.searchQuery ?? '';
       this.applyFilters(filters);
+      this.cdr.markForCheck();
     });
   }
 
@@ -57,6 +61,8 @@ export class BrowseComponent implements OnInit, OnDestroy {
   }
 
   private applyFilters(filters: FilterCriteria): void {
+    const q = (filters.searchQuery ?? '').toLowerCase().trim();
+
     this.users = this.allUsers.filter((user) => {
       const matchesCategory =
         filters.categories.length === 0 || filters.categories.includes(user.category);
@@ -65,16 +71,24 @@ export class BrowseComponent implements OnInit, OnDestroy {
       const matchesRating = user.rating >= filters.minRating;
       const matchesLocation =
         filters.location === 'all' ||
-        (user.location || '').toLowerCase().includes(filters.location.toLowerCase()) ||
-        filters.location.toLowerCase().includes((user.location || '').toLowerCase());
+        (user.location ?? '').toLowerCase().includes(filters.location.toLowerCase()) ||
+        filters.location.toLowerCase().includes((user.location ?? '').toLowerCase());
 
-      return matchesCategory && matchesPrice && matchesRating && matchesLocation;
+      const matchesSearch =
+        !q ||
+        [
+          `${user.firstName} ${user.lastName}`,
+          user.title ?? '',
+          user.category ?? '',
+          ...(user.skills ?? []),
+        ].some((field) => field.toLowerCase().includes(q));
+
+      return matchesCategory && matchesPrice && matchesRating && matchesLocation && matchesSearch;
     });
   }
 
   toggleMobileFilters(): void {
     this.mobileFiltersOpen = !this.mobileFiltersOpen;
-    // Prevent body scroll when modal is open
     if (this.mobileFiltersOpen) {
       document.body.style.overflow = 'hidden';
     } else {

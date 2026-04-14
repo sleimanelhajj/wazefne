@@ -3,9 +3,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
 import { BookingStatsCardsComponent } from '../../components/bookings-history/stats-cards/stats-cards.component';
-import { BookingTabsComponent } from '../../components/bookings-history/booking-tabs/booking-tabs.component';
 import { BookingCardComponent } from '../../components/bookings-history/booking-card/booking-card.component';
-import { BookingHelpBannerComponent } from '../../components/bookings-history/help-banner/help-banner.component';
 import { Booking, BookingStat, BookingTab } from '../../models/bookings.model';
 import { OfferService } from '../../services/offer.service';
 import { AuthService } from '../../services/auth.service';
@@ -17,9 +15,7 @@ import { AuthService } from '../../services/auth.service';
     CommonModule,
     TopBarComponent,
     BookingStatsCardsComponent,
-    BookingTabsComponent,
     BookingCardComponent,
-    BookingHelpBannerComponent,
   ],
   templateUrl: './bookings-history.html',
   styleUrls: ['./bookings-history.css'],
@@ -51,9 +47,24 @@ export class BookingsHistoryComponent implements OnInit {
       .reduce((sum, b) => sum + b.hourlyRate, 0);
 
     return [
-      { icon: '📅', iconBg: '#eff6ff', label: 'Active', value: active },
-      { icon: '✅', iconBg: '#f0fdf4', label: 'Completed', value: completed },
-      { icon: '💰', iconBg: '#faf5ff', label: 'Total Earned', value: `$${totalSpend.toFixed(0)}` },
+      {
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+        iconBg: '#eff6ff',
+        label: 'Active',
+        value: active,
+      },
+      {
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+        iconBg: '#f0fdf4',
+        label: 'Completed',
+        value: completed,
+      },
+      {
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+        iconBg: '#faf5ff',
+        label: 'Total Earned',
+        value: `$${totalSpend.toFixed(0)}`,
+      },
     ];
   }
 
