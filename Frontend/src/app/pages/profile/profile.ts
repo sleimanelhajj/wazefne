@@ -13,6 +13,7 @@ import { UserProfile } from '../../models/profile.model';
 import { AuthService } from '../../services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FavoriteUsersDialogComponent } from '../../components/profile/favorites-dialog/favorite-users-dialog.component';
+import { EditProfileDialogComponent } from '../../components/profile/edit-profile-dialog/edit-profile-dialog.component';
 
 @Component({
   selector: 'app-profile-page',
@@ -83,6 +84,19 @@ export class ProfilePageComponent implements OnInit {
       width: 'min(980px, 95vw)',
       maxHeight: '90vh',
       autoFocus: false,
+    });
+  }
+
+  openEditProfileModal(): void {
+    if (!this.isOwner || !this.user) return;
+    const ref = this.dialog.open(EditProfileDialogComponent, {
+      width: 'min(680px, 95vw)',
+      maxHeight: '90vh',
+      autoFocus: false,
+      data: { user: this.user },
+    });
+    ref.afterClosed().subscribe((updated: boolean) => {
+      if (updated) this.loadProfile();
     });
   }
 }

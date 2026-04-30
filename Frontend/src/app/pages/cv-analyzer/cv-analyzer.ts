@@ -9,11 +9,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import {
   CvAnalyzeResponse,
   CvHistoryItem,
+  CvSectionScores,
 } from '../../models/cv-analysis.model';
 
 @Component({
@@ -28,6 +31,8 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
+    MatIconModule,
     MatExpansionModule,
     MatTabsModule,
   ],
@@ -128,6 +133,22 @@ export class CvAnalyzerPageComponent implements OnInit {
           this.cdr.detectChanges();
         },
       });
+  }
+
+  getSectionScores(scores: CvSectionScores): { label: string; value: number }[] {
+    return [
+      { label: 'Structure', value: scores.structure },
+      { label: 'Impact', value: scores.impact },
+      { label: 'Skills Alignment', value: scores.skillsAlignment },
+      { label: 'ATS Readability', value: scores.atsReadability },
+      { label: 'Clarity', value: scores.clarity },
+    ];
+  }
+
+  scoreClass(score: number): string {
+    if (score >= 75) return 'score-high';
+    if (score >= 50) return 'score-mid';
+    return 'score-low';
   }
 
   private loadHistory(): void {

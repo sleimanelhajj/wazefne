@@ -140,6 +140,53 @@ export const getMessages = async (
 };
 
 /**
+ * POST /api/messages/conversations/:id/messages
+ * Send a message in a conversation.
+ * Body: { content: string }
+ */
+export const sendMessage = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const userId = req.user!.id;
+    const conversationId = req.params.id;
+    const { content } = req.body;
+
+    if (!content?.trim()) {
+      res.status(400).json({ success: false, message: "Content is required" });
+      return;
+    }
+
+    const convCheck = await pool.query(
+      `SELECT id FROM conversations WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)`,
+      [conversationId, userId],
+    );
+    if (convCheck.rows.length === 0) {
+      res.status(403).json({ success: false, message: "Not part of this conversation" });
+      return;
+    }
+
+    const result = await pool.query(
+      `INSERT INTO messages (conversation_id, sender_id, content)
+       VALUES ($1, $2, $3)
+       RETURNING id, conversation_id, sender_id, content, created_at`,
+      [conversationId, userId, content.trim()],
+    );
+
+    await pool.query(
+      `UPDATE conversations SET updated_at = NOW() WHERE id = $1`,
+      [conversationId],
+    );
+
+    res.status(201).json({ success: true, message: result.rows[0] });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * POST /api/messages/conversations
  * Create (or return existing) conversation with another user.
  * Body: { otherUserId: number }

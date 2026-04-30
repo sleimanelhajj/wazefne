@@ -1,7 +1,6 @@
- import { Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import pool from "../config/db";
 import { AuthRequest } from "../middleware/auth";
-import { getIO } from "../config/socket";
 
 const OFFER_STATE_MESSAGES: Record<string, { emoji: string; label: string }> = {
   accepted: { emoji: "✅", label: "accepted" },
@@ -23,24 +22,8 @@ const extractBookedJobTitle = (title: string): string | null => {
   if (!title || !title.startsWith(JOB_TITLE_PREFIX)) {
     return null;
   }
-
   const parsed = title.slice(JOB_TITLE_PREFIX.length).trim();
   return parsed.length > 0 ? parsed : null;
-};
-
-const notifyParticipants = (
-  user1: string | number,
-  user2: string | number,
-  event: string,
-  payload: any,
-) => {
-  try {
-    const io = getIO();
-    io.to(`user:${String(user1)}`).emit(event, payload);
-    io.to(`user:${String(user2)}`).emit(event, payload);
-  } catch (err) {
-    console.error("Socket emit error (non-fatal):", err);
-  }
 };
 
 /**
@@ -63,9 +46,7 @@ export const createOffer = async (
       hourlyRate === undefined ||
       hourlyRate === null
     ) {
-      res
-        .status(400)
-        .json({ success: false, message: "Missing required fields" });
+      res.status(400).json({ success: false, message: "Missing required fields" });
       return;
     }
 
@@ -78,32 +59,24 @@ export const createOffer = async (
       return;
     }
 
-    // Verify conversation exists and user is a participant
     const convResult = await pool.query(
       `SELECT user1_id, user2_id FROM conversations WHERE id = $1`,
       [conversationId],
     );
 
     if (convResult.rows.length === 0) {
-      res
-        .status(404)
-        .json({ success: false, message: "Conversation not found" });
+      res.status(404).json({ success: false, message: "Conversation not found" });
       return;
     }
 
     const conv = convResult.rows[0];
     if (conv.user1_id !== userId && conv.user2_id !== userId) {
-      res
-        .status(403)
-        .json({ success: false, message: "Not part of this conversation" });
+      res.status(403).json({ success: false, message: "Not part of this conversation" });
       return;
     }
 
-    // Determine recipient
-    const recipientId =
-      conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+    const recipientId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
 
-    // Insert the offer
     const offerResult = await pool.query(
       `INSERT INTO offers (conversation_id, sender_id, recipient_id, title, hourly_rate)
        VALUES ($1, $2, $3, $4, $5)
@@ -113,36 +86,18 @@ export const createOffer = async (
 
     const offer = offerResult.rows[0];
 
-    // Insert a special message linked to the offer
     const messageContent = `Offer: "${title.trim()}" at $${Number(hourlyRate).toFixed(2)}/hr`;
 
-    const msgResult = await pool.query(
+    await pool.query(
       `INSERT INTO messages (conversation_id, sender_id, content, offer_id)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, conversation_id, sender_id, content, created_at, offer_id`,
+       VALUES ($1, $2, $3, $4)`,
       [conversationId, userId, messageContent, offer.id],
     );
 
-    // Update conversation timestamp
     await pool.query(
       `UPDATE conversations SET updated_at = NOW() WHERE id = $1`,
       [conversationId],
     );
-
-    const message = {
-      ...msgResult.rows[0],
-      offer: {
-        id: offer.id,
-        title: offer.title,
-        hourly_rate: Number(offer.hourly_rate),
-        status: offer.status,
-        sender_id: offer.sender_id,
-        recipient_id: offer.recipient_id,
-      },
-    };
-
-    // Emit the message via WebSocket to both users
-    notifyParticipants(userId, recipientId, "new_message", message);
 
     res.json({
       success: true,
@@ -164,10 +119,6 @@ export const createOffer = async (
 
 /**
  * PATCH /api/offers/:id/status
- * Update an offer's status. Supports:
- *   - accepted / declined  (recipient only, from 'pending')
- *   - in_progress          (recipient only, from 'accepted')
- *   - completed            (recipient only, from 'in_progress')
  */
 export const updateOfferStatus = async (
   req: AuthRequest,
@@ -184,7 +135,6 @@ export const updateOfferStatus = async (
       return;
     }
 
-    // Fetch the offer
     const offerResult = await pool.query(
       `SELECT id, conversation_id, sender_id, recipient_id, title, hourly_rate, status
        FROM offers WHERE id = $1`,
@@ -198,7 +148,6 @@ export const updateOfferStatus = async (
 
     const offer = offerResult.rows[0];
 
-    // Only the recipient can perform these actions
     if (offer.recipient_id !== userId) {
       res.status(403).json({
         success: false,
@@ -207,7 +156,6 @@ export const updateOfferStatus = async (
       return;
     }
 
-    // Validate state transitions
     const allowed = ALLOWED_TRANSITIONS[offer.status] || [];
     if (!allowed.includes(status)) {
       res.status(400).json({
@@ -217,14 +165,8 @@ export const updateOfferStatus = async (
       return;
     }
 
-    // Update the offer status
-    await pool.query(`UPDATE offers SET status = $1 WHERE id = $2`, [
-      status,
-      offerId,
-    ]);
+    await pool.query(`UPDATE offers SET status = $1 WHERE id = $2`, [status, offerId]);
 
-    // Keep jobs page cards in sync for bookings created from job bid acceptance.
-    // Those offers are stored as: title = "Job: <job title>", sender=client, recipient=freelancer.
     const bookedJobTitle =
       (status === "in_progress" || status === "completed") &&
       typeof offer.title === "string"
@@ -247,50 +189,23 @@ export const updateOfferStatus = async (
              OR
              ($1 = 'completed' AND j.status = 'in_progress')
            )`,
-        [
-          status,
-          offer.recipient_id,
-          offer.sender_id,
-          bookedJobTitle,
-          offer.hourly_rate,
-        ],
+        [status, offer.recipient_id, offer.sender_id, bookedJobTitle, offer.hourly_rate],
       );
     }
 
-    // Insert a status change message
-    const stateMessage = OFFER_STATE_MESSAGES[status] || {
-      emoji: "ℹ️",
-      label: status,
-    };
+    const stateMessage = OFFER_STATE_MESSAGES[status] || { emoji: "ℹ️", label: status };
     const messageContent = `${stateMessage.emoji} Offer "${offer.title}" has been ${stateMessage.label}`;
 
-    const msgResult = await pool.query(
+    await pool.query(
       `INSERT INTO messages (conversation_id, sender_id, content)
-       VALUES ($1, $2, $3)
-       RETURNING id, conversation_id, sender_id, content, created_at`,
+       VALUES ($1, $2, $3)`,
       [offer.conversation_id, userId, messageContent],
     );
 
-    // Update conversation timestamp
     await pool.query(
       `UPDATE conversations SET updated_at = NOW() WHERE id = $1`,
       [offer.conversation_id],
     );
-
-    const message = msgResult.rows[0];
-
-    // Emit via WebSocket
-    notifyParticipants(
-      offer.sender_id,
-      offer.recipient_id,
-      "new_message",
-      message,
-    );
-    notifyParticipants(offer.sender_id, offer.recipient_id, "offer_updated", {
-      offerId: offer.id,
-      status,
-      conversationId: offer.conversation_id,
-    });
 
     res.json({ success: true, status });
   } catch (err) {
@@ -300,7 +215,6 @@ export const updateOfferStatus = async (
 
 /**
  * PATCH /api/offers/:id/cancel
- * Cancel an offer. Only the sender can cancel, and only while 'pending'.
  */
 export const cancelOffer = async (
   req: AuthRequest,
@@ -325,32 +239,23 @@ export const cancelOffer = async (
     const offer = offerResult.rows[0];
 
     if (offer.sender_id !== userId) {
-      res.status(403).json({
-        success: false,
-        message: "Only the sender can cancel an offer",
-      });
+      res.status(403).json({ success: false, message: "Only the sender can cancel an offer" });
       return;
     }
 
     if (offer.status !== "pending") {
-      res.status(400).json({
-        success: false,
-        message: "Can only cancel pending offers",
-      });
+      res.status(400).json({ success: false, message: "Can only cancel pending offers" });
       return;
     }
 
-    await pool.query(`UPDATE offers SET status = 'cancelled' WHERE id = $1`, [
-      offerId,
-    ]);
+    await pool.query(`UPDATE offers SET status = 'cancelled' WHERE id = $1`, [offerId]);
 
-    // Insert cancellation message
     const { emoji, label } = OFFER_STATE_MESSAGES.cancelled;
     const messageContent = `${emoji} Offer "${offer.title}" has been ${label}`;
-    const msgResult = await pool.query(
+
+    await pool.query(
       `INSERT INTO messages (conversation_id, sender_id, content)
-       VALUES ($1, $2, $3)
-       RETURNING id, conversation_id, sender_id, content, created_at`,
+       VALUES ($1, $2, $3)`,
       [offer.conversation_id, userId, messageContent],
     );
 
@@ -358,21 +263,6 @@ export const cancelOffer = async (
       `UPDATE conversations SET updated_at = NOW() WHERE id = $1`,
       [offer.conversation_id],
     );
-
-    const message = msgResult.rows[0];
-
-    // Emit via WebSocket
-    notifyParticipants(
-      offer.sender_id,
-      offer.recipient_id,
-      "new_message",
-      message,
-    );
-    notifyParticipants(offer.sender_id, offer.recipient_id, "offer_updated", {
-      offerId: offer.id,
-      status: "cancelled",
-      conversationId: offer.conversation_id,
-    });
 
     res.json({ success: true, status: "cancelled" });
   } catch (err) {
@@ -382,8 +272,6 @@ export const cancelOffer = async (
 
 /**
  * GET /api/offers/my-bookings
- * Returns all offers where the current user is sender or recipient,
- * joined with user info for both sides.
  */
 export const getMyBookings = async (
   req: AuthRequest,
@@ -447,7 +335,6 @@ export const getMyBookings = async (
 
 /**
  * GET /api/offers/conversation/:conversationId
- * Get all offers for a conversation.
  */
 export const getOffersByConversation = async (
   req: AuthRequest,
@@ -458,7 +345,6 @@ export const getOffersByConversation = async (
     const userId = req.user!.id;
     const { conversationId } = req.params;
 
-    // Verify user is part of the conversation
     const convCheck = await pool.query(
       `SELECT id FROM conversations
        WHERE id = $1 AND (user1_id = $2 OR user2_id = $2)`,
@@ -466,9 +352,7 @@ export const getOffersByConversation = async (
     );
 
     if (convCheck.rows.length === 0) {
-      res
-        .status(403)
-        .json({ success: false, message: "Not part of this conversation" });
+      res.status(403).json({ success: false, message: "Not part of this conversation" });
       return;
     }
 

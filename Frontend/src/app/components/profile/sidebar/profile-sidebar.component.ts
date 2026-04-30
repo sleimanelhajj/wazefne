@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
 import { ChatService } from '../../../services/chat.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-profile-sidebar',
   standalone: true,
-  imports: [CommonModule, MatButtonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './profile-sidebar.component.html',
   styleUrls: ['./profile-sidebar.component.css'],
 })
@@ -23,6 +24,7 @@ export class ProfileSidebarComponent {
   @Input() userId: string | number = 0;
   @Output() profileUpdated = new EventEmitter<void>();
   @Output() viewFavorites = new EventEmitter<void>();
+  @Output() editProfile = new EventEmitter<void>();
 
   toggling = false;
   startingChat = false;

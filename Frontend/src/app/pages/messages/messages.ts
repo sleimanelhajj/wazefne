@@ -41,19 +41,19 @@ export class MessagesComponent implements OnInit, OnDestroy {
   conversations: Conversation[] = [];
   activeConversation: Conversation | null = null;
   messages: ChatMessage[] = [];
-  currentUserId: string = '';
   loading = true;
+
+  // Getter so it always reads the fresh DB user ID after auth resolves
+  get currentUserId(): string {
+    return this.authService.getUserId() || '';
+  }
 
   // Offer modal state
   showOfferModal = false;
   recipientHourlyRate = 0;
 
   ngOnInit(): void {
-    // Get current user ID
-    const userId = this.authService.getUserId();
-    this.currentUserId = userId || '';
-
-    // Connect WebSocket
+    // Connect (no-op with Supabase, kept for API compatibility)
     this.chatService.connect();
 
     // Load conversations
@@ -153,6 +153,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.messages = [];
     this.cdr.detectChanges();
 
+    // Subscribe to real-time events for this conversation
+    this.chatService.subscribeToConversation(conv.id);
+
     // Load message history
     this.chatService.getMessages(conv.id).subscribe({
       next: (res) => {
@@ -168,7 +171,36 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
   onMessageSent(text: string): void {
     if (!this.activeConversation) return;
-    this.chatService.sendMessage(this.activeConversation.id, text);
+
+    // Show the message instantly while it saves in the background
+    const pendingId = -Date.now();
+    const pendingMessage: ChatMessage = {
+      id: pendingId,
+      conversation_id: this.activeConversation.id,
+      sender_id: this.currentUserId,
+      content: text,
+      created_at: new Date().toISOString(),
+    };
+    this.messages = [...this.messages, pendingMessage];
+    this.updateConversationPreview(pendingMessage);
+    this.cdr.detectChanges();
+
+    this.chatService.sendMessage(this.activeConversation.id, text).subscribe({
+      next: (res) => {
+        // Swap the pending message for the confirmed one from DB
+        // Supabase Realtime will also fire — dedup check by ID prevents duplicates
+        this.messages = this.messages.filter((m) => m.id !== pendingId);
+        if (!this.messages.find((m) => m.id === res.message.id)) {
+          this.messages = [...this.messages, res.message];
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // If saving failed, pull the message back out
+        this.messages = this.messages.filter((m) => m.id !== pendingId);
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   onCreateOffer(): void {

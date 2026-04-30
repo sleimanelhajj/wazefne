@@ -1,5 +1,5 @@
 <div class="browse-page">
-  <app-top-bar></app-top-bar>
+  <app-top-bar [showSearch]="true"></app-top-bar>
 
   <div class="browse-layout">
     <!-- Sidebar - Desktop: Column, Mobile: Modal -->
@@ -56,13 +56,39 @@
       </div>
 
       <!-- Real cards -->
-      <div class="results-grid" *ngIf="!loading">
-        <app-user-card
-          *ngFor="let user of users"
-          [user]="user"
-          (favoriteToggle)="onFavoriteToggle($event)"
-        ></app-user-card>
-      </div>
+      <ng-container *ngIf="!loading">
+        <!-- Result count bar -->
+        <div class="results-meta">
+          <span *ngIf="!activeSearch">{{ users.length }} talent{{ users.length !== 1 ? 's' : '' }} available</span>
+          <span *ngIf="activeSearch">
+            {{ users.length }} result{{ users.length !== 1 ? 's' : '' }} for
+            <strong>"{{ activeSearch }}"</strong>
+          </span>
+        </div>
+
+        <div class="results-grid" *ngIf="users.length > 0">
+          <app-user-card
+            *ngFor="let user of users"
+            [user]="user"
+            (favoriteToggle)="onFavoriteToggle($event)"
+          ></app-user-card>
+        </div>
+
+        <!-- Empty state -->
+        <div class="browse-empty" *ngIf="users.length === 0">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <p class="browse-empty-title">No talents found</p>
+          <p class="browse-empty-desc" *ngIf="activeSearch">
+            No results for <strong>"{{ activeSearch }}"</strong>. Try a different name, skill, or category.
+          </p>
+          <p class="browse-empty-desc" *ngIf="!activeSearch">
+            Try adjusting your filters.
+          </p>
+        </div>
+      </ng-container>
     </main>
   </div>
 </div>

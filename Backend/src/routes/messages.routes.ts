@@ -3,6 +3,7 @@ import authenticate from "../middleware/auth";
 import {
   getConversations,
   getMessages,
+  sendMessage,
   createConversation,
 } from "../controllers/messages.controller";
 
@@ -111,6 +112,7 @@ router.get("/conversations", getConversations as any);
  *         description: Not part of this conversation
  */
 router.get("/conversations/:id", getMessages as any);
+router.post("/conversations/:id/messages", sendMessage as any);
 
 /**
  * @swagger

@@ -1,0 +1,170 @@
+<div class="edit-dialog">
+
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-left">
+      <mat-icon class="header-icon">edit</mat-icon>
+      <h2 class="dialog-title">Edit Profile</h2>
+    </div>
+    <button mat-icon-button class="close-btn" (click)="cancel()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="dialog-body">
+    <form [formGroup]="form">
+
+      <!-- ── Basic Information ── -->
+      <section class="form-section">
+        <h3 class="section-label">Basic Information</h3>
+        <div class="two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="first_name" autocomplete="given-name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="last_name" autocomplete="family-name" />
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Location</mat-label>
+          <mat-icon matPrefix>location_on</mat-icon>
+          <input matInput formControlName="location" placeholder="e.g. Beirut, Lebanon" />
+        </mat-form-field>
+      </section>
+
+      <!-- ── Professional Details ── -->
+      <section class="form-section">
+        <h3 class="section-label">Professional Details</h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Job Title</mat-label>
+          <input matInput formControlName="title" placeholder="e.g. Personal Trainer, Butler" />
+        </mat-form-field>
+        <div class="two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+              <mat-option value="">— None —</mat-option>
+              <mat-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Hourly Rate ($)</mat-label>
+            <span matPrefix>$&nbsp;</span>
+            <input matInput type="number" formControlName="hourly_rate" min="0" />
+            <span matSuffix>/hr</span>
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Offer Description</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            formControlName="offer_description"
+            placeholder="Briefly describe what you offer clients…"
+          ></textarea>
+        </mat-form-field>
+      </section>
+
+      <!-- ── About Me ── -->
+      <section class="form-section">
+        <h3 class="section-label">About Me</h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>About Me</mat-label>
+          <textarea
+            matInput
+            rows="5"
+            formControlName="about_me"
+            placeholder="Tell clients a bit about yourself, your experience, and what makes you stand out…"
+          ></textarea>
+        </mat-form-field>
+      </section>
+
+      <!-- ── Skills ── -->
+      <section class="form-section">
+        <h3 class="section-label">Skills</h3>
+        <div class="tags-wrap" *ngIf="skills.length > 0">
+          <span class="tag" *ngFor="let skill of skills; let i = index">
+            {{ skill }}
+            <button type="button" class="tag-remove" (click)="removeSkill(i)" aria-label="Remove">×</button>
+          </span>
+        </div>
+        <mat-form-field appearance="outline" class="full-width tag-input-field">
+          <mat-label>Add a skill</mat-label>
+          <input
+            matInput
+            [(ngModel)]="skillInput"
+            [ngModelOptions]="{ standalone: true }"
+            (keydown)="onSkillKeydown($event)"
+            placeholder="Type and press Enter or comma to add"
+          />
+          <button
+            matSuffix
+            mat-icon-button
+            type="button"
+            (click)="addSkill()"
+            *ngIf="skillInput"
+            aria-label="Add skill"
+          >
+            <mat-icon>add_circle</mat-icon>
+          </button>
+        </mat-form-field>
+      </section>
+
+      <!-- ── Languages ── -->
+      <section class="form-section last">
+        <h3 class="section-label">Languages</h3>
+        <div class="tags-wrap" *ngIf="languages.length > 0">
+          <span class="tag" *ngFor="let lang of languages; let i = index">
+            {{ lang }}
+            <button type="button" class="tag-remove" (click)="removeLanguage(i)" aria-label="Remove">×</button>
+          </span>
+        </div>
+        <mat-form-field appearance="outline" class="full-width tag-input-field">
+          <mat-label>Add a language</mat-label>
+          <input
+            matInput
+            [(ngModel)]="languageInput"
+            [ngModelOptions]="{ standalone: true }"
+            (keydown)="onLanguageKeydown($event)"
+            placeholder="Type and press Enter or comma to add"
+          />
+          <button
+            matSuffix
+            mat-icon-button
+            type="button"
+            (click)="addLanguage()"
+            *ngIf="languageInput"
+            aria-label="Add language"
+          >
+            <mat-icon>add_circle</mat-icon>
+          </button>
+        </mat-form-field>
+      </section>
+
+    </form>
+
+    <p class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="dialog-footer">
+    <button mat-stroked-button class="cancel-btn" (click)="cancel()">Cancel</button>
+    <button
+      mat-flat-button
+      color="primary"
+      class="save-btn"
+      [disabled]="saving || form.invalid"
+      (click)="save()"
+    >
+      <span *ngIf="saving" class="saving-inner">
+        <mat-spinner diameter="16"></mat-spinner>
+        Saving…
+      </span>
+      <span *ngIf="!saving">Save Changes</span>
+    </button>
+  </div>
+
+</div>
