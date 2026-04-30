@@ -21,33 +21,33 @@ const authenticate = async (
 
     const clerkId = auth.userId;
 
-    let result = await pool.query(
-      "SELECT id, email FROM users WHERE clerk_id = $1",
-      [clerkId],
+    // Fetch user data from Clerk to upsert into DB
+    const clerkUser = await clerkClient.users.getUser(clerkId);
+    const email =
+      clerkUser.emailAddresses?.[0]?.emailAddress ||
+      `${clerkId}@clerk.placeholder`;
+    const firstName = clerkUser.firstName || null;
+    const lastName = clerkUser.lastName || null;
+    const profileImage = clerkUser.imageUrl || null;
+
+    // Upsert: insert if not exists, update email/name/image if they signed in before
+    const result = await pool.query(
+      `INSERT INTO users (clerk_id, email, first_name, last_name, profile_image)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (clerk_id) DO UPDATE
+         SET email = EXCLUDED.email,
+             first_name = COALESCE(users.first_name, EXCLUDED.first_name),
+             last_name  = COALESCE(users.last_name,  EXCLUDED.last_name),
+             profile_image = COALESCE(users.profile_image, EXCLUDED.profile_image)
+       RETURNING id, email`,
+      [clerkId, email, firstName, lastName, profileImage],
     );
-
-    if (result.rows.length === 0) {
-      const clerkUser = await clerkClient.users.getUser(clerkId);
-      const email =
-        clerkUser.emailAddresses?.[0]?.emailAddress ||
-        `${clerkId}@clerk.placeholder`;
-      const firstName = clerkUser.firstName || null;
-      const lastName = clerkUser.lastName || null;
-      const profileImage = clerkUser.imageUrl || null;
-
-      result = await pool.query(
-        `INSERT INTO users (clerk_id, email, first_name, last_name, profile_image)
-           VALUES ($1, $2, $3, $4, $5)
-           RETURNING id, email`,
-        [clerkId, email, firstName, lastName, profileImage],
-      );
-    }
 
     const user = result.rows[0];
     req.user = { id: user.id, clerkId, email: user.email };
     next();
   } catch (err) {
-    console.error("Clerk auth middleware error:", err);
+    console.error("Auth middleware error:", err);
     res.status(401).json({ success: false, message: "Authentication failed" });
   }
 };
