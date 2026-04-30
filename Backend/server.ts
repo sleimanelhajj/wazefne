@@ -2,14 +2,12 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
-import http from "http";
 import swaggerUi from "swagger-ui-express";
 import { clerkMiddleware } from "@clerk/express";
 import pool from "./src/config/db";
 import routes from "./src/routes";
 import errorHandler from "./src/middleware/errorHandler";
 import swaggerSpec from "./src/config/swagger";
-import { initSocket } from "./src/config/socket";
 
 const app = express();
 
@@ -55,7 +53,6 @@ app.use(errorHandler);
 // Local dev only — Vercel handles the server in production
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 3000;
-  const server = http.createServer(app);
 
   const start = async (): Promise<void> => {
     try {
@@ -63,10 +60,7 @@ if (process.env.NODE_ENV !== "production") {
       console.log("Connected to PostgreSQL");
       client.release();
 
-      initSocket(server);
-      console.log("Socket.IO initialized");
-
-      server.listen(PORT, () => {
+      app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
       });
     } catch (err: unknown) {
