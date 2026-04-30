@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -385,7 +386,7 @@ export class AuthComponent implements OnInit {
 
       await action.authenticateWithRedirect({
         strategy,
-        redirectUrl: 'http://localhost:4200/sso-callback',
+        redirectUrl: `${environment.frontendUrl}/sso-callback`,
         redirectUrlComplete: this.step === 'signup' ? '/setup-profile' : '/browse',
       });
     } catch (err: any) {
