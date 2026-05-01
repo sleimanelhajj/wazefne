@@ -19,6 +19,7 @@ export class ChatMessagesComponent implements AfterViewChecked {
   @Input() messages: ChatMessage[] = [];
   @Input() currentUserId: string = '';
   @Input() otherUserAvatar: string = '';
+  @Input() loading = false;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   private shouldScroll = true;

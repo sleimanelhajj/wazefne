@@ -42,6 +42,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   activeConversation: Conversation | null = null;
   messages: ChatMessage[] = [];
   loading = true;
+  messagesLoading = false;
 
   // Getter so it always reads the fresh DB user ID after auth resolves
   get currentUserId(): string {
@@ -151,20 +152,31 @@ export class MessagesComponent implements OnInit, OnDestroy {
     console.log('Selected conversation:', conv.id);
     this.activeConversation = conv;
     this.messages = [];
+    this.messagesLoading = true;
     this.cdr.detectChanges();
 
     // Subscribe to real-time events for this conversation
     this.chatService.subscribeToConversation(conv.id);
 
+    const loadStart = Date.now();
+
     // Load message history
     this.chatService.getMessages(conv.id).subscribe({
       next: (res) => {
         console.log('Loaded messages for conversation:', res.messages.length);
-        this.messages = res.messages;
-        this.cdr.detectChanges();
+        // Show skeleton for at least 400ms so it doesn't flash
+        const elapsed = Date.now() - loadStart;
+        const remaining = Math.max(0, 400 - elapsed);
+        setTimeout(() => {
+          this.messages = res.messages;
+          this.messagesLoading = false;
+          this.cdr.detectChanges();
+        }, remaining);
       },
       error: (err) => {
         console.error('Failed to load messages:', err);
+        this.messagesLoading = false;
+        this.cdr.detectChanges();
       },
     });
   }

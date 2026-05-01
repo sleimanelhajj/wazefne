@@ -13,6 +13,7 @@ import { Conversation } from '../../../models/message.model';
 export class ConversationListComponent {
   @Input() conversations: Conversation[] = [];
   @Input() activeConversationId: number | null = null;
+  @Input() loading = false;
   @Output() conversationSelected = new EventEmitter<Conversation>();
 
   get filteredConversations(): Conversation[] {

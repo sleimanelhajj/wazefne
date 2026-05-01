@@ -1,82 +1,91 @@
 <div class="chat-messages" #scrollContainer>
-  <div class="date-separator" *ngIf="messages.length > 0">
-    <span>TODAY</span>
-  </div>
 
-  <ng-container *ngFor="let msg of messages">
-    <!-- ── Offer Card Message ── -->
-    <div
-      *ngIf="isOfferMessage(msg); else regularMessage"
-      class="message-row offer-row"
-      [class.sent]="isMine(msg)"
-      [class.received]="!isMine(msg)"
-    >
-      <div *ngIf="!isMine(msg)" class="msg-avatar-col">
-        <img
-          *ngIf="otherUserAvatar; else placeholder"
-          [src]="otherUserAvatar"
-          class="msg-avatar"
-          alt="User avatar"
-        />
-        <ng-template #placeholder>
-          <div class="msg-avatar-placeholder"></div>
-        </ng-template>
-      </div>
+  @if (loading) {
+    <div class="messages-spinner">
+      <div class="spinner"></div>
+    </div>
+  }
 
-      <div
-        class="offer-card"
-        [class.accepted]="msg.offer!.status === 'accepted'"
-        [class.declined]="msg.offer!.status === 'declined'"
-      >
-        <div class="offer-header">
-          <span class="offer-badge">📋 JOB OFFER</span>
-          <span
-            class="offer-status"
-            [class.status-pending]="msg.offer!.status === 'pending'"
-            [class.status-accepted]="msg.offer!.status === 'accepted'"
-            [class.status-declined]="msg.offer!.status === 'declined'"
-          >
-            {{ getOfferStatusLabel(msg.offer!.status) }}
-          </span>
-        </div>
-
-        <h4 class="offer-service">{{ msg.offer!.title }}</h4>
-
-        <div class="offer-rate-row">
-          <span class="offer-rate-label">Proposed rate</span>
-          <span class="offer-price"
-            >${{ msg.offer!.hourly_rate }}<span class="offer-price-unit">/hr</span></span
-          >
-        </div>
-
-        <!-- Accept / Decline buttons – only for recipient on pending offers -->
-        <span class="offer-time">{{ formatTime(msg.created_at) }}</span>
-      </div>
+  @if (!loading) {
+    <div class="date-separator" *ngIf="messages.length > 0">
+      <span>TODAY</span>
     </div>
 
-    <!-- ── Regular Message ── -->
-    <ng-template #regularMessage>
-      <div class="message-row" [class.sent]="isMine(msg)" [class.received]="!isMine(msg)">
+    <ng-container *ngFor="let msg of messages">
+      <!-- ── Offer Card Message ── -->
+      <div
+        *ngIf="isOfferMessage(msg); else regularMessage"
+        class="message-row offer-row"
+        [class.sent]="isMine(msg)"
+        [class.received]="!isMine(msg)"
+      >
         <div *ngIf="!isMine(msg)" class="msg-avatar-col">
           <img
-            *ngIf="otherUserAvatar; else regPlaceholder"
+            *ngIf="otherUserAvatar; else placeholder"
             [src]="otherUserAvatar"
             class="msg-avatar"
             alt="User avatar"
           />
-          <ng-template #regPlaceholder>
+          <ng-template #placeholder>
             <div class="msg-avatar-placeholder"></div>
           </ng-template>
         </div>
-        <div class="bubble">
-          <p class="bubble-text">{{ msg.content }}</p>
-          <span class="bubble-time">{{ formatTime(msg.created_at) }}</span>
+
+        <div
+          class="offer-card"
+          [class.accepted]="msg.offer!.status === 'accepted'"
+          [class.declined]="msg.offer!.status === 'declined'"
+        >
+          <div class="offer-header">
+            <span class="offer-badge">📋 JOB OFFER</span>
+            <span
+              class="offer-status"
+              [class.status-pending]="msg.offer!.status === 'pending'"
+              [class.status-accepted]="msg.offer!.status === 'accepted'"
+              [class.status-declined]="msg.offer!.status === 'declined'"
+            >
+              {{ getOfferStatusLabel(msg.offer!.status) }}
+            </span>
+          </div>
+
+          <h4 class="offer-service">{{ msg.offer!.title }}</h4>
+
+          <div class="offer-rate-row">
+            <span class="offer-rate-label">Proposed rate</span>
+            <span class="offer-price"
+              >${{ msg.offer!.hourly_rate }}<span class="offer-price-unit">/hr</span></span
+            >
+          </div>
+
+          <span class="offer-time">{{ formatTime(msg.created_at) }}</span>
         </div>
       </div>
-    </ng-template>
-  </ng-container>
 
-  <div class="empty-chat" *ngIf="messages.length === 0">
-    <p>No messages yet. Say hello! 👋</p>
-  </div>
+      <!-- ── Regular Message ── -->
+      <ng-template #regularMessage>
+        <div class="message-row" [class.sent]="isMine(msg)" [class.received]="!isMine(msg)">
+          <div *ngIf="!isMine(msg)" class="msg-avatar-col">
+            <img
+              *ngIf="otherUserAvatar; else regPlaceholder"
+              [src]="otherUserAvatar"
+              class="msg-avatar"
+              alt="User avatar"
+            />
+            <ng-template #regPlaceholder>
+              <div class="msg-avatar-placeholder"></div>
+            </ng-template>
+          </div>
+          <div class="bubble">
+            <p class="bubble-text">{{ msg.content }}</p>
+            <span class="bubble-time">{{ formatTime(msg.created_at) }}</span>
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <div class="empty-chat" *ngIf="messages.length === 0">
+      <p>No messages yet. Say hello! 👋</p>
+    </div>
+  }
+
 </div>

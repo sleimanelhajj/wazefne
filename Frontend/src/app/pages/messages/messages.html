@@ -7,6 +7,7 @@
     <app-conversation-list
       [conversations]="conversations"
       [activeConversationId]="activeConversation?.id || null"
+      [loading]="loading"
       (conversationSelected)="onConversationSelected($event)"
     ></app-conversation-list>
   </div>
@@ -22,6 +23,7 @@
         [messages]="messages"
         [currentUserId]="currentUserId"
         [otherUserAvatar]="activeContact?.avatar || 'assets/icons/default-avatar.svg'"
+        [loading]="messagesLoading"
       ></app-chat-messages>
       <app-message-input
         (messageSent)="onMessageSent($event)"
