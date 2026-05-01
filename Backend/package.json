@@ -7,7 +7,9 @@
     "build": "tsc",
     "postbuild": "node -e \"const fs=require('fs');const path=require('path');fs.mkdirSync('dist/src/migrations/sql',{recursive:true});\"",
     "start": "node dist/server.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "perf": "node ../perf-tests/autocannon-tests.mjs",
+    "perf:load": "artillery run ../perf-tests/artillery.yml --output ../perf-tests/artillery-report.json && artillery report ../perf-tests/artillery-report.json --output ../perf-tests/artillery-report.html"
   },
   "keywords": [],
   "author": "",

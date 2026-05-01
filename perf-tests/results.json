@@ -1,0 +1,162 @@
+[
+  {
+    "endpoint": "Health (baseline — no auth, no DB)",
+    "url": "/api/health",
+    "requests_per_sec": 12664.8,
+    "latency_avg_ms": 0.09,
+    "latency_p50_ms": 0,
+    "latency_p95_ms": 1,
+    "latency_p99_ms": 1,
+    "latency_max_ms": 21,
+    "throughput_mb_per_sec": "4.70",
+    "errors": 0,
+    "non_2xx": 189956,
+    "status_codes": {
+      "302": {
+        "count": 189956
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  },
+  {
+    "endpoint": "Browse providers (3 DB queries: users + skills + favorites)",
+    "url": "/api/users",
+    "requests_per_sec": 6003.34,
+    "latency_avg_ms": 1.1,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 2,
+    "latency_p99_ms": 3,
+    "latency_max_ms": 103,
+    "throughput_mb_per_sec": "1.74",
+    "errors": 0,
+    "non_2xx": 90040,
+    "status_codes": {
+      "302": {
+        "count": 90040
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  },
+  {
+    "endpoint": "List open jobs",
+    "url": "/api/jobs",
+    "requests_per_sec": 6033.47,
+    "latency_avg_ms": 1.08,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 2,
+    "latency_p99_ms": 3,
+    "latency_max_ms": 34,
+    "throughput_mb_per_sec": "1.75",
+    "errors": 0,
+    "non_2xx": 90494,
+    "status_codes": {
+      "302": {
+        "count": 90494
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  },
+  {
+    "endpoint": "My profile (joins skills, languages, portfolio)",
+    "url": "/api/profile/me",
+    "requests_per_sec": 5992.14,
+    "latency_avg_ms": 1.1,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 2,
+    "latency_p99_ms": 3,
+    "latency_max_ms": 62,
+    "throughput_mb_per_sec": "1.74",
+    "errors": 0,
+    "non_2xx": 89876,
+    "status_codes": {
+      "302": {
+        "count": 89876
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  },
+  {
+    "endpoint": "My bookings",
+    "url": "/api/offers/my-bookings",
+    "requests_per_sec": 5956.4,
+    "latency_avg_ms": 1.11,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 2,
+    "latency_p99_ms": 3,
+    "latency_max_ms": 32,
+    "throughput_mb_per_sec": "1.73",
+    "errors": 0,
+    "non_2xx": 89337,
+    "status_codes": {
+      "302": {
+        "count": 89337
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  },
+  {
+    "endpoint": "Conversations list",
+    "url": "/api/messages/conversations",
+    "requests_per_sec": 5907.07,
+    "latency_avg_ms": 1.12,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 2,
+    "latency_p99_ms": 3,
+    "latency_max_ms": 34,
+    "throughput_mb_per_sec": "1.71",
+    "errors": 0,
+    "non_2xx": 88598,
+    "status_codes": {
+      "302": {
+        "count": 88598
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  },
+  {
+    "endpoint": "My favorites",
+    "url": "/api/favorites/users",
+    "requests_per_sec": 5943.6,
+    "latency_avg_ms": 1.11,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 2,
+    "latency_p99_ms": 3,
+    "latency_max_ms": 30,
+    "throughput_mb_per_sec": "1.72",
+    "errors": 0,
+    "non_2xx": 89149,
+    "status_codes": {
+      "302": {
+        "count": 89149
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  },
+  {
+    "endpoint": "CV analysis history",
+    "url": "/api/cv/my-analyses",
+    "requests_per_sec": 6002.8,
+    "latency_avg_ms": 1.1,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 2,
+    "latency_p99_ms": 3,
+    "latency_max_ms": 29,
+    "throughput_mb_per_sec": "1.74",
+    "errors": 0,
+    "non_2xx": 90037,
+    "status_codes": {
+      "302": {
+        "count": 90037
+      }
+    },
+    "duration_s": 15,
+    "connections": 10
+  }
+]

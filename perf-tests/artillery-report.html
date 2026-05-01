@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wazefne API — Performance Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#f4f6f9;color:#1a1a2e;padding:32px}
+  h1{font-size:1.8rem;margin-bottom:4px;color:#1a1a2e}
+  .subtitle{color:#666;margin-bottom:32px;font-size:.95rem}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+  .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .card .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:6px}
+  .card .value{font-size:1.9rem;font-weight:700;color:#2563eb}
+  .card .value.warn{color:#d97706}
+  .card .value.err{color:#dc2626}
+  .card .value.ok{color:#16a34a}
+  .section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:24px}
+  .section h2{font-size:1.1rem;margin-bottom:20px;color:#374151}
+  .chart-wrap{position:relative;height:280px}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th{background:#f8fafc;padding:10px 12px;text-align:left;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb}
+  td{padding:9px 12px;border-bottom:1px solid #f1f5f9}
+  tr:hover td{background:#f8fafc}
+  .ok{color:#16a34a;font-weight:600}
+  .warn{color:#d97706;font-weight:600}
+  .err{color:#dc2626;font-weight:600}
+  code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:.82rem}
+  .footer{text-align:center;color:#9ca3af;font-size:.8rem;margin-top:32px}
+</style>
+</head>
+<body>
+
+<h1>Wazefne API — Performance Report</h1>
+<p class="subtitle">Load test · 10 connections · ramp 5 → 20 → 50 req/s · 90s total</p>
+
+<div class="cards">
+  <div class="card">
+    <div class="label">Total Requests</div>
+    <div class="value">2,250</div>
+  </div>
+  <div class="card">
+    <div class="label">Completed</div>
+    <div class="value ok">2,099</div>
+  </div>
+  <div class="card">
+    <div class="label">Failed</div>
+    <div class="value warn">151</div>
+  </div>
+  <div class="card">
+    <div class="label">200 OK</div>
+    <div class="value ok">540</div>
+  </div>
+  <div class="card">
+    <div class="label">401 Unauth</div>
+    <div class="value warn">1559</div>
+  </div>
+  <div class="card">
+    <div class="label">Req / sec</div>
+    <div class="value">16</div>
+  </div>
+  <div class="card">
+    <div class="label">Median Latency</div>
+    <div class="value">48.9 ms</div>
+  </div>
+  <div class="card">
+    <div class="label">p95 Latency</div>
+    <div class="value warn">5168 ms</div>
+  </div>
+  <div class="card">
+    <div class="label">p99 Latency</div>
+    <div class="value err">7260.8 ms</div>
+  </div>
+  <div class="card">
+    <div class="label">Timeouts</div>
+    <div class="value err">151</div>
+  </div>
+</div>
+
+
+<div class="section">
+  <h2>Throughput Over Time (req/s)</h2>
+  <div class="chart-wrap"><canvas id="rpsChart"></canvas></div>
+</div>
+
+<div class="section">
+  <h2>Latency Over Time</h2>
+  <div class="chart-wrap"><canvas id="latencyChart"></canvas></div>
+</div>
+
+<div class="section">
+  <h2>Per-Endpoint Latency</h2>
+  <div class="chart-wrap"><canvas id="endpointChart"></canvas></div>
+</div>
+
+<div class="section">
+  <h2>Per-Endpoint Breakdown</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Endpoint</th>
+        <th>Requests</th>
+        <th>Median</th>
+        <th>p75</th>
+        <th>p95</th>
+        <th>p99</th>
+        <th>Max</th>
+        <th>200 OK</th>
+        <th>401</th>
+        <th>Timeouts</th>
+      </tr>
+    </thead>
+    <tbody>
+  <tr>
+    <td><code>/api/cv/my-analyses</code></td>
+    <td>170</td>
+    <td>49.9 ms</td>
+    <td>64.7 ms</td>
+    <td>5944.6 ms</td>
+    <td>7117 ms</td>
+    <td>7913 ms</td>
+    <td class="ok">35</td>
+    <td class="warn">135</td>
+    <td class="err">4</td>
+  </tr>
+  <tr>
+    <td><code>/api/favorites/users</code></td>
+    <td>129</td>
+    <td>50.9 ms</td>
+    <td>169 ms</td>
+    <td>4676.2 ms</td>
+    <td>5168 ms</td>
+    <td>5458 ms</td>
+    <td class="ok">31</td>
+    <td class="warn">98</td>
+    <td class="err">3</td>
+  </tr>
+  <tr>
+    <td><code>/api/health</code></td>
+    <td>163</td>
+    <td>1 ms</td>
+    <td>1 ms</td>
+    <td>1 ms</td>
+    <td>1 ms</td>
+    <td>1 ms</td>
+    <td class="ok">163</td>
+    <td class="">0</td>
+    <td class="">0</td>
+  </tr>
+  <tr>
+    <td><code>/api/health</code></td>
+    <td>163</td>
+    <td>1 ms</td>
+    <td>1 ms</td>
+    <td>1 ms</td>
+    <td>2 ms</td>
+    <td>3 ms</td>
+    <td class="ok">163</td>
+    <td class="">0</td>
+    <td class="">0</td>
+  </tr>
+  <tr>
+    <td><code>/api/jobs</code></td>
+    <td>423</td>
+    <td>49.9 ms</td>
+    <td>87.4 ms</td>
+    <td>5168 ms</td>
+    <td>6439.7 ms</td>
+    <td>7543 ms</td>
+    <td class="ok">96</td>
+    <td class="warn">327</td>
+    <td class="err">6</td>
+  </tr>
+  <tr>
+    <td><code>/api/messages/conversations</code></td>
+    <td>304</td>
+    <td>50.9 ms</td>
+    <td>340.4 ms</td>
+    <td>5598.4 ms</td>
+    <td>7260.8 ms</td>
+    <td>7590 ms</td>
+    <td class="ok">76</td>
+    <td class="warn">228</td>
+    <td class="err">6</td>
+  </tr>
+  <tr>
+    <td><code>/api/offers/my-bookings</code></td>
+    <td>312</td>
+    <td>49.9 ms</td>
+    <td>77.5 ms</td>
+    <td>5711.5 ms</td>
+    <td>7117 ms</td>
+    <td>7676 ms</td>
+    <td class="ok">73</td>
+    <td class="warn">239</td>
+    <td class="err">6</td>
+  </tr>
+  <tr>
+    <td><code>/api/profile/me</code></td>
+    <td>233</td>
+    <td>48.9 ms</td>
+    <td>54.1 ms</td>
+    <td>1790.4 ms</td>
+    <td>5944.6 ms</td>
+    <td>7704 ms</td>
+    <td class="ok">22</td>
+    <td class="warn">211</td>
+    <td class="err">53</td>
+  </tr>
+  <tr>
+    <td><code>/api/users</code></td>
+    <td>365</td>
+    <td>48.9 ms</td>
+    <td>57.4 ms</td>
+    <td>6312.2 ms</td>
+    <td>7709.8 ms</td>
+    <td>7984 ms</td>
+    <td class="ok">44</td>
+    <td class="warn">321</td>
+    <td class="err">73</td>
+  </tr></tbody>
+  </table>
+</div>
+
+<div class="footer">Generated 5/2/2026, 1:20:16 AM · Wazefne Performance Test</div>
+
+<script>
+const COLORS = ['#2563eb','#16a34a','#d97706','#dc2626','#7c3aed','#0891b2','#be185d','#65a30d'];
+
+
+new Chart(document.getElementById('rpsChart'), {
+  type: 'line',
+  data: {
+    labels: ["T+0s","T+10s","T+20s","T+30s","T+40s","T+50s","T+60s","T+70s","T+80s","T+90s"],
+    datasets: [{
+      label: 'Requests/sec',
+      data: [5,16,20,20,20,50,50,50,5,5],
+      borderColor: '#2563eb',
+      backgroundColor: 'rgba(37,99,235,.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 3,
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+});
+
+new Chart(document.getElementById('latencyChart'), {
+  type: 'line',
+  data: {
+    labels: ["T+0s","T+10s","T+20s","T+30s","T+40s","T+50s","T+60s","T+70s","T+80s","T+90s"],
+    datasets: [
+      { label: 'Median (ms)', data: [2322.1,1002.4,50.9,48.9,48.9,49.9,48.9,47.9,71.5,1978.7], borderColor: '#16a34a', tension: 0.3, pointRadius: 3 },
+      { label: 'p95 (ms)',    data: [3828.5,2018.7,6569.8,3197.8,5378.9,5944.6,4965.3,3072.4,7260.8,3395.5],    borderColor: '#dc2626', tension: 0.3, pointRadius: 3, borderDash: [5,3] },
+    ]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+});
+
+new Chart(document.getElementById('endpointChart'), {
+  type: 'bar',
+  data: {
+    labels: ["/api/cv/my-analyses","/api/favorites/users","/api/health","/api/health","/api/jobs","/api/messages/conversations","/api/offers/my-bookings","/api/profile/me","/api/users"],
+    datasets: [
+      { label: 'Median (ms)', data: [49.9,50.9,1,1,49.9,50.9,49.9,48.9,48.9], backgroundColor: 'rgba(37,99,235,.8)' },
+      { label: 'p95 (ms)',    data: [5944.6,4676.2,1,1,5168,5598.4,5711.5,1790.4,6312.2],    backgroundColor: 'rgba(217,119,6,.8)' },
+      { label: 'p99 (ms)',    data: [7117,5168,1,2,6439.7,7260.8,7117,5944.6,7709.8],    backgroundColor: 'rgba(220,38,38,.8)' },
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'top' } },
+    scales: { y: { title: { display: true, text: 'ms' } } }
+  }
+});
+</script>
+</body>
+</html>

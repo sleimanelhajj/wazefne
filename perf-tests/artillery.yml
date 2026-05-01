@@ -1,0 +1,69 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 15
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 30
+      arrivalRate: 20
+      name: "Ramp up"
+    - duration: 30
+      arrivalRate: 50
+      name: "Peak load"
+    - duration: 15
+      arrivalRate: 5
+      name: "Cool down"
+  defaults:
+    headers:
+      Authorization: "Bearer {{ $processEnvironment.CLERK_TOKEN }}"
+
+scenarios:
+  - name: "Health check (no auth baseline)"
+    weight: 1
+    flow:
+      - get:
+          url: "/api/health"
+          headers:
+            Authorization: ""
+
+  - name: "Browse available providers"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/users"
+
+  - name: "List open jobs"
+    weight: 3
+    flow:
+      - get:
+          url: "/api/jobs"
+
+  - name: "My profile"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/profile/me"
+
+  - name: "My bookings"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/offers/my-bookings"
+
+  - name: "Conversations list"
+    weight: 2
+    flow:
+      - get:
+          url: "/api/messages/conversations"
+
+  - name: "My favorites"
+    weight: 1
+    flow:
+      - get:
+          url: "/api/favorites/users"
+
+  - name: "CV history"
+    weight: 1
+    flow:
+      - get:
+          url: "/api/cv/my-analyses"
