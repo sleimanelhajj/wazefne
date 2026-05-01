@@ -22,6 +22,7 @@
         [messages]="messages"
         [currentUserId]="currentUserId"
         [otherUserAvatar]="activeContact?.avatar || 'assets/icons/default-avatar.svg'"
+        [loading]="messagesLoading"
       ></app-chat-messages>
       <app-message-input
         (messageSent)="onMessageSent($event)"

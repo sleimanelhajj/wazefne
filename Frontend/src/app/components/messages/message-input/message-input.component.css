@@ -123,6 +123,26 @@
   color: #94a3b8;
 }
 
+@media (max-width: 700px) {
+  .message-input-wrapper {
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .hint {
+    display: none;
+  }
+
+  .actions-row {
+    padding-top: 6px;
+  }
+
+  .action-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
 /* --- Emoji Picker Popup --- */
 .emoji-wrapper {
   position: relative;
