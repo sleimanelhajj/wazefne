@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "staajerne": {
+    "wazefne": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -56,10 +56,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "staajerne:build:production"
+              "buildTarget": "wazefne:build:production"
             },
             "development": {
-              "buildTarget": "staajerne:build:development"
+              "buildTarget": "wazefne:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -69,8 +69,6 @@
           <span>{{ successMessage }}</span>
         </div>
       }
-      <!-- TODO: deal with built in styles -->
-      <!-- TODO: Look into the username thing and first and last name, display the username of the user instead of full name and maybe full name in small under his username or something -->
       @if (step === 'signin-identifier') {
         <form class="auth-form" (ngSubmit)="onSubmit()">
           <mat-form-field appearance="outline">
@@ -327,7 +325,7 @@
       }
 
       @if (step === 'second-factor') {
-        <form class="auth-form" (ngSubmit)="verifySecondFactor()">
+        <form class="auth-form" (ngSubmit)="verifySignInOtp()">
           <mat-form-field appearance="outline">
             <mat-label>Verification Code</mat-label>
             <input

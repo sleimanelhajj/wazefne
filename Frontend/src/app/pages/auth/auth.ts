@@ -34,7 +34,16 @@ export class AuthComponent implements OnInit {
   protected successMessage = '';
   protected showPassword = false;
 
-  // The Complete State Machine with split sign-in steps
+  // state machine: 
+  // | 'signin-identifier'   // Step 1: Enter email/username
+  // | 'signin-password'     // Step 2: Enter password
+  // | 'second-factor'       // Step 3 (optional): 2FA code
+  // | 'signup'              // Sign up form
+  // | 'forgot'              // Forgot password form
+  // | 'verify'              // Enter password reset code
+  // | 'otp'                 // Enter email login code (for Google users)
+  // | 'email-verify'        // Verify email after sign up
+  // | 'missing-fields'      // Enter username (for OAuth users)
   protected step:
     | 'signin-identifier'
     | 'signin-password'
@@ -61,11 +70,8 @@ export class AuthComponent implements OnInit {
     this.isSignUp = this.router.url.includes('sign-up');
     this.step = this.isSignUp ? 'signup' : 'signin-identifier';
 
-    // Only check for incomplete sign-up states when on the sign-up route.
-    // Skipping this on /sign-in prevents a pending Clerk sign-up session
-    // (e.g. email not yet verified) from hijacking the sign-in page.
     if (!this.isSignUp) return;
-
+    
     // If the user explicitly navigated here fresh (e.g. via toggleMode),
     // skip restoring any stale Clerk session so they get a clean form.
     if ((history.state as any)?.fresh === true) return;
@@ -124,10 +130,10 @@ export class AuthComponent implements OnInit {
       const emailCodeFactor = factors.find((f: any) => f.strategy === 'email_code');
 
       if (hasPassword) {
-        // Normal account with a password
+        // Normal account with a password, move to input password screen
         this.step = 'signin-password';
       } else if (emailCodeFactor) {
-        // OAuth account (Google) with NO password. Trigger OTP!
+        // OAuth account  with NOOO password. Trigger OTP!
         await clerk.client.signIn.prepareFirstFactor({
           strategy: 'email_code',
           emailAddressId: emailCodeFactor.emailAddressId,
@@ -179,36 +185,14 @@ export class AuthComponent implements OnInit {
     }
   }
 
-  async verifySecondFactor(): Promise<void> {
-    this.isLoading = true;
-    this.error = '';
-    try {
-      const clerk = (window as any).Clerk;
-      const result = await clerk.client.signIn.attemptSecondFactor({
-        strategy: 'email_code',
-        code: this.otpCode,
-      });
-      if (result.status === 'complete') {
-        await clerk.setActive({ session: result.createdSessionId });
-        this.router.navigate(['/browse']);
-      }
-    } catch (err: any) {
-      this.error = 'Invalid code. Please try again.';
-    } finally {
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
   async verifySignInOtp(): Promise<void> {
     this.isLoading = true;
     this.error = '';
     try {
       const clerk = (window as any).Clerk;
-      const result = await clerk.client.signIn.attemptFirstFactor({
-        strategy: 'email_code',
-        code: this.otpCode,
-      });
+      const result = this.step === 'second-factor'
+        ? await clerk.client.signIn.attemptSecondFactor({ strategy: 'email_code', code: this.otpCode })
+        : await clerk.client.signIn.attemptFirstFactor({ strategy: 'email_code', code: this.otpCode });
 
       if (result.status === 'complete') {
         await clerk.setActive({ session: result.createdSessionId });
@@ -283,6 +267,7 @@ export class AuthComponent implements OnInit {
     }
   }
 
+  // incase signup with google and missing username
   async submitMissingFields(): Promise<void> {
     if (!this.username) {
       this.error = 'Username is required.';
@@ -381,6 +366,7 @@ export class AuthComponent implements OnInit {
     }
   }
 
+  // toggle between sign in and sign up forms
   toggleMode(): void {
     this.error = '';
     this.successMessage = '';
@@ -391,15 +377,30 @@ export class AuthComponent implements OnInit {
     }
   }
 
+
   goToForgotPassword(): void {
     this.error = '';
     this.step = 'forgot';
   }
 
-  goBackToSignUp(): void {
+  async goBackToSignUp(): Promise<void> {
     this.error = '';
     this.successMessage = '';
     this.otpCode = '';
+
+    // Abandon any pending Clerk sign-up (e.g. OAuth missing username)
+    // so that clicking Google again starts a completely fresh attempt
+    // instead of resuming the stale one and falling back to Clerk's hosted UI.
+    try {
+      const clerk = (window as any).Clerk;
+      const signUp = clerk.client?.signUp;
+      if (signUp?.status === 'missing_requirements') {
+        await signUp.abandon();
+      }
+    } catch {
+      // Ignore errors on abandon
+    }
+
     this.step = 'signup';
   }
 

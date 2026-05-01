@@ -19,6 +19,12 @@ import { LOCATION_OPTIONS } from '../../../models/available-locations';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
+interface CategoryOption {
+  label: string;
+  count: number;
+  selected: boolean;
+}
+
 @Component({
   selector: 'app-side-bar',
   standalone: true,

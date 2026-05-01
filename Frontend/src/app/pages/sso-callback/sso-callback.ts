@@ -35,8 +35,10 @@ export class SsoCallbackComponent implements OnInit {
 
       await clerk.load();
 
+      // Clerk reads the URL (which contains tokens Google put there) and populates clerk.client.signIn with what it found.
       const signInAttempt = clerk.client?.signIn;
 
+      // 'transferable' is Clerk's way of saying: "Google verified this person successfully, but they don't have an account in your app yet — you need to create one for them."
       if (signInAttempt?.firstFactorVerification?.status === 'transferable') {
         const signUpAttempt = await clerk.client.signUp.create({ transfer: true });
 
