@@ -7,10 +7,7 @@
     "build": "tsc",
     "postbuild": "node -e \"const fs=require('fs');const path=require('path');fs.mkdirSync('dist/src/migrations/sql',{recursive:true});\"",
     "start": "node dist/server.js",
-    "dev": "nodemon",
-    "dev:sync": "npm run db:restore && nodemon",
-    "db:dump": "node scripts/db-dump.cjs",
-    "db:restore": "node scripts/db-restore.cjs"
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +23,6 @@
     "mammoth": "^1.12.0",
     "multer": "^2.0.2",
     "pg": "^8.18.0",
-    "socket.io": "^4.8.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },

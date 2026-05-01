@@ -213,7 +213,6 @@ export class AuthComponent implements OnInit {
         this.router.navigate(['/setup-profile']);
       } else if (result.status === 'missing_requirements') {
         await clerk.client.signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-        this.successMessage = 'Check your email for a verification code.';
         this.step = 'email-verify';
       }
     } catch (err: any) {
@@ -358,6 +357,13 @@ export class AuthComponent implements OnInit {
   goToForgotPassword(): void {
     this.error = '';
     this.step = 'forgot';
+  }
+
+  goBackToSignUp(): void {
+    this.error = '';
+    this.successMessage = '';
+    this.otpCode = '';
+    this.step = 'signup';
   }
 
   goBackToSignIn(): void {

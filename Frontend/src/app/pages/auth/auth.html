@@ -352,11 +352,16 @@
       }
 
       @if (step === 'email-verify') {
+        <div class="email-sent-banner">
+          <mat-icon>mark_email_read</mat-icon>
+          <span>Code sent to <strong>{{ email }}</strong></span>
+        </div>
+
         <form class="auth-form" (ngSubmit)="verifySignUpEmail()">
           <mat-form-field appearance="outline">
             <mat-label>Verification Code</mat-label>
-            <input matInput [(ngModel)]="otpCode" name="otpCode" required />
-            <mat-icon matPrefix>mark_email_read</mat-icon>
+            <input matInput [(ngModel)]="otpCode" name="otpCode" required autofocus />
+            <mat-icon matPrefix>pin</mat-icon>
           </mat-form-field>
           <button mat-flat-button class="submit-btn" type="submit" [disabled]="isLoading">
             @if (isLoading) {
@@ -366,6 +371,12 @@
             }
           </button>
         </form>
+
+        <div class="auth-footer">
+          <a class="toggle-link" (click)="goBackToSignUp()">
+            <mat-icon class="back-icon">arrow_back</mat-icon> Wrong email? Go back
+          </a>
+        </div>
       }
 
       @if (step === 'missing-fields') {
@@ -383,6 +394,12 @@
             }
           </button>
         </form>
+
+        <div class="auth-footer">
+          <a class="toggle-link" (click)="goBackToSignUp()">
+            <mat-icon class="back-icon">arrow_back</mat-icon> Back
+          </a>
+        </div>
       }
 
       @if (step === 'forgot') {
