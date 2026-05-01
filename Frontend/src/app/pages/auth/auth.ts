@@ -38,6 +38,7 @@ export class AuthComponent implements OnInit {
   protected step:
     | 'signin-identifier'
     | 'signin-password'
+    | 'second-factor'
     | 'signup'
     | 'forgot'
     | 'verify'
@@ -157,9 +158,34 @@ export class AuthComponent implements OnInit {
       if (result.status === 'complete') {
         await clerk.setActive({ session: result.createdSessionId });
         this.router.navigate(['/browse']);
+      } else if (result.status === 'needs_second_factor' || result.status === 'needs_client_trust') {
+        await clerk.client.signIn.prepareSecondFactor({ strategy: 'email_code' });
+        this.successMessage = 'A verification code was sent to your email.';
+        this.step = 'second-factor';
       }
     } catch (err: any) {
       this.error = err.errors?.[0]?.longMessage || 'Incorrect password.';
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async verifySecondFactor(): Promise<void> {
+    this.isLoading = true;
+    this.error = '';
+    try {
+      const clerk = (window as any).Clerk;
+      const result = await clerk.client.signIn.attemptSecondFactor({
+        strategy: 'email_code',
+        code: this.otpCode,
+      });
+      if (result.status === 'complete') {
+        await clerk.setActive({ session: result.createdSessionId });
+        this.router.navigate(['/browse']);
+      }
+    } catch (err: any) {
+      this.error = 'Invalid code. Please try again.';
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();

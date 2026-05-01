@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -10,6 +10,7 @@ import { environment } from '../../environments/environment';
 export class ChatService {
   private readonly http = inject(HttpClient);
   private readonly supabase = inject(SupabaseService);
+  private readonly ngZone = inject(NgZone);
   private readonly apiUrl = `${environment.apiUrl}/api/messages`;
 
   private channel: RealtimeChannel | null = null;
@@ -54,7 +55,6 @@ export class ChatService {
           };
 
           if (row.offer_id) {
-            // Offer data should already be in cache (offer INSERT fires before message INSERT)
             const offer = this.pendingOffers.get(row.offer_id);
             if (offer) {
               msg.offer = offer;
@@ -62,7 +62,7 @@ export class ChatService {
             }
           }
 
-          this.newMessageSubject.next(msg);
+          this.ngZone.run(() => this.newMessageSubject.next(msg));
         },
       )
       // New offers (cache them to attach to the linked message)
@@ -71,13 +71,15 @@ export class ChatService {
         { event: 'INSERT', schema: 'public', table: 'offers', filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
           const o = payload.new as any;
-          this.pendingOffers.set(o.id, {
-            id: o.id,
-            title: o.title,
-            hourly_rate: Number(o.hourly_rate),
-            status: o.status,
-            sender_id: o.sender_id,
-            recipient_id: o.recipient_id,
+          this.ngZone.run(() => {
+            this.pendingOffers.set(o.id, {
+              id: o.id,
+              title: o.title,
+              hourly_rate: Number(o.hourly_rate),
+              status: o.status,
+              sender_id: o.sender_id,
+              recipient_id: o.recipient_id,
+            });
           });
         },
       )
@@ -87,20 +89,24 @@ export class ChatService {
         { event: 'UPDATE', schema: 'public', table: 'offers', filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
           const o = payload.new as any;
-          this.offerUpdatedSubject.next({
-            offerId: o.id,
-            status: o.status,
-            conversationId: o.conversation_id,
-          });
+          this.ngZone.run(() =>
+            this.offerUpdatedSubject.next({
+              offerId: o.id,
+              status: o.status,
+              conversationId: o.conversation_id,
+            }),
+          );
         },
       )
       // Typing indicators (broadcast — no DB write)
       .on('broadcast', { event: 'typing' }, (payload) => {
         const data = payload['payload'] as { conversationId: number; userId: string };
-        this.typingSubject.next({
-          conversationId: data.conversationId,
-          userId: data.userId,
-        });
+        this.ngZone.run(() =>
+          this.typingSubject.next({
+            conversationId: data.conversationId,
+            userId: data.userId,
+          }),
+        );
       })
       .subscribe();
   }

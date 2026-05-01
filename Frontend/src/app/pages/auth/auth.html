@@ -38,6 +38,9 @@
         } @else if (step === 'verify') {
           <h2>Reset Password</h2>
           <p class="auth-subtitle">Enter the code sent to your email and choose a new password</p>
+        } @else if (step === 'second-factor') {
+          <h2>One more step</h2>
+          <p class="auth-subtitle">Check your email for a verification code to confirm it's you</p>
         } @else if (step === 'missing-fields') {
           <h2>Almost there!</h2>
           <p class="auth-subtitle">Please choose a username for your new Wazefne account.</p>
@@ -320,6 +323,35 @@
         <div class="auth-footer">
           <span>Already have an account?</span>
           <a class="toggle-link" (click)="toggleMode()">Sign In</a>
+        </div>
+      }
+
+      @if (step === 'second-factor') {
+        <form class="auth-form" (ngSubmit)="verifySecondFactor()">
+          <mat-form-field appearance="outline">
+            <mat-label>Verification Code</mat-label>
+            <input
+              matInput
+              [(ngModel)]="otpCode"
+              name="otpCode"
+              required
+              autofocus
+              placeholder="Enter the 6-digit code"
+            />
+            <mat-icon matPrefix>pin</mat-icon>
+          </mat-form-field>
+          <button mat-flat-button class="submit-btn" type="submit" [disabled]="isLoading">
+            @if (isLoading) {
+              <mat-spinner diameter="20" color="accent"></mat-spinner>
+            } @else {
+              Verify & Sign In
+            }
+          </button>
+        </form>
+        <div class="auth-footer">
+          <a class="toggle-link" (click)="goBackToSignIn()">
+            <mat-icon class="back-icon">arrow_back</mat-icon> Back
+          </a>
         </div>
       }
 
