@@ -1,15 +1,23 @@
-<app-top-bar></app-top-bar>
+<div [class.mobile-chat-hide]="!!activeConversation">
+  <app-top-bar></app-top-bar>
+</div>
 
-<div class="messages-shell">
-  <app-conversation-list
-    [conversations]="conversations"
-    [activeConversationId]="activeConversation?.id || null"
-    (conversationSelected)="onConversationSelected($event)"
-  ></app-conversation-list>
+<div class="messages-shell" [class.mobile-chat-active]="!!activeConversation">
+  <div class="conv-list-wrapper">
+    <app-conversation-list
+      [conversations]="conversations"
+      [activeConversationId]="activeConversation?.id || null"
+      (conversationSelected)="onConversationSelected($event)"
+    ></app-conversation-list>
+  </div>
 
   <div class="chat-panel">
-    <ng-container *ngIf="activeConversation; else noChat">
-      <app-chat-header [contact]="activeContact"></app-chat-header>
+    @if (activeConversation) {
+      <app-chat-header
+        [contact]="activeContact"
+        [showBack]="true"
+        (backClicked)="onBackToList()"
+      ></app-chat-header>
       <app-chat-messages
         [messages]="messages"
         [currentUserId]="currentUserId"
@@ -19,15 +27,13 @@
         (messageSent)="onMessageSent($event)"
         (createOffer)="onCreateOffer()"
       ></app-message-input>
-    </ng-container>
-
-    <ng-template #noChat>
+    } @else {
       <div class="no-chat-placeholder">
         <div class="no-chat-icon"></div>
         <h3>Select a conversation</h3>
         <p>Choose a conversation from the left to start messaging.</p>
       </div>
-    </ng-template>
+    }
   </div>
 </div>
 

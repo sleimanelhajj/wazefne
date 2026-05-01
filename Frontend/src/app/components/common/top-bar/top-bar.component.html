@@ -1,8 +1,8 @@
 <div class="top-bar">
-  <div class="left-section">
+  <a class="left-section" routerLink="/home">
     <img class="logo" src="assets/icons/wazefne.svg" alt="Wazefne" />
     <span class="logo-text">Wazefne</span>
-  </div>
+  </a>
 
   <form *ngIf="showSearch" [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-group">
     <label class="search-input">

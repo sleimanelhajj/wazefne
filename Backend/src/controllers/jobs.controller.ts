@@ -1,22 +1,6 @@
 import { Response, NextFunction } from "express";
 import pool from "../config/db";
 import { AuthRequest } from "../middleware/auth";
-import { getIO } from "../config/socket";
-
-const notifyParticipants = (
-  user1: string | number,
-  user2: string | number,
-  event: string,
-  payload: any,
-) => {
-  try {
-    const io = getIO();
-    io.to(`user:${String(user1)}`).emit(event, payload);
-    io.to(`user:${String(user2)}`).emit(event, payload);
-  } catch (err) {
-    console.error("Socket emit error (non-fatal):", err);
-  }
-};
 
 /**
  * POST /api/jobs
@@ -383,7 +367,7 @@ export const updateBidStatus = async (
       );
 
       const systemText = `Your proposal for "${bid.job_title}" was accepted. You can now coordinate here.`;
-      const msgResult = await client.query(
+      await client.query(
         `INSERT INTO messages (conversation_id, sender_id, content)
          VALUES ($1, $2, $3)
          RETURNING id, conversation_id, sender_id, content, created_at`,
@@ -395,7 +379,6 @@ export const updateBidStatus = async (
         [conversationId],
       );
 
-      notifyParticipants(userId, bid.freelancer_id, "new_message", msgResult.rows[0]);
     }
 
     await client.query("COMMIT");

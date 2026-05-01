@@ -193,6 +193,10 @@
     max-width: none;
   }
 
+  .browse-layout {
+    padding: 12px;
+  }
+
   /* Filter Floating Button */
   .mobile-filter-btn {
     display: flex;
@@ -330,12 +334,14 @@
 
 @media (max-width: 480px) {
   .results-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .sidebar-column.mobile-modal {
-    max-width: 100%; /* Full screen on small phones */
+    max-width: 100%;
   }
 }
 

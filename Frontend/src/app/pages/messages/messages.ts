@@ -245,6 +245,12 @@ export class MessagesComponent implements OnInit, OnDestroy {
       });
   }
 
+  onBackToList(): void {
+    this.activeConversation = null;
+    this.messages = [];
+    this.cdr.detectChanges();
+  }
+
   onSchedule(): void {
     console.log('Schedule clicked');
   }

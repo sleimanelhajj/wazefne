@@ -46,3 +46,39 @@
 .no-chat-placeholder p {
   font-size: 0.9rem;
 }
+
+.conv-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 700px) {
+  .mobile-chat-hide {
+    display: none;
+  }
+
+  .messages-shell {
+    flex-direction: column;
+  }
+
+  .conv-list-wrapper {
+    flex: 1;
+    width: 100%;
+  }
+
+  .mobile-chat-active .conv-list-wrapper {
+    display: none;
+  }
+
+  .chat-panel {
+    display: none;
+    width: 100%;
+    flex: 1;
+  }
+
+  .mobile-chat-active .chat-panel {
+    display: flex;
+  }
+}
