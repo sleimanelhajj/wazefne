@@ -13,7 +13,10 @@ export class ChatService {
   private readonly ngZone = inject(NgZone);
   private readonly apiUrl = `${environment.apiUrl}/api/messages`;
 
-  private channel: RealtimeChannel | null = null;
+  private activeChannel: RealtimeChannel | null = null;
+  private inboxChannel: RealtimeChannel | null = null;
+  private inboxConversationIds: number[] = [];
+  private activeConversationId: number | null = null;
 
   // Pending offers cache: offer_id → offer data (arrives before the linked message)
   private pendingOffers = new Map<number, ChatMessage['offer']>();
@@ -22,47 +25,34 @@ export class ChatService {
   private newMessageSubject = new Subject<ChatMessage>();
   onNewMessage$ = this.newMessageSubject.asObservable();
 
-  private typingSubject = new Subject<{ conversationId: number; userId: string }>();
-  onTyping$ = this.typingSubject.asObservable();
-
   private offerUpdatedSubject = new Subject<{ offerId: number; status: string; conversationId: number }>();
   onOfferUpdated$ = this.offerUpdatedSubject.asObservable();
 
   // Called once on component init — no-op now, kept for API compatibility
   connect(): void {}
 
+  subscribeToInbox(conversationIds: number[]): void {
+    this.inboxConversationIds = Array.from(
+      new Set(conversationIds.filter((id) => Number.isFinite(id))),
+    );
+    this.refreshInboxChannel();
+  }
+
   // Subscribe to real-time events for a specific conversation.
   // Call this whenever the active conversation changes.
   subscribeToConversation(conversationId: number): void {
     // Remove previous subscription first
-    this.unsubscribeAll();
+    this.unsubscribeActiveConversation();
+    this.activeConversationId = conversationId;
 
-    this.channel = this.supabase.client
+    this.activeChannel = this.supabase.client
       .channel(`conv:${conversationId}`)
       // New messages
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
-          const row = payload.new as any;
-          const msg: ChatMessage = {
-            id: row.id,
-            conversation_id: row.conversation_id,
-            sender_id: row.sender_id,
-            content: row.content,
-            created_at: row.created_at,
-            offer_id: row.offer_id ?? null,
-          };
-
-          if (row.offer_id) {
-            const offer = this.pendingOffers.get(row.offer_id);
-            if (offer) {
-              msg.offer = offer;
-              this.pendingOffers.delete(row.offer_id);
-            }
-          }
-
-          this.ngZone.run(() => this.newMessageSubject.next(msg));
+          this.emitMessage(payload.new as any, true);
         },
       )
       // New offers (cache them to attach to the linked message)
@@ -98,25 +88,84 @@ export class ChatService {
           );
         },
       )
-      // Typing indicators (broadcast — no DB write)
-      .on('broadcast', { event: 'typing' }, (payload) => {
-        const data = payload['payload'] as { conversationId: number; userId: string };
-        this.ngZone.run(() =>
-          this.typingSubject.next({
-            conversationId: data.conversationId,
-            userId: data.userId,
-          }),
-        );
-      })
       .subscribe();
+    this.refreshInboxChannel();
+  }
+
+  clearActiveConversation(): void {
+    this.unsubscribeActiveConversation();
+    this.activeConversationId = null;
+    this.refreshInboxChannel();
   }
 
   unsubscribeAll(): void {
-    if (this.channel) {
-      this.supabase.client.removeChannel(this.channel);
-      this.channel = null;
+    this.unsubscribeActiveConversation();
+    this.unsubscribeInbox();
+    this.activeConversationId = null;
+    this.inboxConversationIds = [];
+  }
+
+  private unsubscribeActiveConversation(): void {
+    if (this.activeChannel) {
+      this.supabase.client.removeChannel(this.activeChannel);
+      this.activeChannel = null;
     }
     this.pendingOffers.clear();
+  }
+
+  private unsubscribeInbox(): void {
+    if (this.inboxChannel) {
+      this.supabase.client.removeChannel(this.inboxChannel);
+      this.inboxChannel = null;
+    }
+  }
+
+  private refreshInboxChannel(): void {
+    this.unsubscribeInbox();
+
+    const conversationIds = this.inboxConversationIds.filter(
+      (id) => id !== this.activeConversationId,
+    );
+    if (conversationIds.length === 0) return;
+
+    let channel = this.supabase.client.channel(`messages-inbox:${Date.now()}`);
+    conversationIds.forEach((conversationId) => {
+      channel = channel.on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          this.emitMessage(payload.new as any);
+        },
+      );
+    });
+
+    this.inboxChannel = channel.subscribe();
+  }
+
+  private emitMessage(row: any, attachPendingOffer = false): void {
+    const msg: ChatMessage = {
+      id: row.id,
+      conversation_id: row.conversation_id,
+      sender_id: row.sender_id,
+      content: row.content,
+      created_at: row.created_at,
+      offer_id: row.offer_id ?? null,
+    };
+
+    if (attachPendingOffer && row.offer_id) {
+      const offer = this.pendingOffers.get(row.offer_id);
+      if (offer) {
+        msg.offer = offer;
+        this.pendingOffers.delete(row.offer_id);
+      }
+    }
+
+    this.ngZone.run(() => this.newMessageSubject.next(msg));
   }
 
   disconnect(): void {
@@ -129,15 +178,6 @@ export class ChatService {
       `${this.apiUrl}/conversations/${conversationId}/messages`,
       { content },
     );
-  }
-
-  // Typing indicator via Supabase broadcast (no DB write needed)
-  emitTyping(conversationId: number, userId: string): void {
-    this.channel?.send({
-      type: 'broadcast',
-      event: 'typing',
-      payload: { conversationId, userId },
-    });
   }
 
   getConversations(): Observable<{ success: boolean; conversations: Conversation[] }> {

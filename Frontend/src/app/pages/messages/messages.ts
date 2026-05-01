@@ -135,6 +135,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
       next: (res) => {
         console.log('Conversations loaded:', res);
         this.conversations = res.conversations;
+        this.chatService.subscribeToInbox(this.conversations.map((c) => c.id));
         this.loading = false;
 
         // Auto-select conversation from query param (deep-link from bookings)
@@ -281,6 +282,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   onBackToList(): void {
     this.activeConversation = null;
     this.messages = [];
+    this.chatService.clearActiveConversation();
     this.cdr.detectChanges();
   }
 
