@@ -58,7 +58,13 @@
 
 @media (max-width: 700px) {
   :host {
-    height: 100dvh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: auto;
+    overscroll-behavior: none;
   }
 
   .mobile-chat-hide {

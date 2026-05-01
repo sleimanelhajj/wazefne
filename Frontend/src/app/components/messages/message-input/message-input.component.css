@@ -1,5 +1,7 @@
 :host {
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .message-input-wrapper {
