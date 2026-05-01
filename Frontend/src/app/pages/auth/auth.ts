@@ -239,7 +239,6 @@ export class AuthComponent implements OnInit {
         result.status === 'missing_requirements' &&
         result.missingFields.includes('username')
       ) {
-        this.successMessage = 'Email verified!';
         this.step = 'missing-fields';
       }
     } catch (err: any) {

@@ -71,7 +71,6 @@
       </div>
 
       <div class="empty-state" *ngIf="!loading && jobs.length === 0">
-        <img src="assets/icons/empty.svg" alt="No Jobs" />
         <h3>No jobs found</h3>
         <p>Check back later or try adjusting your filters.</p>
       </div>
@@ -89,7 +88,6 @@
     </div>
 
     <div class="empty-state" *ngIf="!loadingMyJobs && myPostedJobs.length === 0">
-      <img src="assets/icons/empty.svg" alt="No Posted Jobs" />
       <h3>No posted jobs yet</h3>
       <p>Post a job to start receiving offers from freelancers.</p>
       <button class="secondary-btn" (click)="openPostModal()">Post Your First Job</button>
