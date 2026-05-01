@@ -425,9 +425,12 @@ export class AuthComponent implements OnInit {
     this.error = '';
     try {
       const clerk = (window as any).Clerk;
-      const action = this.step === 'signup' ? clerk.client.signUp : clerk.client.signIn;
 
-      await action.authenticateWithRedirect({
+      // Always use signIn for OAuth — never signUp.
+      // If the user is new, the SSO callback's transfer flow creates a fresh
+      // sign-up via signUp.create({ transfer: true }), which avoids reusing
+      // any stale signUp object that is stuck in missing_requirements.
+      await clerk.client.signIn.authenticateWithRedirect({
         strategy,
         redirectUrl: `${environment.frontendUrl}/sso-callback`,
         redirectUrlComplete: this.step === 'signup' ? '/setup-profile' : '/browse',
