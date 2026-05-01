@@ -1,5 +1,43 @@
-<app-top-bar [showSearch]="false"></app-top-bar>
-<app-home-hero></app-home-hero>
-<app-home-categories></app-home-categories>
-<app-home-process></app-home-process>
-<app-home-cta-footer></app-home-cta-footer>
+<!-- Mobile splash (shown only on small screens) -->
+<div class="mobile-splash">
+  <div class="mobile-splash__bg"></div>
+  <div class="mobile-splash__content">
+    <div class="mobile-splash__logo">
+      <img src="assets/logo/logo.png" alt="Sta2jerne" />
+    </div>
+
+    <div class="mobile-splash__text">
+      <h1>Find the perfect help,<br />right when you need it.</h1>
+      <p>Connect with trusted freelancers and professionals across Lebanon.</p>
+    </div>
+
+    @if (isLoggedIn) {
+      <div class="mobile-splash__actions">
+        <button class="mobile-btn mobile-btn--primary" (click)="goToBrowse()">
+          Browse Services
+        </button>
+      </div>
+    } @else {
+      <div class="mobile-splash__actions">
+        <button class="mobile-btn mobile-btn--primary" (click)="goToSignIn()">Sign In</button>
+        <button class="mobile-btn mobile-btn--secondary" (click)="goToSignUp()">
+          Create Account
+        </button>
+      </div>
+    }
+
+    <p class="mobile-splash__trust">
+      <span class="trust-dot"></span>
+      Trusted by 10,000+ Lebanese households
+    </p>
+  </div>
+</div>
+
+<!-- Desktop layout (hidden on mobile) -->
+<div class="desktop-layout">
+  <app-top-bar [showSearch]="false"></app-top-bar>
+  <app-home-hero></app-home-hero>
+  <app-home-categories></app-home-categories>
+  <app-home-process></app-home-process>
+  <app-home-cta-footer></app-home-cta-footer>
+</div>

@@ -35,3 +35,10 @@
   gap: 16px;
   padding: 4px 0;
 }
+
+@media (max-width: 480px) {
+  .favorites-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
