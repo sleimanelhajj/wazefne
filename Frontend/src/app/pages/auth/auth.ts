@@ -61,6 +61,11 @@ export class AuthComponent implements OnInit {
     this.isSignUp = this.router.url.includes('sign-up');
     this.step = this.isSignUp ? 'signup' : 'signin-identifier';
 
+    // Only check for incomplete sign-up states when on the sign-up route.
+    // Skipping this on /sign-in prevents a pending Clerk sign-up session
+    // (e.g. email not yet verified) from hijacking the sign-in page.
+    if (!this.isSignUp) return;
+
     // CHECK FOR INCOMPLETE STATES (Like missing usernames from Google OAuth)
     try {
       const clerk = (window as any).Clerk;
@@ -68,7 +73,6 @@ export class AuthComponent implements OnInit {
       const signUp = clerk.client?.signUp;
 
       if (signUp && signUp.status === 'missing_requirements') {
-        this.isSignUp = true;
         if (signUp.missingFields.includes('username')) {
           this.step = 'missing-fields';
         } else if (signUp.unverifiedFields.includes('email_address')) {
