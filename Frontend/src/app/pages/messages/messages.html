@@ -7,6 +7,7 @@
     <app-conversation-list
       [conversations]="conversations"
       [activeConversationId]="activeConversation?.id || null"
+      [loading]="loading"
       (conversationSelected)="onConversationSelected($event)"
     ></app-conversation-list>
   </div>

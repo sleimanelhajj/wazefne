@@ -2,7 +2,11 @@
   <h2 class="list-title">Messages</h2>
 
   <div class="conversations">
-    <div class="empty-state" *ngIf="filteredConversations.length === 0">
+    <div class="conv-spinner" *ngIf="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && filteredConversations.length === 0">
       <div class="empty-icon-wrapper">
         <svg
           width="48"
