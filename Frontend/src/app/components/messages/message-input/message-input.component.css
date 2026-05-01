@@ -131,6 +131,11 @@
     padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
 
+  /* Prevent iOS auto-zoom on input focus (requires font-size >= 16px) */
+  .msg-input {
+    font-size: 16px;
+  }
+
   .hint {
     display: none;
   }
