@@ -9,7 +9,7 @@ export class FilterService {
   private filterSubject = new BehaviorSubject<FilterCriteria>({
     categories: [],
     priceMin: 0,
-    priceMax: 120,
+    priceMax: Number.MAX_SAFE_INTEGER,
     minRating: 0,
     location: 'all',
     searchQuery: '',

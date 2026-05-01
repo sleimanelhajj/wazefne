@@ -37,10 +37,11 @@ export class SideBarComponent implements OnInit, OnChanges, OnDestroy {
   selectedCategory: string = '';
 
   readonly priceFloor = 0;
-  readonly priceCeiling = 120;
+  readonly minimumPriceCeiling = 120;
+  priceCeiling = this.minimumPriceCeiling;
   selectedRating = 0;
   priceMin = 0;
-  priceMax = 120;
+  priceMax = this.priceCeiling;
   availabilityToday = false;
 
   // Location filter
@@ -59,6 +60,7 @@ export class SideBarComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['users']) {
+      this.syncPriceCeiling();
       this.buildCategories();
     }
   }
@@ -103,6 +105,22 @@ export class SideBarComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.emitFilters();
+  }
+
+  private syncPriceCeiling(): void {
+    const previousCeiling = this.priceCeiling;
+    const highestHourlyRate = this.users.reduce((max, user) => {
+      const hourlyRate = Number(user.hourlyRate) || 0;
+      return Math.max(max, hourlyRate);
+    }, this.minimumPriceCeiling);
+
+    this.priceCeiling = Math.ceil(highestHourlyRate);
+
+    if (this.priceMax === previousCeiling || this.priceMax > this.priceCeiling) {
+      this.priceMax = this.priceCeiling;
+    }
+
+    this.priceMin = Math.min(this.priceMin, this.priceCeiling);
   }
 
   selectCategory(category: string): void {
