@@ -66,6 +66,10 @@ export class AuthComponent implements OnInit {
     // (e.g. email not yet verified) from hijacking the sign-in page.
     if (!this.isSignUp) return;
 
+    // If the user explicitly navigated here fresh (e.g. via toggleMode),
+    // skip restoring any stale Clerk session so they get a clean form.
+    if ((history.state as any)?.fresh === true) return;
+
     // CHECK FOR INCOMPLETE STATES (Like missing usernames from Google OAuth)
     try {
       const clerk = (window as any).Clerk;
@@ -380,7 +384,11 @@ export class AuthComponent implements OnInit {
   toggleMode(): void {
     this.error = '';
     this.successMessage = '';
-    this.router.navigate([this.isSignUp ? '/sign-in' : '/sign-up']);
+    if (this.isSignUp) {
+      this.router.navigate(['/sign-in']);
+    } else {
+      this.router.navigate(['/sign-up'], { state: { fresh: true } });
+    }
   }
 
   goToForgotPassword(): void {
