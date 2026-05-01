@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TopBarComponent } from '../../components/common/top-bar/top-bar.component';
@@ -36,7 +36,16 @@ export class MessagesComponent implements OnInit, OnDestroy {
   private readonly profileService = inject(ProfileService);
   private readonly route = inject(ActivatedRoute);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly el = inject(ElementRef);
   private subscriptions: Subscription[] = [];
+
+  private readonly onViewportResize = () => {
+    const vv = (window as any).visualViewport;
+    if (!vv) return;
+    const host = this.el.nativeElement as HTMLElement;
+    host.style.height = vv.height + 'px';
+    host.style.top = vv.offsetTop + 'px';
+  };
 
   conversations: Conversation[] = [];
   activeConversation: Conversation | null = null;
@@ -54,6 +63,13 @@ export class MessagesComponent implements OnInit, OnDestroy {
   recipientHourlyRate = 0;
 
   ngOnInit(): void {
+    // Resize component to visual viewport so keyboard doesn't overlap on iOS
+    const vv = (window as any).visualViewport;
+    if (vv) {
+      vv.addEventListener('resize', this.onViewportResize);
+      vv.addEventListener('scroll', this.onViewportResize);
+    }
+
     // Connect (no-op with Supabase, kept for API compatibility)
     this.chatService.connect();
 
@@ -106,6 +122,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach((s) => s.unsubscribe());
     this.chatService.disconnect();
+    const vv = (window as any).visualViewport;
+    if (vv) {
+      vv.removeEventListener('resize', this.onViewportResize);
+      vv.removeEventListener('scroll', this.onViewportResize);
+    }
   }
 
   loadConversations(): void {
