@@ -35,7 +35,7 @@ export class JobsComponent implements OnInit {
   myPostedJobs: Job[] = [];
   loading = true;
   loadingMyJobs = false;
-  userType = 'client'; // To be dynamically pulled from Auth service eventually
+  userType = 'client'; 
   showPostModal = false;
   showBidModal = false;
   selectedJobId: number | null = null;
